@@ -44,7 +44,7 @@ class D {
 			// Create password
 			$md5Password = password_hash(md5($_POST['p1']), PASSWORD_DEFAULT);
 			// Put some data into the db
-			$GLOBALS['db']->execute("INSERT INTO `users`(username, password_md5, salt, email, register_datetime, rank, allowed, password_version) 
+			$GLOBALS['db']->execute("INSERT INTO `users`(username, password_md5, salt, email, register_datetime, rank, allowed, password_version)
 			                                     VALUES (?,        ?,            '',    ?,     ?,                 1,   1,       2);", [$_POST['u'], $md5Password, $_POST['e'], time(true)]);
 			// Get user ID
 			$uid = $GLOBALS['db']->lastInsertId();
@@ -759,7 +759,7 @@ class D {
 				throw new Exception('Invalid request');
 			}
 			// Get user id
-			$avatar = dirname(dirname(dirname(__FILE__))).'/a.ppy.sh/avatars/'.$_GET['id'].'.png';
+			$avatar = dirname(dirname(dirname(__FILE__))).'/avatarserver/avatars/'.$_GET['id'].'.png';
 			if (!file_exists($avatar)) {
 				throw new Exception("That user doesn't have an avatar");
 			}
@@ -904,11 +904,11 @@ class D {
 				throw new Exception(3);
 			}
 			// Resize
-			if (!smart_resize_image($_FILES['file']['tmp_name'], null, 100, 100, false, dirname(dirname(dirname(__FILE__))).'/a.ppy.sh/avatars/'.getUserID($_SESSION['username']).'.png', false, false, 100)) {
+			if (!smart_resize_image($_FILES['file']['tmp_name'], null, 100, 100, false, dirname(dirname(dirname(__FILE__))).'/avatarserver/avatars/'.getUserID($_SESSION['username']).'.png', false, false, 100)) {
 				throw new Exception(4);
 			}
 			/* "Convert" to png
-												if (!move_uploaded_file($_FILES["file"]["tmp_name"], dirname(dirname(dirname(__FILE__)))."/a.ppy.sh/avatars/".getUserID($_SESSION["username"]).".png")) {
+												if (!move_uploaded_file($_FILES["file"]["tmp_name"], dirname(dirname(dirname(__FILE__)))."/avatarserver/avatars/".getUserID($_SESSION["username"]).".png")) {
 												    throw new Exception(4);
 												}*/
 			// Done, redirect to success page
