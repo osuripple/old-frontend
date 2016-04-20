@@ -1,0 +1,6 @@
+vendor
+inc/config.php
+ss/*.jpg
+web/*.txt
+replays/*.osr
+replays_full/*.osr
