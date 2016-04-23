@@ -1879,7 +1879,7 @@ function getChangelog() {
 function getChangelogPage($p = 1) {
 	global $ChangelogConfig;
 	// Retrieve data from changelog.json
-	$data = explode("\n", file_get_contents(dirname(__FILE__).'/../../ci-system/changelog.txt'));
+	$data = explode("\n", file_get_contents(dirname(__FILE__).'/../../ci-system/ci-system/changelog.txt'));
 	$ret = [];
 	// Check there are enough commits for the current page.
 	$initoffset = ($p - 1) * 50;
