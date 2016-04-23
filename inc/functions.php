@@ -1847,7 +1847,7 @@ function getChangelog() {
 	sessionCheck();
 	echo '<p align="center"><h1><i class="fa fa-code"></i>	Changelog</h1>';
 	echo 'Welcome to the changelog page.<br>Here changes are posted real-time as they are pushed to the website.<br>Hover a change to know when it was done.<br><br>';
-	if (!file_exists(dirname(__FILE__).'/../../ci-system/changelog.txt')) {
+	if (!file_exists(dirname(__FILE__).'/../../ci-system/ci-system/changelog.txt')) {
 		echo '<b>Unfortunately, no changelog for this Ripple instance is available. Slap the sysadmin off telling him to configure it.</b>';
 	} else {
 		$_GET['page'] = (isset($_GET['page']) && $_GET['page'] > 0 ? intval($_GET['page']) : 1);
