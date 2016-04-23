@@ -1434,7 +1434,10 @@ class P {
 				$userStyle = current($GLOBALS['db']->fetch('SELECT user_style FROM users_stats WHERE id = ?', $u));
 			}
 			// Get top/recent plays for this mode
-			$topPlays = $GLOBALS['db']->fetchAll('SELECT * FROM scores WHERE username = ? AND completed = 3 AND play_mode = ? ORDER BY ? DESC LIMIT 20', [$username, $m, $ScoresConfig["enablePP"] ? "pp" : "score"]);
+			if ($ScoresConfig["enablePP"])
+				$topPlays = $GLOBALS['db']->fetchAll('SELECT * FROM scores WHERE username = ? AND completed = 3 AND play_mode = ? ORDER BY pp DESC LIMIT 20', [$username, $m]);
+			else
+				$topPlays = $GLOBALS['db']->fetchAll('SELECT * FROM scores WHERE username = ? AND completed = 3 AND play_mode = ? ORDER BY score DESC LIMIT 20', [$username, $m]);
 			$recentPlays = $GLOBALS['db']->fetchAll('SELECT * FROM scores WHERE username = ? AND completed = 3 AND play_mode = ? ORDER BY time DESC LIMIT 10', [$username, $m]);
 			// Get all allowed users on Ripple
 			$allowedUsers = getAllowedUsers('id');
