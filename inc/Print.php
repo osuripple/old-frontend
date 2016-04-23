@@ -1439,8 +1439,6 @@ class P {
 			else
 				$topPlays = $GLOBALS['db']->fetchAll('SELECT * FROM scores WHERE username = ? AND completed = 3 AND play_mode = ? ORDER BY score DESC LIMIT 20', [$username, $m]);
 			$recentPlays = $GLOBALS['db']->fetchAll('SELECT * FROM scores WHERE username = ? AND completed = 3 AND play_mode = ? ORDER BY time DESC LIMIT 10', [$username, $m]);
-			// Get all allowed users on Ripple
-			$allowedUsers = getAllowedUsers('id');
 			// Bold selected mode text.
 			$modesText[$m] = '<b>'.$modesText[$m].'</b>';
 			// Get userpage
