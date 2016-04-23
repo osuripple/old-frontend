@@ -1373,7 +1373,7 @@ class P {
 	 * @param (int) ($m) Playmode.
 	*/
 	public static function UserPage($u, $m = -1) {
-		global $enablePP;
+		global $ScoresConfig;
 
 		// Maintenance check
 		self::MaintenanceStuff();
@@ -1434,7 +1434,7 @@ class P {
 				$userStyle = current($GLOBALS['db']->fetch('SELECT user_style FROM users_stats WHERE id = ?', $u));
 			}
 			// Get top/recent plays for this mode
-			$topPlays = $GLOBALS['db']->fetchAll('SELECT * FROM scores WHERE username = ? AND completed = 3 AND play_mode = ? ORDER BY pp DESC LIMIT 20', [$username, $m]);
+			$topPlays = $GLOBALS['db']->fetchAll('SELECT * FROM scores WHERE username = ? AND completed = 3 AND play_mode = ? ORDER BY ? DESC LIMIT 20', [$username, $m, $ScoresConfig["enablePP"] ? "pp" : "score"]);
 			$recentPlays = $GLOBALS['db']->fetchAll('SELECT * FROM scores WHERE username = ? AND completed = 3 AND play_mode = ? ORDER BY time DESC LIMIT 10', [$username, $m]);
 			// Get all allowed users on Ripple
 			$allowedUsers = getAllowedUsers('id');
@@ -1528,7 +1528,7 @@ class P {
 				echo '<br><a href="index.php?p=103&id='.$u.'">Edit user</a> | <a onclick="sure(\'submit.php?action=banUnbanUser&id='.$u.'\')";>Ban user</a> | <a href="index.php?p=110&id='.$u.'">Edit badges</a></p>';
 			}
 			echo '<div id="rank"><font size=5><b> '.$rankSymbol.$rank.'</b></font><br>';
-			if ($enablePP) echo '<b>' . $pp . ' pp</b>';
+			if ($ScoresConfig["enablePP"]) echo '<b>' . $pp . ' pp</b>';
 			echo '</div><br>';
 			echo $friendButton;
 			echo '</div>';
@@ -1617,7 +1617,7 @@ class P {
 				echo '<tr><td id="stats-name">Play style</td><td id="stats-value"><b>'.BwToString($userData['play_style'], $PlayStyleEnum).'</b></td></tr>';
 			}
 
-			if ($enablePP)
+			if ($ScoresConfig["enablePP"])
 				$scoringName = "PP";
 			else
 				$scoringName = "Score";
@@ -1632,13 +1632,16 @@ class P {
 				<tr><th class="text-left"><i class="fa fa-trophy"></i>	Top plays</th><th class="text-right">' . $scoringName . '</th></tr>';
 				for ($i = 0; $i < count($topPlays); $i++) {
 					// Get beatmap name from md5 (beatmaps_names) for this play
-					$bn = $GLOBALS['db']->fetch('SELECT song_name FROM beatmaps WHERE beatmap_md5 = ?', $topPlays[$i]['beatmap_md5']);
+					if ($ScoresConfig["useNewBeatmapsTable"])
+						$bn = $GLOBALS['db']->fetch('SELECT song_name FROM beatmaps WHERE beatmap_md5 = ?', array($topPlays[$i]['beatmap_md5']));
+					else
+						$bn = $GLOBALS['db']->fetch('SELECT beatmap_name FROM beatmaps_names WHERE beatmap_md5 = ?', array($topPlays[$i]['beatmap_md5']));
 					$rankImage = getRank($topPlays[$i]["play_mode"], $topPlays[$i]["mods"], $topPlays[$i]["accuracy"], $topPlays[$i]["300_count"], $topPlays[$i]["100_count"], $topPlays[$i]["50_count"], $topPlays[$i]["misses_count"]);
 					if ($bn) {
 						// Beatmap name found, print beatmap name and score
 						echo '<tr>';
 						echo '<td class="warning"><p class="text-left"><img src="images/ranks/' . $rankImage . '.png"></img>	'.current($bn).' <b>'.getScoreMods($topPlays[$i]['mods']).'</b> (' . accuracy($topPlays[$i]['accuracy']) . '%)<br><small>'.timeDifference(time(), osuDateToUNIXTimestamp($topPlays[$i]['time'])).'</small>'.'</b></p></td>';
-						if ($enablePP) {
+						if ($ScoresConfig["enablePP"]) {
 							$perc = pow(0.95, $i);
 							$wpp = $topPlays[$i]['pp'] * $perc;
 							$scoreText = number_format($topPlays[$i]['pp']) . " pp";
@@ -1661,7 +1664,10 @@ class P {
 				<tr><th class="text-left"><i class="fa fa-clock-o"></i>	Recent plays</th><th class="text-right">Score</th></tr>';
 				for ($i = 0; $i < count($recentPlays); $i++) {
 					// Get beatmap name from md5 (beatmaps_names) for this play
-					$bn = $GLOBALS['db']->fetch('SELECT song_name FROM beatmaps WHERE beatmap_md5 = ?', $recentPlays[$i]['beatmap_md5']);
+					if ($ScoresConfig["useNewBeatmapsTable"])
+						$bn = $GLOBALS['db']->fetch('SELECT song_name FROM beatmaps WHERE beatmap_md5 = ?', array($recentPlays[$i]['beatmap_md5']));
+					else
+						$bn = $GLOBALS['db']->fetch('SELECT beatmap_name FROM beatmaps_names WHERE beatmap_md5 = ?', array($recentPlays[$i]['beatmap_md5']));
 					if ($bn) {
 						// Beatmap name found, print beatmap name and score
 						echo '<tr>';

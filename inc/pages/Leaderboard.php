@@ -7,7 +7,7 @@ class Leaderboard {
 	const LoggedIn = true;
 
 	public function P() {
-		global $enablePP;
+		global $ScoresConfig;
 
 		// Leaderboard names (to bold the selected mode)
 		$modesText = [0 => 'osu!standard', 1 => 'Taiko', 2 => 'Catch the Beat', 3 => 'osu!mania'];
@@ -25,7 +25,7 @@ class Leaderboard {
 		// Bold the selected mode
 		$modesText[$m] = '<b>'.$modesText[$m].'</b>';
 		// PP or Score ranking
-		if  ($enablePP)
+		if  ($ScoresConfig["enablePP"])
 			$scoringName = "PP";
 		else
 			$scoringName = "Score";
@@ -67,7 +67,7 @@ class Leaderboard {
 					$rankSymbol = '#';
 				}
 				// Show PP or score
-				if ($enablePP)
+				if ($ScoresConfig["enablePP"])
 					$score = $lbUser['pp_'.$modeForDB] . ' pp';
 				else
 					$score = number_format($lbUser['ranked_score_'.$modeForDB]);
