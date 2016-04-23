@@ -1374,22 +1374,29 @@ class P {
 	*/
 	public static function UserPage($u, $m = -1) {
 		global $ScoresConfig;
+		global $PlayStyleEnum;
 
 		// Maintenance check
 		self::MaintenanceStuff();
 		// Global alert
 		self::GlobalAlert();
 		try {
-			// Check if the user is in db
-			if (!$GLOBALS['db']->fetch('SELECT id FROM users WHERE id = ?', $u)) {
+			// Check banned status
+			$userData = $GLOBALS['db']->fetch('
+SELECT
+	users_stats.*, users.allowed, users.latest_activity,
+	users.silence_end, users.silence_reason
+FROM users_stats
+LEFT JOIN users ON users.id=users_stats.id
+WHERE users_stats.id = ?', [$u]);
+			// Check if users exists
+			if (!$userData) {
 				throw new Exception('User not found');
 			}
-			// globals
-			global $PlayStyleEnum;
-			// Check banned status
-			$allowed = current($GLOBALS['db']->fetch('SELECT allowed FROM users WHERE id = ?', [$u]));
+
 			// Throw exception if user is banned/not activated
 			// print message if we are admin
+			$allowed = $userData["allowed"];
 			if ($allowed == 0) {
 				if (getUserRank($_SESSION['username']) <= 2) {
 					throw new Exception('User banned');
@@ -1398,8 +1405,7 @@ class P {
 				}
 			}
 			// Get all user stats for all modes and username
-			$userData = $GLOBALS['db']->fetch('SELECT * FROM users_stats WHERE id = ?', $u);
-			$username = current($GLOBALS['db']->fetch('SELECT username FROM users WHERE id = ?', $u));
+			$username = $userData["username"];
 			// Set default modes texts, selected is bolded below
 			$modesText = [0 => 'osu!standard', 1 => 'Taiko', 2 => 'Catch the Beat', 3 => 'osu!mania'];
 			// Get stats for selected mode
@@ -1418,33 +1424,43 @@ class P {
 			$showCountry = $userData['show_country'];
 			$usernameAka = $userData['username_aka'];
 			$level = $userData['level_'.$modeForDB] - 1;
-			$latestActivity = current($GLOBALS['db']->fetch('SELECT latest_activity FROM users WHERE username = ?', $username));
-			$silenceEndTime = current($GLOBALS['db']->fetch('SELECT silence_end FROM users WHERE username = ?', $username));
-			$silenceReason = current($GLOBALS['db']->fetch('SELECT silence_reason FROM users WHERE username = ?', $username));
+			$latestActivity = $userData['latest_activity'];
+			$silenceEndTime = $userData['silence_end'];
+			$silenceReason = $userData['silence_reason'];
+			// Make sure that we have at least one score to calculate maximum combo, otherwise maximum combo is 0
 			$maximumCombo = $GLOBALS['db']->fetch('SELECT max_combo FROM scores WHERE username = ? AND play_mode = ? ORDER BY max_combo DESC LIMIT 1', [$username, $m]);
 			if ($maximumCombo) {
 				$maximumCombo = current($maximumCombo);
 			} else {
 				$maximumCombo = 0;
-			} // Make sure that we have at least one score to calculate maximum combo, otherwise maximum combo is 0
+			}
 			// Get username style (for random funny stuff lmao)
 			if ($silenceEndTime - time() > 0) {
 				$userStyle = 'text-decoration: line-through;';
 			} else {
-				$userStyle = current($GLOBALS['db']->fetch('SELECT user_style FROM users_stats WHERE id = ?', $u));
+				$userStyle = $userData["user_style"];
 			}
 			// Get top/recent plays for this mode
-			if ($ScoresConfig["enablePP"])
-				$topPlays = $GLOBALS['db']->fetchAll('SELECT * FROM scores WHERE username = ? AND completed = 3 AND play_mode = ? ORDER BY pp DESC LIMIT 20', [$username, $m]);
-			else
-				$topPlays = $GLOBALS['db']->fetchAll('SELECT * FROM scores WHERE username = ? AND completed = 3 AND play_mode = ? ORDER BY score DESC LIMIT 20', [$username, $m]);
-			$recentPlays = $GLOBALS['db']->fetchAll('SELECT * FROM scores WHERE username = ? AND completed = 3 AND play_mode = ? ORDER BY time DESC LIMIT 10', [$username, $m]);
+			$beatmapsTable = ($ScoresConfig["useNewBeatmapsTable"] ? "beatmaps" : "beatmaps_names" );
+			$beatmapsField = ($ScoresConfig["useNewBeatmapsTable"] ? "song_name" : "beatmap_name" );			
+			$orderBy = ($ScoresConfig["enablePP"] ? "pp" : "score" );
+			$topPlays = $GLOBALS['db']->fetchAll("
+				SELECT *, $beatmapsTable.$beatmapsField FROM scores
+				LEFT JOIN $beatmapsTable ON $beatmapsTable.beatmap_md5 = scores.beatmap_md5
+				WHERE username = ? AND completed = 3 AND play_mode = ?
+				ORDER BY $orderBy DESC LIMIT 20", [$username, $m]);
+			$recentPlays = $GLOBALS['db']->fetchAll("
+				SELECT *, $beatmapsTable.$beatmapsField FROM scores
+				LEFT JOIN $beatmapsTable ON $beatmapsTable.beatmap_md5 = scores.beatmap_md5
+				WHERE username = ? AND completed = 3 AND play_mode = ?
+				ORDER BY time DESC LIMIT 10",
+				[$username, $m]);
 			// Bold selected mode text.
 			$modesText[$m] = '<b>'.$modesText[$m].'</b>';
 			// Get userpage
 			$userpageContent = $userData['userpage_content'];
 			// Friend button
-			if (!checkLoggedIn() || $u == getUserID($_SESSION['username'])) {
+			if (!checkLoggedIn() || $username == $_SESSION['username']) {
 				$friendButton = '';
 			} else {
 				$friendship = getFriendship($_SESSION['username'], $username);
@@ -1470,33 +1486,33 @@ class P {
 				$rankSymbol = '#';
 			}
 			// Get badges id and icon (max 6 badges)
+			$allBadges = $GLOBALS['db']->fetchAll('SELECT id, icon, name FROM badges');
 			$badgeID = explode(',', $userData['badges_shown']);
 			for ($i = 0; $i < count($badgeID); $i++) {
-				$badgeIcon[$i] = $GLOBALS['db']->fetch('SELECT icon FROM badges WHERE id = ?', $badgeID[$i]);
-				$badgeName[$i] = $GLOBALS['db']->fetch('SELECT name FROM badges WHERE id = ?', $badgeID[$i]);
-				if ($badgeIcon[$i]) {
-					$badgeIcon[$i] = current($badgeIcon[$i]);
-				} else {
+				foreach ($allBadges as $singleBadge) {
+					if ($singleBadge['id'] == $badgeID[$i]) {
+						$badgeIcon[$i] = $singleBadge['icon'];
+						$badgeName[$i] = $singleBadge['name'];
+					}
+				}
+				if (empty($badgeIcon[$i])) {
 					$badgeIcon[$i] = 0;
 				}
-				if ($badgeName[$i]) {
-					$badgeName[$i] = current($badgeName[$i]);
-				} else {
-					$badgeName[$i] = '';
+				if (empty($badgeName[$i])) {
+					$badgeIcon[$i] = '';
 				}
 			}
 			// Userpage custom stuff
 			if (strlen($userpageContent) > 0) {
 				// BB Code parser
 				require_once 'bbcode.php';
-				// Collapse type (if < 350 chars, userpage will be shown)
-				if (strlen($userpageContent) <= 350) {
+				// Collapse type (if < 500 chars, userpage will be shown)
+				if (strlen($userpageContent) <= 500) {
 					$ct = 'in';
 				} else {
 					$ct = 'out';
 				}
 				// Print userpage content
-				//echo('<div class="panel panel-default"><div class="panel-body">'.$bbcode->toHTML($userpageContent, true).'</div></div>');
 				echo '<div class="spoiler">
 						<div class="panel panel-default">
 							<div class="panel-heading">
@@ -1512,7 +1528,6 @@ class P {
 					</div>';
 			}
 			// Userpage header
-			// 1.5 -- Add quick admin commands
 			echo '<div id="userpage-header">
 			<!-- Avatar, username and rank -->
 			<p><img id="user-avatar" src="'.URL::Avatar().'/'.$u.'" height="100" width="100" /></p>
@@ -1633,15 +1648,12 @@ class P {
 				<tr><th class="text-left"><i class="fa fa-trophy"></i>	Top plays</th><th class="text-right">' . $scoringName . '</th></tr>';
 				for ($i = 0; $i < count($topPlays); $i++) {
 					// Get beatmap name from md5 (beatmaps_names) for this play
-					if ($ScoresConfig["useNewBeatmapsTable"])
-						$bn = $GLOBALS['db']->fetch('SELECT song_name FROM beatmaps WHERE beatmap_md5 = ?', array($topPlays[$i]['beatmap_md5']));
-					else
-						$bn = $GLOBALS['db']->fetch('SELECT beatmap_name FROM beatmaps_names WHERE beatmap_md5 = ?', array($topPlays[$i]['beatmap_md5']));
+					$bn = $topPlays[$i][$beatmapsField];
 					$rankImage = getRank($topPlays[$i]["play_mode"], $topPlays[$i]["mods"], $topPlays[$i]["accuracy"], $topPlays[$i]["300_count"], $topPlays[$i]["100_count"], $topPlays[$i]["50_count"], $topPlays[$i]["misses_count"]);
 					if ($bn) {
 						// Beatmap name found, print beatmap name and score
 						echo '<tr>';
-						echo '<td class="warning"><p class="text-left"><img src="images/ranks/' . $rankImage . '.png"></img>	'.current($bn).' <b>'.getScoreMods($topPlays[$i]['mods']).'</b> (' . accuracy($topPlays[$i]['accuracy']) . '%)<br><small>'.timeDifference(time(), osuDateToUNIXTimestamp($topPlays[$i]['time'])).'</small>'.'</b></p></td>';
+						echo '<td class="warning"><p class="text-left"><img src="images/ranks/' . $rankImage . '.png"></img>	'.$bn.' <b>'.getScoreMods($topPlays[$i]['mods']).'</b> (' . accuracy($topPlays[$i]['accuracy']) . '%)<br><small>'.timeDifference(time(), osuDateToUNIXTimestamp($topPlays[$i]['time'])).'</small>'.'</b></p></td>';
 						if ($ScoresConfig["enablePP"]) {
 							$perc = pow(0.95, $i);
 							$wpp = $topPlays[$i]['pp'] * $perc;
@@ -1665,14 +1677,11 @@ class P {
 				<tr><th class="text-left"><i class="fa fa-clock-o"></i>	Recent plays</th><th class="text-right">Score</th></tr>';
 				for ($i = 0; $i < count($recentPlays); $i++) {
 					// Get beatmap name from md5 (beatmaps_names) for this play
-					if ($ScoresConfig["useNewBeatmapsTable"])
-						$bn = $GLOBALS['db']->fetch('SELECT song_name FROM beatmaps WHERE beatmap_md5 = ?', array($recentPlays[$i]['beatmap_md5']));
-					else
-						$bn = $GLOBALS['db']->fetch('SELECT beatmap_name FROM beatmaps_names WHERE beatmap_md5 = ?', array($recentPlays[$i]['beatmap_md5']));
+					$bn = $recentPlays[$i][$beatmapsField];
 					if ($bn) {
 						// Beatmap name found, print beatmap name and score
 						echo '<tr>';
-						echo '<td class="success"><p class="text-left">'.current($bn).' <b>'.getScoreMods($recentPlays[$i]['mods']).'</b> (' . accuracy($recentPlays[$i]['accuracy']) . '%) <br><small>'.timeDifference(time(), osuDateToUNIXTimestamp($recentPlays[$i]['time'])).'</small>'.'</p></td>';
+						echo '<td class="success"><p class="text-left">'.$bn.' <b>'.getScoreMods($recentPlays[$i]['mods']).'</b> (' . accuracy($recentPlays[$i]['accuracy']) . '%) <br><small>'.timeDifference(time(), osuDateToUNIXTimestamp($recentPlays[$i]['time'])).'</small>'.'</p></td>';
 						echo '<td class="success"><p class="text-right"><b>'.number_format($recentPlays[$i]['score']).'</b></p></td>';
 						echo '</tr>';
 					}
