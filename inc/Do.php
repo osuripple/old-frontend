@@ -397,7 +397,7 @@ class D {
 			// Check if this user exists
 			$id = current($GLOBALS['db']->fetch('SELECT id FROM users WHERE id = ?', $_POST['id']));
 			if (!$id) {
-				throw new Exception("That user doesn\'t exists");
+				throw new Exception("That user doesn\'t exist");
 			}
 			// Check if we can edit this user
 			if (getUserRank($_POST['u']) >= getUserRank($_SESSION['username']) && $_POST['u'] != $_SESSION['username']) {
@@ -453,16 +453,14 @@ class D {
 			if (empty($_GET['id'])) {
 				throw new Exception('Nice troll.');
 			}
-			// Get username
-			$username = current($GLOBALS['db']->fetch('SELECT username FROM users WHERE id = ?', $_GET['id']));
+			// Get user's username and allowed status
+			$user = $GLOBALS['db']->fetch('SELECT username, allowed FROM users WHERE id = ?', $_GET['id']);
 			// Check if we can ban this user
-			if (getUserRank($username) >= getUserRank($_SESSION['username'])) {
+			if (getUserRank($user["username"]) >= getUserRank($_SESSION['username'])) {
 				throw new Exception("You dont't have enough permissions to ban this user");
 			}
-			// Get current allowed value of this user
-			$allowed = current($GLOBALS['db']->fetch('SELECT allowed FROM users WHERE id = ?', $_GET['id']));
 			// Get new allowed value
-			if ($allowed == 1) {
+			if ($user["allowed"] == 1) {
 				$newAllowed = 0;
 			} else {
 				$newAllowed = 1;
@@ -492,7 +490,7 @@ class D {
 			$id = current($GLOBALS['db']->fetch('SELECT id FROM users WHERE username = ?', $_POST['u']));
 			// Check if that user exists
 			if (!$id) {
-				throw new Exception("That user doesn't exists");
+				throw new Exception("That user doesn't exist");
 			}
 			// Done, redirect to edit page
 			redirect('index.php?p=103&id='.$id);
@@ -517,7 +515,7 @@ class D {
 			$id = current($GLOBALS['db']->fetch('SELECT id FROM users WHERE username = ?', $_POST['u']));
 			// Check if that user exists
 			if (!$id) {
-				throw new Exception("That user doesn't exists");
+				throw new Exception("That user doesn't exist");
 			}
 			// Done, redirect to edit page
 			redirect('index.php?p=110&id='.$id);
@@ -620,7 +618,7 @@ class D {
 			}
 			// Make sure that this user exists
 			if (!$GLOBALS['db']->fetch('SELECT id FROM users WHERE username = ?', $_POST['u'])) {
-				throw new Exception("That user doesn't exists.");
+				throw new Exception("That user doesn't exist.");
 			}
 			// Get the string with all the badges
 			$badgesString = $_POST['b01'].','.$_POST['b02'].','.$_POST['b03'].','.$_POST['b04'].','.$_POST['b05'].','.$_POST['b06'];
@@ -646,7 +644,7 @@ class D {
 				throw new Exception('Nice troll.');
 			}
 			// Check if this doc page exists
-			if (!$GLOBALS['db']->fetch('SELECT * FROM docs WHERE id = ?', $_GET['id'])) {
+			if (!$GLOBALS['db']->fetch('SELECT id FROM docs WHERE id = ?', $_GET['id'])) {
 				throw new Exception("That documentation page doesn't exists");
 			}
 			// Delete doc page
@@ -671,7 +669,7 @@ class D {
 				throw new Exception("You can't delete this badge.");
 			}
 			// Make sure that this badge exists
-			$exists = $GLOBALS['db']->fetch('SELECT * FROM badges WHERE id = ?', $_GET['id']);
+			$exists = $GLOBALS['db']->fetch('SELECT id FROM badges WHERE id = ?', $_GET['id']);
 			// Beta key doesn't exists wtf
 			if (!$exists) {
 				throw new Exception("This badge doesn't exists");
@@ -701,7 +699,7 @@ class D {
 			$id = current($GLOBALS['db']->fetch('SELECT id FROM users WHERE username = ?', $_POST['u']));
 			// Check if that user exists
 			if (!$id) {
-				throw new Exception("That user doesn't exists");
+				throw new Exception("That user doesn't exist");
 			}
 			// Calculate silence period length
 			$sl = $_POST['c'] * $_POST['un'];
@@ -735,7 +733,7 @@ class D {
 			$id = current($GLOBALS['db']->fetch('SELECT id FROM users WHERE username = ?', $_POST['u']));
 			// Check if that user exists
 			if (!$id) {
-				throw new Exception("That user doesn't exists");
+				throw new Exception("That user doesn't exist");
 			}
 			// Kick that user
 			kickUser($id);
@@ -998,7 +996,7 @@ class D {
 				throw new Exception('Invalid request');
 			}
 			// Get current report status from db
-			$reportData = $GLOBALS['db']->fetch('SELECT * FROM reports WHERE id = ?', [$_POST['id']]);
+			$reportData = $GLOBALS['db']->fetch('SELECT id FROM reports WHERE id = ?', [$_POST['id']]);
 			// Make sure the report exists
 			if (!$reportData) {
 				throw new Exception("That report doesn't exist");
