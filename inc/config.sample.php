@@ -53,6 +53,7 @@ $ServerStatusConfig = [
 		'avatars_url'       => 'http://127.0.0.1:5000', // Avatar server URL
 		'beatmap_url'       => 'http://bcache.zxq.co', 	// Beatmap mirror URL
 		'api_url'           => 'http://127.0.0.1/api', 	// Ripple API URL
+		'lets_url'          => 'http://127.0.0.1:5002', // LETS URL
 	],
 
 	'netdata' => [
