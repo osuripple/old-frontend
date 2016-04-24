@@ -90,7 +90,7 @@ LIMIT $offset, 100;");
 			}
 			// Show PP or score
 			if ($ScoresConfig["enablePP"])
-				$score = $lbUser['pp_'.$modeForDB] . ' pp';
+				$score = number_format($lbUser['pp_'.$modeForDB]) . ' pp';
 			else
 				$score = number_format($lbUser['ranked_score_'.$modeForDB]);
 			// Draw table row for this user

@@ -53,7 +53,7 @@ class P {
 			echo '<td class="success"><p class="text-left">'.$bn.'</p></td>';
 			echo '<td class="success"><p class="text-left">'.$pm.'</p></td>';
 			echo '<td class="success"><p class="text-left">'.timeDifference(time(), osuDateToUNIXTimestamp($play['time'])).'</p></td>';
-			echo '<td class="success"><p class="text-right"><b>'.number_format($play['score']).' pp</b></p></td>';
+			echo '<td class="success"><p class="text-right"><b>'.number_format($play['score']).'</b></p></td>';
 			echo '</tr>';
 		}
 		echo '</tbody>';
@@ -1544,7 +1544,7 @@ WHERE users_stats.id = ?', [$u]);
 				echo '<br><a href="index.php?p=103&id='.$u.'">Edit user</a> | <a onclick="sure(\'submit.php?action=banUnbanUser&id='.$u.'\')";>Ban user</a> | <a href="index.php?p=110&id='.$u.'">Edit badges</a></p>';
 			}
 			echo '<div id="rank"><font size=5><b> '.$rankSymbol.$rank.'</b></font><br>';
-			if ($ScoresConfig["enablePP"]) echo '<b>' . $pp . ' pp</b>';
+			if ($ScoresConfig["enablePP"]) echo '<b>' . number_format($pp) . ' pp</b>';
 			echo '</div><br>';
 			echo $friendButton;
 			echo '</div>';
@@ -1658,7 +1658,7 @@ WHERE users_stats.id = ?', [$u]);
 							$perc = pow(0.95, $i);
 							$wpp = $topPlays[$i]['pp'] * $perc;
 							$scoreText = number_format($topPlays[$i]['pp']) . " pp";
-							$scoreSmallText = "<small>weighted " . round($perc * 100) . "% (" . round($wpp) . " pp)</small>";
+							$scoreSmallText = "<small>weighted " . round($perc * 100) . "% (" . number_format(round($wpp)) . " pp)</small>";
 						} else {
 							$scoreText = number_format($topPlays[$i]['score']) ;
 							$scoreSmallText = "";
