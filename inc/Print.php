@@ -1445,12 +1445,12 @@ WHERE users_stats.id = ?', [$u]);
 			$beatmapsField = ($ScoresConfig["useNewBeatmapsTable"] ? "song_name" : "beatmap_name" );			
 			$orderBy = ($ScoresConfig["enablePP"] ? "pp" : "score" );
 			$topPlays = $GLOBALS['db']->fetchAll("
-				SELECT *, $beatmapsTable.$beatmapsField FROM scores
+				SELECT scores.*, $beatmapsTable.$beatmapsField FROM scores
 				LEFT JOIN $beatmapsTable ON $beatmapsTable.beatmap_md5 = scores.beatmap_md5
 				WHERE username = ? AND completed = 3 AND play_mode = ?
 				ORDER BY $orderBy DESC LIMIT 20", [$username, $m]);
 			$recentPlays = $GLOBALS['db']->fetchAll("
-				SELECT *, $beatmapsTable.$beatmapsField FROM scores
+				SELECT scores.*, $beatmapsTable.$beatmapsField FROM scores
 				LEFT JOIN $beatmapsTable ON $beatmapsTable.beatmap_md5 = scores.beatmap_md5
 				WHERE username = ? AND completed = 3 AND play_mode = ?
 				ORDER BY time DESC LIMIT 10",
