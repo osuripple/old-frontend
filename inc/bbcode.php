@@ -48,7 +48,7 @@ class bbcode {
 			 *
 			 * @var array
 			*/
-			$advanced_bbcode = ['#\[color=([a-zA-Z]*|\#?[0-9a-fA-F]{6})](.+)\[/color\]#Usi', '#\[size=([0-9][0-9]?)](.+)\[/size\]#Usi', '#\[quote](\r\n)?(.+?)\[/quote]#si', '#\[quote=(.*?)](\r\n)?(.+?)\[/quote]#si', '#\[url](.+)\[/url]#Usi', '#\[url=(.+)](.+)\[/url\]#Usi', '#\[email]([\w\.\-]+@[a-zA-Z0-9\-]+\.?[a-zA-Z0-9\-]*\.\w{1,4})\[/email]#Usi', '#\[email=([\w\.\-]+@[a-zA-Z0-9\-]+\.?[a-zA-Z0-9\-]*\.\w{1,4})](.+)\[/email]#Usi', '#\[img](.+)\[/img]#Usi', '#\[img=(.+)](.+)\[/img]#Usi', '#\[code](\r\n)?(.+?)(\r\n)?\[/code]#si', '#\[youtube]http://[a-z]{0,3}.youtube.com/watch\?v=([0-9a-zA-Z]{1,11})\[/youtube]#Usi', '#\[youtube]([0-9a-zA-Z]{1,11})\[/youtube]#Usi'];
+			$advanced_bbcode = ['#\[color=([a-zA-Z]*|\#?[0-9a-fA-F]{6})](.+)\[/color\]#Usi', '#\[size=([0-9][0-9]?)](.+)\[/size\]#Usi', '#\[quote](\r\n)?(.+?)\[/quote]#si', '#\[quote=(.*?)](\r\n)?(.+?)\[/quote]#si', '#\[url](.+)\[/url]#Usi', '#\[url=(.+)](.+)\[/url\]#Usi', '#\[email]([\w\.\-]+@[a-zA-Z0-9\-]+\.?[a-zA-Z0-9\-]*\.\w{1,4})\[/email]#Usi', '#\[email=([\w\.\-]+@[a-zA-Z0-9\-]+\.?[a-zA-Z0-9\-]*\.\w{1,4})](.+)\[/email]#Usi', '#\[img](.+)\[/img]#Usi', '#\[img=(.+)](.+)\[/img]#Usi', '#\[code](\r\n)?(.+?)(\r\n)?\[/code]#si', '#\[youtube]http://[a-z]{0,3}.youtube.com/watch\?v=([a-zA-Z0-9_-]{1,11})\[/youtube]#Usi', '#\[youtube]([a-zA-Z0-9_-]{1,11})\[/youtube]#Usi'];
 			/*
 			 * This array contains the advanced static bbcode's html.
 			 *
