@@ -17,6 +17,8 @@ class D {
 			if ($pres !== -1) {
 				throw new Exception($pres);
 			}
+			// trim spaces or other memes from username (hi kirito)
+			$_POST['u'] = trim($_POST["u"]);
 			// Check if email is valid
 			if (!filter_var($_POST['e'], FILTER_VALIDATE_EMAIL)) {
 				throw new Exception(4);
