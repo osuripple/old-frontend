@@ -934,7 +934,7 @@ class D {
 				throw new Exception(0);
 			}
 			// Add report
-			$GLOBALS['db']->execute('INSERT INTO reports (id, name, from_username, content, type, open_time, update_time, status) VALUES (NULL, ?, ?, ?, ?, ?, ?, 1)', [$_POST['n'], $_SESSION['username'], $_POST['c'], $_POST['t'], time(), time()]);
+			$GLOBALS['db']->execute('INSERT INTO reports (id, name, from_username, content, type, open_time, update_time, status, response) VALUES (NULL, ?, ?, ?, ?, ?, ?, 1, \'\')', [$_POST['n'], $_SESSION['username'], $_POST['c'], $_POST['t'], time(), time()]);
 			// Webhook stuff
 			global $WebHookReport;
 			global $KeyAkerino;
