@@ -602,3 +602,25 @@ hr {
 .big-arrow:hover {
   color: #222;
 }
+.tinyavatar {
+  height: 42px;
+  width: 42px;
+}
+.tt-menu {
+  width:100%;
+  text-align: left;
+  margin-top: 5px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  box-shadow: 0 0px 8px 0 #999;
+}
+.tt-suggestion {
+  padding-left: 6px;
+  padding-right: 6px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
+.tt-cursor {
+  background-color: #EEE;
+  border-radius: 4px;
+}

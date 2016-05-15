@@ -290,6 +290,12 @@ switch ($p) {
 					window.onload = changeTitlePlaceholder;
 				</script>';
 	break;
+	case 28:
+		?>
+		<script src="/js/typeahead.min.js"></script>
+		<script src="/js/userlookup.js"></script>
+		<?php
+		break;
 }
 ?>
 </body>

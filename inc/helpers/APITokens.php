@@ -10,4 +10,16 @@ class APITokens {
 		$_SESSION["APIToken"] = $key;
 		return $key;
 	}
+	static function PrintScript() {
+		echo '<script>
+		// Why, hello there!
+		// I see what you\'re doing here.
+		// You\'re looking for a way to access the API, arent\'cha?
+		// If that\'s the case, get on Discord, and go to the #api channel.
+		// Scroll up a bit, and you\'ll find some screenshots that will get
+		// you started right away with the API.
+		// API documentation will come sometime, don\'t worry.
+		var APIToken = "' . self::GetToken() . '";
+		</script>';
+	}
 }
