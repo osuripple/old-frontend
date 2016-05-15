@@ -49,7 +49,7 @@ class Login {
 			if (!PasswordHelper::CheckPass($_POST['u'], $_POST['p'], false)) {
 				throw new Exception(1);
 			}
-			$us = $GLOBALS['db']->fetch('SELECT allowed, password_md5, username FROM users WHERE username = ?', [$_POST['u']]);
+			$us = $GLOBALS['db']->fetch('SELECT id, allowed, password_md5, username FROM users WHERE username = ?', [$_POST['u']]);
 			// Ban check
 			if ($us['allowed'] === '0') {
 				throw new Exception(2);
@@ -59,8 +59,10 @@ class Login {
 			// Everything ok, create session and do login stuff
 			session_start();
 			$_SESSION['username'] = $username;
+			$_SESSION['userid'] = $us['id'];
 			$_SESSION['password'] = $us['password_md5'];
 			$_SESSION['passwordChanged'] = false;
+			APITokens::GetToken();
 			// Check if the user requested to be remembered. If they did, initialise cookies.
 			if (isset($_POST['remember']) && (bool) $_POST['remember']) {
 				$m = new RememberCookieHandler();

@@ -20,6 +20,7 @@ require_once $df.'/helpers/PasswordHelper.php';
 require_once $df.'/helpers/UsernameHelper.php';
 require_once $df.'/helpers/URL.php';
 require_once $df.'/helpers/Schiavo.php';
+require_once $df.'/helpers/APITokens.php';
 // controller system v2
 require_once $df.'/pages/Login.php';
 require_once $df.'/pages/Leaderboard.php';
@@ -62,8 +63,7 @@ function outputVariable($fn, $v) {
  * @param (int) ($l) Length of the generated string
  * @return (string) Generated string
 */
-function randomString($l) {
-	$c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+function randomString($l, $c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789') {
 	$res = '';
 	srand((float) microtime() * 1000000);
 	for ($i = 0; $i < $l; $i++) {
@@ -731,9 +731,10 @@ function getAllowedUsers($by = 'username') {
  * Starts a session only if not started yet.
 */
 function startSessionIfNotStarted() {
-	if (session_status() == PHP_SESSION_NONE) {
+	if (session_status() == PHP_SESSION_NONE)
 		session_start();
-	}
+	if (isset($_SESSION['username']) && !isset($_SESSION['userid']))
+		$_SESSION['userid'] = getUserID($_SESSION['username']);
 }
 /*
  * sessionCheck
