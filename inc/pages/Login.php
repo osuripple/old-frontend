@@ -62,7 +62,6 @@ class Login {
 			$_SESSION['userid'] = $us['id'];
 			$_SESSION['password'] = $us['password_md5'];
 			$_SESSION['passwordChanged'] = false;
-			APITokens::GetToken();
 			// Check if the user requested to be remembered. If they did, initialise cookies.
 			if (isset($_POST['remember']) && (bool) $_POST['remember']) {
 				$m = new RememberCookieHandler();
