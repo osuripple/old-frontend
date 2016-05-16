@@ -17,6 +17,8 @@ class D {
 			if ($pres !== -1) {
 				throw new Exception($pres);
 			}
+			// trim spaces or other memes from username (hi kirito)
+			$_POST['u'] = trim($_POST["u"]);
 			// Check if email is valid
 			if (!filter_var($_POST['e'], FILTER_VALIDATE_EMAIL)) {
 				throw new Exception(4);
@@ -932,7 +934,7 @@ class D {
 				throw new Exception(0);
 			}
 			// Add report
-			$GLOBALS['db']->execute('INSERT INTO reports (id, name, from_username, content, type, open_time, update_time, status) VALUES (NULL, ?, ?, ?, ?, ?, ?, 1)', [$_POST['n'], $_SESSION['username'], $_POST['c'], $_POST['t'], time(), time()]);
+			$GLOBALS['db']->execute('INSERT INTO reports (id, name, from_username, content, type, open_time, update_time, status, response) VALUES (NULL, ?, ?, ?, ?, ?, ?, 1, \'\')', [$_POST['n'], $_SESSION['username'], $_POST['c'], $_POST['t'], time(), time()]);
 			// Webhook stuff
 			global $WebHookReport;
 			global $KeyAkerino;

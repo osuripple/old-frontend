@@ -20,12 +20,20 @@ require_once $df.'/helpers/PasswordHelper.php';
 require_once $df.'/helpers/UsernameHelper.php';
 require_once $df.'/helpers/URL.php';
 require_once $df.'/helpers/Schiavo.php';
+require_once $df.'/helpers/APITokens.php';
 // controller system v2
 require_once $df.'/pages/Login.php';
 require_once $df.'/pages/Leaderboard.php';
 require_once $df.'/pages/PasswordFinishRecovery.php';
 require_once $df.'/pages/ServerStatus.php';
-$pages = [new Login(), new Leaderboard(), new PasswordFinishRecovery(), new ServerStatus()];
+require_once $df.'/pages/UserLookup.php';
+$pages = [
+	new Login(),
+	new Leaderboard(),
+	new PasswordFinishRecovery(),
+	new ServerStatus(),
+	new UserLookup(),
+];
 // Set timezone to UTC
 date_default_timezone_set('Europe/Rome');
 // Connect to MySQL Database
@@ -62,8 +70,7 @@ function outputVariable($fn, $v) {
  * @param (int) ($l) Length of the generated string
  * @return (string) Generated string
 */
-function randomString($l) {
-	$c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+function randomString($l, $c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789') {
 	$res = '';
 	srand((float) microtime() * 1000000);
 	for ($i = 0; $i < $l; $i++) {
@@ -569,6 +576,7 @@ function printNavbar() {
 						<li class="dropdown-submenu"><a href="index.php?p=17"><i class="fa fa-code"></i> Changelog</a></li>
 						'.(file_exists(dirname(__FILE__).'/../blog/anchor/config/db.php') ? '<li class="dropdown-submenu"><a href="blog/"><i class="fa fa-anchor"></i>	Blog</a></li>' : '').'
 						<li class="dropdown-submenu"><a href="index.php?p=27"><i class="fa fa-cogs"></i>	Server status</a></li>
+						<li class="dropdown-submenu"><a href="index.php?p=28"><i class="fa fa-search"></i>	User lookup</a></li>
 						<li class="divider"></li>
 						<li class="dropdown-submenu"><a href="index.php?p=22&type=0"><i class="fa fa-bug"></i> '.($trollerino ? 'Request' : 'Report').' a bug</a></li>
 						<li class="dropdown-submenu"><a href="index.php?p=22&type=1"><i class="fa fa-plus-circle"></i>	'.($trollerino ? 'Report' : 'Request').' a feature</a></li>
@@ -731,9 +739,10 @@ function getAllowedUsers($by = 'username') {
  * Starts a session only if not started yet.
 */
 function startSessionIfNotStarted() {
-	if (session_status() == PHP_SESSION_NONE) {
+	if (session_status() == PHP_SESSION_NONE)
 		session_start();
-	}
+	if (isset($_SESSION['username']) && !isset($_SESSION['userid']))
+		$_SESSION['userid'] = getUserID($_SESSION['username']);
 }
 /*
  * sessionCheck

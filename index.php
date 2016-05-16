@@ -4,6 +4,12 @@ require_once './inc/functions.php';
 // Frontend stuff
 // We're using ob_start to safely send headers while we're processing the script initially.
 ob_start();
+// Start session with user if we got a valid cookie.
+startSessionIfNotStarted();
+$c = new RememberCookieHandler();
+if ($c->Check()) {
+	$c->Validate();
+}
 // CONTROLLER SYSTEM v2
 $model = 'old';
 if (isset($_GET['p'])) {
@@ -114,14 +120,6 @@ if ($p == 27) {
 </head>
 
 <body>
-    <?php
-// Start session with user if we got a valid cookie.
-startSessionIfNotStarted();
-$c = new RememberCookieHandler();
-if ($c->Check()) {
-	$c->Validate();
-}
-?>
     <!-- Navbar -->
     <?php printNavbar(); ?>
 
@@ -292,6 +290,12 @@ switch ($p) {
 					window.onload = changeTitlePlaceholder;
 				</script>';
 	break;
+	case 28:
+		?>
+		<script src="/js/typeahead.min.js"></script>
+		<script src="/js/userlookup.js"></script>
+		<?php
+		break;
 }
 ?>
 </body>
