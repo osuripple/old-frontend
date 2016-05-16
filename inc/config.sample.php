@@ -1,5 +1,4 @@
 <?php
-
 // Database config
 define('DATABASE_HOST', 'localhost');	// MySQL host. usually localhost
 define('DATABASE_USER', 'root');		// MySQL username
@@ -10,21 +9,6 @@ define('DATABASE_WHAT', 'host');		// "host" or unix socket path
 // Server urls, no slash
 $URL['avatar'] = 'https://a.ripple.moe';
 $URL['server'] = 'https://ripple.moe';
-
-// Submit modular config. Ignore if you are using LETS
-$SUBMIT['AESKey'] = 'h89f2-890h2h89b34g-h80g134n90133'; // AES Encryption key for decrypt score data. Don't touch.
-$SUBMIT['outputParams'] = false; // If true, outputs $_POST params to a txt file. Only for debugging purposes.
-$SUBMIT['saveFailedScores'] = false; // If true, failed/retried scores will be saved in database too (but not shown in leaderboard). Might cause some issues, leave to false.
-$SUBMIT['okOutput'] = 'ok'; // Output when a score is submitted successfully. Change with pass/beatmap to get a notification in osu! to make sure that this script works fine
-
-// Getscores config. Ignore if you are using LETS
-$GETSCORES['everythingIsRanked'] = true; // False: Default, get ranked maps from db; True: All beatmaps are ranked
-$GETSCORES['outputParams'] = false; // If true, outputs $_GET params to a txt file. Only for debugging purposes.
-
-// Cron.php config. Ignore if you are using cron.go
-$CRON['showSapi'] = false; // If true, cron.php will show php_sapi_name, so you can set $CRON["sapi"] to the correct value
-$CRON['sapi'] = ['cli']; // php_sapi_name() required to run cron.php. Set to "cli" if cron.php is run from command line. You can specify multiple values.
-$CRON['adminExec'] = false; // If true, "Run cron.php" button will run cron.php from command line with exec. If false, the button will run cron.php from browser. Set to false if you are on a windows server
 
 // Changelog config
 $ChangelogConfig = [
