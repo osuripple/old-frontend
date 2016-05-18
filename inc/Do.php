@@ -435,6 +435,10 @@ class D {
 			} else {
 				$bg = '';
 			}
+			// Update country flag if set
+			if (isset($_POST['country']) && countryCodeToReadable($_POST['country']) != 'unknown country') {
+				$GLOBALS['db']->execute('UPDATE users_stats SET country = ? WHERE id = ?', [$_POST['country'], $_POST['id']]);
+			}
 			// Set username style/color/aka
 			$GLOBALS['db']->execute('UPDATE users_stats SET user_color = ?, user_style = ?, username_aka = ? WHERE id = ?', [$c, $bg, $_POST['aka'], $_POST['id']]);
 			// Done, redirect to success page

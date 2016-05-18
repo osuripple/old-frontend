@@ -372,6 +372,22 @@ class P {
 			<!-- <td><p class="text-center"><input type="number" name="r" class="form-control" value="'.$userData['rank'].'" '.$readonly[0].'></td> -->
 			</tr>';
 			echo '<tr>
+			<td>Country</td>
+			<td>
+			<select name="country" class="selectpicker" data-width="100%">
+			';
+			require_once dirname(__FILE__) . "/countryCodesReadable.php";
+			foreach ($c as $k => $v) {
+				$sd = "";
+				if ($userStatsData['country'] == $k)
+					$sd = "selected";
+				echo "<option value='$k' $sd>$v</option>\n";
+			}
+			echo '
+			</select>
+			</td>
+			</tr>';
+			echo '<tr>
 			<td>Allowed</td>
 			<td>
 			<select name="a" class="selectpicker" data-width="100%" '.$selectDisabled.'>
