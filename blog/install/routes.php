@@ -135,7 +135,7 @@ Route::post('account', ['before' => 'check', 'main' => function () {
 		return Response::redirect('account');
 	}
 	// Check the md5 password is valid
-	if ($uPass['password_md5'] != (crypt(md5($account['password']), '$2y$'.base64_decode($uPass['salt'])))) {
+	if (password_verify($account["password"], $uPass["password_md5"])) {
 		Input::flash();
 		Notify::error('Invalid password.');
 
