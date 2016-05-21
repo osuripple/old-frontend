@@ -25,7 +25,7 @@ class Leaderboard {
 		// Bold the selected mode
 		$modesText[$m] = '<b>'.$modesText[$m].'</b>';
 		// PP or Score ranking
-		if  ($ScoresConfig["enablePP"])
+		if  ($ScoresConfig["enablePP"] && $m == 0)
 			$scoringName = "PP";
 		else
 			$scoringName = "Score";
@@ -89,7 +89,7 @@ LIMIT $offset, 100;");
 				$rankSymbol = '#';
 			}
 			// Show PP or score
-			if ($ScoresConfig["enablePP"])
+			if ($ScoresConfig["enablePP"] && $m == 0)
 				$score = number_format($lbUser['pp_'.$modeForDB]) . ' pp';
 			else
 				$score = number_format($lbUser['ranked_score_'.$modeForDB]);
