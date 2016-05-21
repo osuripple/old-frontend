@@ -10,7 +10,7 @@ class APITokens {
 		$_SESSION["APIToken"] = $key;
 		return $key;
 	}
-	static function PrintScript() {
+	static function PrintScript($additionalVars = '') {
 		echo '<script>
 		// Why, hello there!
 		// I see what you\'re doing here.
@@ -20,6 +20,7 @@ class APITokens {
 		// you started right away with the API.
 		// API documentation will come sometime, don\'t worry.
 		var APIToken = "' . self::GetToken() . '";
+		' . $additionalVars . '
 		</script>';
 	}
 }

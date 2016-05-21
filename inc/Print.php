@@ -1456,21 +1456,14 @@ WHERE users_stats.id = ?', [$u]);
 			} else {
 				$userStyle = $userData["user_style"];
 			}
+			
+			// Print API token data for scores retrieval
+			APITokens::PrintScript(sprintf('var UserID = %s; var Mode = %s;', $userData["id"], $m));
+			
 			// Get top/recent plays for this mode
 			$beatmapsTable = ($ScoresConfig["useNewBeatmapsTable"] ? "beatmaps" : "beatmaps_names" );
 			$beatmapsField = ($ScoresConfig["useNewBeatmapsTable"] ? "song_name" : "beatmap_name" );			
 			$orderBy = ($ScoresConfig["enablePP"] ? "pp" : "score" );
-			$topPlays = $GLOBALS['db']->fetchAll("
-				SELECT scores.*, $beatmapsTable.$beatmapsField FROM scores
-				LEFT JOIN $beatmapsTable ON $beatmapsTable.beatmap_md5 = scores.beatmap_md5
-				WHERE username = ? AND completed = 3 AND play_mode = ?
-				ORDER BY $orderBy DESC LIMIT 20", [$username, $m]);
-			$recentPlays = $GLOBALS['db']->fetchAll("
-				SELECT scores.*, $beatmapsTable.$beatmapsField FROM scores
-				LEFT JOIN $beatmapsTable ON $beatmapsTable.beatmap_md5 = scores.beatmap_md5
-				WHERE username = ? AND completed = 3 AND play_mode = ?
-				ORDER BY time DESC LIMIT 10",
-				[$username, $m]);
 			// Bold selected mode text.
 			$modesText[$m] = '<b>'.$modesText[$m].'</b>';
 			// Get userpage
@@ -1656,59 +1649,32 @@ WHERE users_stats.id = ?', [$u]);
 
 			echo '</table>
 			</div>
-			</div>
-			<div id ="userpage-plays">';
-			// Print top plays table (only if we have them)
-			if ($topPlays) {
-				echo '<table class="table">
-				<tr><th class="text-left"><i class="fa fa-trophy"></i>	Top plays</th><th class="text-right">' . $scoringName . '</th></tr>';
-				for ($i = 0; $i < count($topPlays); $i++) {
-					// Get beatmap name from md5 (beatmaps_names) for this play
-					$bn = $topPlays[$i][$beatmapsField];
-					$rankImage = getRank($topPlays[$i]["play_mode"], $topPlays[$i]["mods"], $topPlays[$i]["accuracy"], $topPlays[$i]["300_count"], $topPlays[$i]["100_count"], $topPlays[$i]["50_count"], $topPlays[$i]["misses_count"]);
-					if ($bn) {
-						// Beatmap name found, print beatmap name and score
-						echo '<tr>';
-						echo '<td class="warning"><p class="text-left"><img src="images/ranks/' . $rankImage . '.png"></img>	'.$bn.' <b>'.getScoreMods($topPlays[$i]['mods']).'</b> (' . accuracy($topPlays[$i]['accuracy']) . '%)<br><small>'.timeDifference(time(), osuDateToUNIXTimestamp($topPlays[$i]['time'])).'</small>'.'</b></p></td>';
-						if ($ScoresConfig["enablePP"]) {
-							$perc = pow(0.95, $i);
-							$wpp = $topPlays[$i]['pp'] * $perc;
-							$scoreText = number_format($topPlays[$i]['pp']) . " pp";
-							$scoreSmallText = "<small>weighted " . round($perc * 100) . "% (" . number_format(round($wpp)) . " pp)</small>";
-						} else {
-							$scoreText = number_format($topPlays[$i]['score']) ;
-							$scoreSmallText = "";
-						}
-						echo '<td class="warning"><p class="text-right"><b>' . $scoreText . '</b>	<a href="/web/osu-getreplay-full.php?c=' . $topPlays[$i]['id'] . '"><i class="fa fa-star"></i></a><br>' . $scoreSmallText .'</p></td>';
-						echo '</tr>';
-					}
-				}
-				echo '</table>';
-			}
-			// brbr it's so cold
-			echo '<br><br>';
-			// Print recent plays table (only if we have them)
-			if ($recentPlays) {
-				echo '<table class="table">
-				<tr><th class="text-left"><i class="fa fa-clock-o"></i>	Recent plays</th><th class="text-right">Score</th></tr>';
-				for ($i = 0; $i < count($recentPlays); $i++) {
-					// Get beatmap name from md5 (beatmaps_names) for this play
-					$bn = $recentPlays[$i][$beatmapsField];
-					if ($bn) {
-						// Beatmap name found, print beatmap name and score
-						echo '<tr>';
-						echo '<td class="success"><p class="text-left">'.$bn.' <b>'.getScoreMods($recentPlays[$i]['mods']).'</b> (' . accuracy($recentPlays[$i]['accuracy']) . '%) <br><small>'.timeDifference(time(), osuDateToUNIXTimestamp($recentPlays[$i]['time'])).'</small>'.'</p></td>';
-						echo '<td class="success"><p class="text-right"><b>'.number_format($recentPlays[$i]['score']).'</b></p></td>';
-						echo '</tr>';
-					}
-				}
-				echo '</table>';
-			}
+			</div>';
 			// Silence thing
 			if ($silenceEndTime - time() > 0) {
 				echo "<div class='alert alert-danger'><i class='fa fa-exclamation-triangle'></i>	<b>".$username."'s account is not in good standing!</b><br><br><b>This user has been silenced for the following reason:</b><br><i>".$silenceReason.'</i><br><br><b>Silence ends in:</b><br><i>'.timeDifference($silenceEndTime, time(), false).'</i></div>';
 			}
-			echo '</div>';
+			echo '<noscript>Enable JavaScript. It\'s not gonna hurt you.</noscript>';
+			foreach (["best", "recent"] as $v)
+				echo '
+			<div class="panel panel-default">
+			<div class="panel-heading">' . ucfirst($v) . ' plays</div>
+			
+			<div class="panel-body">
+				<div class="col-md-12" id="' . $v . '-plays-table">
+					<div class="col-plays-header">
+						<div class="col-md-1">Tua Madre?</div>
+						<div class="col-md-' . ($m == 0 ? "7" : "8") . '">Song name</div>
+						<div class="col-md-1">Accuracy</div>
+						<div class="col-md-2">Score</div>
+						' . ($m == 0 ? '<div class="col-md-1">PP</div>' : "") . '
+					</div>
+					<div class="col-plays-el">
+						Loading...
+					</div>
+				</div><br><br><br><br>
+			</div>
+			</div>';
 		}
 		catch(Exception $e) {
 			echo '<br><div class="alert alert-danger" role="alert"><i class="fa fa-exclamation-triangle"></i>	<b>'.$e->getMessage().'</b></div>';
