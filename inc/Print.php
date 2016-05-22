@@ -1553,7 +1553,7 @@ WHERE users_stats.id = ?', [$u]);
 				echo '<br><a href="index.php?p=103&id='.$u.'">Edit user</a> | <a onclick="sure(\'submit.php?action=banUnbanUser&id='.$u.'\')";>Ban user</a> | <a href="index.php?p=110&id='.$u.'">Edit badges</a></p>';
 			}
 			echo '<div id="rank"><font size=5><b> '.$rankSymbol.$rank.'</b></font><br>';
-			if ($ScoresConfig["enablePP"]) echo '<b>' . number_format($pp) . ' pp</b>';
+			if ($ScoresConfig["enablePP"] && $m == 0) echo '<b>' . number_format($pp) . ' pp</b>';
 			echo '</div><br>';
 			echo $friendButton;
 			echo '</div>';
