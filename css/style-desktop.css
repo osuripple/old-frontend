@@ -78,7 +78,6 @@ ul.nav li:hover > ul.dropdown-menu {
 }
 
 #userpage-plays {
-	padding-top: 250px;
 	text-align: center;
 }
 
@@ -623,4 +622,8 @@ hr {
 .tt-cursor {
   background-color: #EEE;
   border-radius: 4px;
+}
+
+#userpage-content {
+  display: inline-block;	
 }
