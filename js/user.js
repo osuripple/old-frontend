@@ -40,7 +40,7 @@ function getScores(type) {
 			u += '<td class="' + sw + '"><p class="text-right"><b>';
 			var small = "";
 			if (Mode == 0) {
-				u += addCommas(v.pp.toFixed(2)) + "pp";
+				u += "<span title='Score: " + addCommas(v.score) + "'>" + addCommas(v.pp.toFixed(2)) + "pp</span>";
 				if (type == "best") {
 					var perc = Math.pow(0.95, bestIndex);
 					var wpp  = v.pp * perc;
