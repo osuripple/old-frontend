@@ -200,6 +200,15 @@ if ($p < 100) {
             var r = confirm("Are you sure?");
             if (r == true) window.location.replace($redirect);
         }
+
+        function reallysure($redirect)
+        {
+            var r = confirm("This action cannot be undone. Are you sure you want to continue?");
+            if (r == true)
+                r = confirm("Are you REALLY sure?");
+                if (r == true)
+                    window.location.replace($redirect);
+        }
     </script>
 
 
@@ -241,7 +250,7 @@ switch ($p) {
                 <script type="text/javascript">
                     function censorUserpage()
                     {
-                        document.getElementsByName("up")[0].value = "[i]:peppy:Userpage resetted by an admin.:peppy:[/i]";
+                        document.getElementsByName("up")[0].value = "[i]:peppy:Userpage reset by an admin.:peppy:[/i]";
                     }
 
                     function removeSilence()
@@ -298,7 +307,7 @@ switch ($p) {
 		break;
 }
 
-// Userpage JS	
+// Userpage JS
 if (isset($_GET["u"]) && !isset($_GET["p"])) {
 	echo '<script src="/js/user.js"></script>';
 }

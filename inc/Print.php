@@ -309,6 +309,14 @@ class P {
 			if (!$userData || !$userStatsData) {
 				throw new Exception("That user doesn't exist");
 			}
+			// Hax check
+			if ($userData["aqn"] == 1) {
+				$haxText = "Yes";
+				$haxCol = "danger";
+			} else {
+				$haxText = "No";
+				$haxCol = "success";
+			}
 			// Set readonly stuff
 			$readonly[0] = ''; // User data stuff
 			$readonly[1] = ''; // Username color/style stuff
@@ -423,16 +431,39 @@ class P {
 			<td><p class="text-center"><input type="text" name="sr" class="form-control" value="'.$userData['silence_reason'].'"></td>
 			</tr>';
 			echo '<tr>
-			<td>Avatar</td>
-			<td><img src="'.URL::Avatar().'/'.$_GET['id'].'" height="50" width="50"></img>	<a onclick="sure(\'submit.php?action=resetAvatar&id='.$_GET['id'].'\')">Reset avatar</a></td>
+			<td>Avatar<br><a onclick="sure(\'submit.php?action=resetAvatar&id='.$_GET['id'].'\')">(reset avatar)</a></td>
+			<td><img src="'.URL::Avatar().'/'.$_GET['id'].'" height="50" width="50"></img></td>
+			</tr>';
+			echo '<tr>
+			<td>Detected AQN folder
+				<br>
+				<i>If \'yes\', AQN (hax) folder has been<br>detected on this user, so he is<br>probably cheating.</i></td>
+			</td>
+			<td><span class="label label-'.$haxCol.'">'.$haxText.'</span></td>
 			</tr>';
 			echo '</tbody></form>';
 			echo '</table>';
-			echo '<div class="text-center">
+			echo '<div class="text-center" style="width:50%; margin-left:25%;">
 					<button type="submit" form="system-settings-form" class="btn btn-primary">Save changes</button><br><br>
-					<a href="index.php?p=104&id='.$_GET['id'].'" class="btn btn-danger">Change identity</a>
-					<a href="index.php?p=110&id='.$_GET['id'].'" class="btn btn-success">Edit badges</a>
-					<a href="index.php?u='.$_GET['id'].'" class="btn btn-warning">View profile</a>
+
+					<br><br>
+					<b>If you have made any changes to this user through this page, make sure to save them before using one of the following functions, otherwise unsubmitted changes will be lost.</b>
+					<ul class="list-group">
+						<li class="list-group-item list-group-item-info">Actions</li>
+						<li class="list-group-item">
+							<a href="index.php?p=110&id='.$_GET['id'].'" class="btn btn-success">Edit badges</a>
+							<a href="index.php?p=104&id='.$_GET['id'].'" class="btn btn-info">Change identity</a>
+							<a href="index.php?u='.$_GET['id'].'" class="btn btn-warning">View profile</a>
+						</li>
+					</ul>
+					<ul class="list-group">
+						<li class="list-group-item list-group-item-danger">Dangerous Zone</li>
+						<li class="list-group-item">
+							<a onclick="reallysure(\'submit.php?action=wipeAccount&id='.$_GET['id'].'\')" class="btn btn-danger">Wipe account</a>
+							<a onclick="sure(\'submit.php?action=banUnbanUser&id='.$_GET['id'].'\')" class="btn btn-danger">(Un)ban user</a>
+							<br>
+						</li>
+					</ul>
 				</div>';
 			echo '</div>';
 		}
@@ -1456,13 +1487,13 @@ WHERE users_stats.id = ?', [$u]);
 			} else {
 				$userStyle = $userData["user_style"];
 			}
-			
+
 			// Print API token data for scores retrieval
 			APITokens::PrintScript(sprintf('var UserID = %s; var Mode = %s;', $userData["id"], $m));
-			
+
 			// Get top/recent plays for this mode
 			$beatmapsTable = ($ScoresConfig["useNewBeatmapsTable"] ? "beatmaps" : "beatmaps_names" );
-			$beatmapsField = ($ScoresConfig["useNewBeatmapsTable"] ? "song_name" : "beatmap_name" );			
+			$beatmapsField = ($ScoresConfig["useNewBeatmapsTable"] ? "song_name" : "beatmap_name" );
 			$orderBy = ($ScoresConfig["enablePP"] ? "pp" : "score" );
 			// Bold selected mode text.
 			$modesText[$m] = '<b>'.$modesText[$m].'</b>';
@@ -1651,15 +1682,15 @@ WHERE users_stats.id = ?', [$u]);
 			</div>
 			</div>
 			<div id ="userpage-plays">';
-			
+
 			echo '<table class="table" id="best-plays-table">
 			<tr><th class="text-left"><i class="fa fa-trophy"></i>	Top plays</th><th class="text-right">' . $scoringName . '</th></tr>';
 			echo '</table>';
 			echo '<button type="button" class="btn btn-default load-more-user-scores" data-rel="best" disabled>Show me more!</button>';
-			
+
 			// brbr it's so cold
 			echo '<br><br><br>';
-			
+
 			// print table skeleton
 			echo '<table class="table" id="recent-plays-table">
 			<tr><th class="text-left"><i class="fa fa-clock-o"></i>	Recent plays</th><th class="text-right">' . $scoringName . '</th></tr>';

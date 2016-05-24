@@ -149,6 +149,10 @@ try {
 			sessionCheckAdmin();
 			D::SaveEditReport();
 		break;
+		case 'wipeAccount':
+			sessionCheckAdmin();
+			D::WipeAccount();
+		break;
 	}
 }
 catch(Exception $e) {

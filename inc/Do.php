@@ -993,6 +993,38 @@ class D {
 	}
 
 	/*
+	 * WipeAccount
+	 * Wipes an account
+	*/
+	public static function WipeAccount() {
+		try {
+			if (!isset($_GET['id']) || empty($_GET['id'])) {
+				throw new Exception('Invalid request');
+			}
+
+			if (!checkUserExists($_GET['id'], true)) {
+				throw new Exception('User doesn\'t exist.');
+			}
+
+			// Get username
+			$username = getUserUsername($_GET['id']);
+			// Delete all scores
+			$GLOBALS['db']->execute('DELETE FROM scores WHERE username = ?', [$username]);
+			// Reset mode stats
+			$modes = ['std', 'taiko', 'ctb', 'mania'];
+			foreach ($modes as $k) {
+				$GLOBALS['db']->execute('UPDATE users_stats SET ranked_score_'.$k.' = 0, total_score_'.$k.' = 0, replays_watched_'.$k.' = 0, playcount_'.$k.' = 0, avg_accuracy_'.$k.' = 0.0, total_hits_'.$k.' = 0, level_'.$k.' = 0, pp_'.$k.' = 0 WHERE id = ?', [$_GET['id']]);
+			}
+
+			// Done
+			redirect('index.php?p=102&s=User scores and stats have been wiped!');
+		}
+		catch(Exception $e) {
+			redirect('index.php?p=102&e='.$e->getMessage());
+		}
+	}
+
+	/*
 	 * SaveEditReport
 	 * Saves an edited report (ADMIN CP)
 	*/
