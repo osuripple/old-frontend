@@ -12,6 +12,10 @@ class D {
 			if (empty($_POST['u']) || empty($_POST['p1']) || empty($_POST['p2']) || empty($_POST['e']) || empty($_POST['k'])) {
 				throw new Exception(0);
 			}
+			// Make sure registrations are enabled
+			if (!checkRegistrationsEnabled()) {
+				throw new Exception(10);
+			}
 			// Validate password through our helper
 			$pres = PasswordHelper::ValidatePassword($_POST['p1'], $_POST['p2']);
 			if ($pres !== -1) {

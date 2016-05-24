@@ -1899,7 +1899,7 @@ WHERE users_stats.id = ?', [$u]);
 		}
 		echo '<br><div id="narrow-content"><h1><i class="fa fa-plus-circle"></i>	Sign up</h1>';
 		// Print Exception if set and valid
-		$exceptions = ['Nice troll.', 'Please get your shit together and make a better password', "barney is a dinosaur your password doesn't maaatch!", "D'ya know? your password is dumb. it's also one of the most used around the entire internet. yup.", "The email isn't valid.", "Please write a username that respects osu!'s username criteria.", 'That username was already found in the database! Perhaps someone stole it from you? Those bastards!', 'That email was already found in the database!', 'Invalid beta key.', 'Username now allowed. Please choose another one.'];
+		$exceptions = ['Nice troll.', 'Please get your shit together and make a better password', "barney is a dinosaur your password doesn't maaatch!", "D'ya know? your password is dumb. it's also one of the most used around the entire internet. yup.", "The email isn't valid.", "Please write a username that respects osu!'s username criteria.", 'That username was already found in the database! Perhaps someone stole it from you? Those bastards!', 'That email was already found in the database!', 'Invalid beta key.', 'Username now allowed. Please choose another one.', 'Registrations are currently disabled.'];
 		if (isset($_GET['e']) && isset($exceptions[$_GET['e']])) {
 			self::ExceptionMessage($exceptions[$_GET['e']]);
 		}
