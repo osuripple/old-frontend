@@ -28,7 +28,7 @@ class D {
 				throw new Exception(4);
 			}
 			// Check if username is valid
-			if (!preg_match('/^[A-Za-z0-9 _\\-\\[\\]]{3,20}$/i', $_POST['u'])) {
+			if (!preg_match('/^[A-Za-z0-9 _\\-\\[\\]]{2,15}$/i', $_POST['u'])) {
 				throw new Exception(5);
 			}
 			// Make sure username is not forbidden
