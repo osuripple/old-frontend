@@ -579,7 +579,7 @@ class D {
 			}
 			// Check if we are creating or editing a doc page
 			if ($_POST['id'] == 0) {
-				$GLOBALS['db']->execute('INSERT INTO docs (id, doc_name, doc_contents, public) VALUES (NULL, ?, ?, ?)', [$_POST['t'], $_POST['c'], $_POST['p']]);
+				$GLOBALS['db']->execute('INSERT INTO docs (id, doc_name, doc_contents, public, is_rule) VALUES (NULL, ?, ?, ?, "0")', [$_POST['t'], $_POST['c'], $_POST['p']]);
 			} else {
 				$GLOBALS['db']->execute('UPDATE docs SET doc_name = ?, doc_contents = ?, public = ? WHERE id = ?', [$_POST['t'], $_POST['c'], $_POST['p'], $_POST['id']]);
 			}
