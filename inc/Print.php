@@ -385,11 +385,20 @@ class P {
 			<select name="country" class="selectpicker" data-width="100%">
 			';
 			require_once dirname(__FILE__) . "/countryCodesReadable.php";
+			asort($c);
+			// Push XX to top
+			$c = array('XX' => $c['XX']) + $c;
+			reset($c);
 			foreach ($c as $k => $v) {
 				$sd = "";
 				if ($userStatsData['country'] == $k)
 					$sd = "selected";
-				echo "<option value='$k' $sd>$v</option>\n";
+				$ks = strtolower($k);
+				if (!file_exists(dirname(__FILE__) . "/../images/flags/$ks.png"))
+					$ks = "xx";
+				echo "<option value='$k' $sd data-content=\""
+					. "<img src='images/flags/$ks.png' alt='$k'>"
+					. " $v\"></option>\n";
 			}
 			echo '
 			</select>
