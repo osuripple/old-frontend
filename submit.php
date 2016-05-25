@@ -153,6 +153,10 @@ try {
 			sessionCheckAdmin();
 			D::WipeAccount();
 		break;
+		case 'setRulesPage':
+			sessionCheckAdmin();
+			D::SetRulesPage();
+		break;
 	}
 }
 catch(Exception $e) {

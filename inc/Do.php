@@ -1082,4 +1082,21 @@ class D {
 			redirect('index.php?p=99&e='.$e->getMessage());
 		}
 	}
+	
+	/*
+	 * SetRulesPage
+	 * Set the new rules page
+	 */
+	public static function SetRulesPage() {
+		try {
+			if (!isset($_GET['id']))
+				throw new Exception('no');
+			$GLOBALS['db']->execute('UPDATE docs SET is_rule = "0"');
+			$GLOBALS['db']->execute('UPDATE docs SET is_rule = "1" WHERE id = ?', [$_GET['id']]);
+			redirect('index.php?p=106&s='.$_GET['id'].' is now the new rules page!');
+		}
+		catch (Exception $e) {
+			redirect('index.php?p=106&e='.$e->getMessage());
+		}
+	}
 }

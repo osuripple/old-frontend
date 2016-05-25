@@ -154,9 +154,6 @@ function setTitle($p) {
 			case 14:
 				return '<title>Ripple - Documentation files</title>';
 			break;
-			case 15:
-				return '<title>Ripple - Read documentation</title>';
-			break;
 			case 16:
 				return '<title>Ripple - Read documentation</title>';
 			break;
@@ -330,13 +327,6 @@ function printPage($p) {
 				listDocumentationFiles();
 			break;
 				// Show documentation file (check if f is set to avoid errors and stuff)
-
-			case 15:
-				if (isset($_GET['f']) && !empty($_GET['f'])) {
-					redirectToNewDocs($_GET['f']);
-				} else {
-					redirectToNewDocs(null);
-				}
 			break;
 				// Show documentation, v2 with database
 
@@ -1031,20 +1021,6 @@ function listDocumentationFiles() {
 	echo '</div>';
 }
 /*
- * redirectToNewDocs
- * Redirects the user to the new documentation file's place.
- *
- * @param (string) ($docname) The documentation file name.
-*/
-function redirectToNewDocs($docname) {
-	$new = $GLOBALS['db']->fetch('SELECT id FROM docs WHERE old_name = ?;', [$docname]);
-	if ($new == false) {
-		redirect('index.php?p=16&id=9001');
-	} else {
-		redirect('index.php?p=16&id='.$new['id']);
-	}
-}
-/*
  * getDocPageAndParse
  * Gets a page on the documentation.
  *
@@ -1059,7 +1035,7 @@ function getDocPageAndParse($docid) {
 		if ($docid === null) {
 			throw new Exception();
 		}
-		$doc = $GLOBALS['db']->fetch('SELECT doc_contents, public FROM docs WHERE id = ?;', $docid);
+		$doc = $GLOBALS['db']->fetch('SELECT doc_contents, public FROM docs WHERE id = ? AND is_rule = "0";', $docid);
 		if ($doc['public'] == '0' && !sessionCheckAdmin(1)) {
 			return;
 		}

@@ -923,7 +923,7 @@ class P {
 	*/
 	public static function AdminDocumentation() {
 		// Get data
-		$docsData = $GLOBALS['db']->fetchAll('SELECT * FROM docs');
+		$docsData = $GLOBALS['db']->fetchAll('SELECT id, doc_name, public, is_rule FROM docs');
 		// Print docs stuff
 		echo '<div id="wrapper">';
 		printAdminSidebar();
@@ -953,14 +953,18 @@ class P {
 				$publicColor = 'danger';
 				$publicText = 'No';
 			}
+			$ruletxt = "";
+			if ($doc['is_rule']) 
+				$ruletxt = " <b>(rules)</b>";
 			// Print row for this doc page
 			echo '<tr>
 			<td><p class="text-center">'.$doc['id'].'</p></td>
-			<td><p class="text-center">'.$doc['doc_name'].'</p></td>
+			<td><p class="text-center">'.$doc['doc_name'].$ruletxt.'</p></td>
 			<td><p class="text-center"><span class="label label-'.$publicColor.'">'.$publicText.'</span></p></td>
 			<td><p class="text-center">
 			<a title="Edit page" class="btn btn-xs btn-primary" href="index.php?p=107&id='.$doc['id'].'"><span class="glyphicon glyphicon-pencil"></span></a>
 			<a title="View page" class="btn btn-xs btn-success" href="index.php?p=16&id='.$doc['id'].'"><span class="glyphicon glyphicon-eye-open"></span></a>
+			<a title="Make rules page" class="btn btn-xs btn-warning" href="submit.php?action=setRulesPage&id='.$doc['id'].'"><i class="fa fa-exclamation-circle" aria-hidden="true"></i></a>
 			<a title="Delete page" class="btn btn-xs btn-danger" onclick="sure(\'submit.php?action=removeDoc&id='.$doc['id'].'\');"><span class="glyphicon glyphicon-trash"></span></a>
 			</p></td>
 			</tr>';
@@ -1781,7 +1785,14 @@ WHERE users_stats.id = ?', [$u]);
 		self::MaintenanceStuff();
 		// Global alert
 		self::GlobalAlert();
-		echo file_get_contents('./html_static/rules.html');
+		$doc = $GLOBALS['db']->fetch('SELECT doc_contents FROM docs WHERE is_rule = "1" LIMIT 1');
+		if (!$doc) {
+			self::ExceptionMessage('Looks like the admins forgot to set a rules page in their documentation file listing. Which means, anarchy reigns here!');
+			return;
+		}
+		require_once 'parsedown.php';
+		$p = new Parsedown();
+		echo "<div class='text-left'>".$p->text($doc['doc_contents']).'</div>';
 	}
 
 	/*
