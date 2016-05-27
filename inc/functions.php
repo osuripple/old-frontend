@@ -405,7 +405,21 @@ function printPage($p) {
 				// 404 page
 
 			default:
-				echo '<br><h1>404</h1><p>Page not found. Meh.</p>';
+				define('NotFound', '<br><h1>404</h1><p>Page not found. Meh.</p>');
+				if ($p < 100)
+					echo NotFound;
+				else {
+						echo '
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <div id="content">
+					' . NotFound . '
+                    </div>
+                </div>
+            </div>
+        </div>';
+				}
 			break;
 		}
 	} else {
