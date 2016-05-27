@@ -49,7 +49,13 @@ class Login {
 			if (!PasswordHelper::CheckPass($_POST['u'], $_POST['p'], false)) {
 				throw new Exception(1);
 			}
-			$us = $GLOBALS['db']->fetch('SELECT id, allowed, password_md5, username FROM users WHERE username = ?', [$_POST['u']]);
+			$us = $GLOBALS['db']->fetch('
+			SELECT
+				users.id, users.allowed, users.password_md5,
+				users.username, users_stats.country
+			FROM users
+			LEFT JOIN users_stats ON users_stats.id = users.id
+			WHERE users.username = ?', [$_POST['u']]);
 			// Ban check
 			if ($us['allowed'] === '0') {
 				throw new Exception(2);
@@ -71,6 +77,9 @@ class Login {
 			updateSafeTitle();
 			// Save latest activity
 			updateLatestActivity($_SESSION['username']);
+			// Update country if XX
+			if ($us['country'] == 'XX')
+				updateUserCountry($us['id'], 'id');
 			$ret['success'] = true;
 		}
 		catch(Exception $e) {

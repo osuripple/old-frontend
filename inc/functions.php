@@ -687,14 +687,22 @@ function printAdminPanel($c, $i, $bt, $st) {
 */
 function getUserCountry() {
 	$ip = getIP();
-	if (!$ip) {
+	if (!$ip || $ip == '127.0.0.1') {
 		return 'XX'; // Return XX if $ip isn't valid.
 
 	}
 	// otherwise, retrieve the contents from ip.zxq.co's API
 	$data = get_contents_http("http://ip.zxq.co/$ip/country");
 	// And return the country. If it's set, that is.
-	return $data != '' ? $data : 'XX';
+	return strlen($data) == 2 ? $data : 'XX';
+}
+// updateUserCountry updates the user's country in the database with the country they
+// are currently connecting from.
+function updateUserCountry($u, $field = 'username') {
+	$c = getUserCountry();
+	if ($c == 'XX')
+		return;
+	$GLOBALS['db']->execute("UPDATE users_stats SET country = ? WHERE $field = ?", [$c, $u]);
 }
 function countryCodeToReadable($cc) {
 	require_once dirname(__FILE__).'/countryCodesReadable.php';
@@ -1116,104 +1124,6 @@ function getPlaymodeText($playModeInt, $readable = false) {
 		break;
 	}
 }
-/****************************************
- **		 SUBMIT MODULAR FUNCTIONS 	   **
- ****************************************/
-/*
- * saveScore
- * Save a score in db
- *
- * @param (array) ($scoreDataArray) Score data array (exploded string)
- * @param (int)   ($completed) Value of completed. 0: Failed, 1: Retried, 2: Completed but no best score, 3: Best score. Default is 2. Optional.
- * @param (bool)  ($saveScore) Save this score in DB. Default is true. Optional.
- * @param (bool)  ($increasePlaycount) Increase playcount of score user. Default is true. Optional.
- * @return (int) Play ID int, used to store replayID (which is the same as play ID)
-*/
-function saveScore($scoreDataArray, $completed = 2, $saveScore = true, $increasePlaycount = true) {
-	// Save exploded string into human readable vars
-	$beatmapHash = $scoreDataArray[0];
-	$username = rtrim($scoreDataArray[1], ' ');
-	//$??	 		= $scoreDataArray[2];
-	$count300 = $scoreDataArray[3];
-	$count100 = $scoreDataArray[4];
-	$count50 = $scoreDataArray[5];
-	$countGeki = $scoreDataArray[6];
-	$countKatu = $scoreDataArray[7];
-	$countMisses = $scoreDataArray[8];
-	$score = $scoreDataArray[9];
-	$maxCombo = $scoreDataArray[10];
-	$fullCombo = $scoreDataArray[11] == 'True';
-	$rank = $scoreDataArray[12];
-	$mods = $scoreDataArray[13];
-	$passed = $scoreDataArray[14] == 'True';
-	$playMode = $scoreDataArray[15];
-	$playDateTime = $scoreDataArray[16];
-	$osuVersion = $scoreDataArray[17];
-	$playModeText = getPlaymodeText($playMode);
-	// Update country flag
-	updateCountryIfNeeded($username);
-	// Update latest activity
-	updateLatestActivity($username);
-	// If we have played with some unranked mods, let's not save the score.
-	if (!isRankable($mods)) {
-		if ($increasePlaycount) {
-			increasePlaycountAndScore($playModeText, $score, $username);
-		}
-
-		return 0;
-	}
-	// We have finished a song
-	if ($completed == 2) {
-		// We've finished a song
-		// Get our best play for this beatmap
-		$topScore = $GLOBALS['db']->fetch('SELECT * FROM scores WHERE beatmap_md5 = ? AND username = ? AND play_mode = ? AND completed = 3', [$beatmapHash, $username, $playMode]);
-		if ($topScore) {
-			// We have a top score on this map, so it's not a first play.
-			// Check if the score that we are submitting is better than our top one
-			if ($score > $topScore['score']) {
-				// New best score!
-				$completed = 3;
-				// Get difference (so we add only the right amount of score to total score)
-				$scoreDifference = $score - $topScore['score'];
-				// Change old best score to normal completed score
-				$GLOBALS['db']->execute('UPDATE scores SET completed = 2 WHERE id = ?', $topScore['id']);
-			} else {
-				// No new best score :(
-				$completed = 2;
-				// Since we've made a worse score, we add nothing to our total score
-				$scoreDifference = 0;
-			}
-		} else {
-			// This is the first time that we play and finish this map, so it's a top score
-			$completed = 3;
-			// Score difference is equal to current score because this is our first play
-			$scoreDifference = $score;
-		}
-		// Do total score + score difference (on our play mode) if we have a new best
-		if ($completed == 3) {
-			// Update ranked score
-			$GLOBALS['db']->execute('UPDATE users_stats SET ranked_score_'.$playModeText.'=ranked_score_'.$playModeText.'+? WHERE username = ?', [$scoreDifference, $username]);
-			// Update leaderboard
-			// Ayy lmao, we don't know the score
-			$rankedscore = $GLOBALS['db']->fetch("SELECT ranked_score_$playModeText FROM users_stats WHERE username = ?", [$username]);
-			Leaderboard::Update(getUserID($username), $rankedscore["ranked_score_$playModeText"], $playModeText);
-		}
-	}
-	if ($increasePlaycount) {
-		increasePlaycountAndScore($playModeText, $score, $username);
-	}
-	// Add score in db if we want it
-	if ($saveScore) {
-		$acc = strval(calculateAccuracy($count300, $count100, $count50, $countGeki, $countKatu, $countMisses, $playMode));
-		$GLOBALS['db']->execute('INSERT INTO scores (id, beatmap_md5, username, score, max_combo, full_combo, mods, 300_count, 100_count, 50_count, katus_count, gekis_count, misses_count, time, play_mode, completed, accuracy) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);', [$beatmapHash, $username, $score, $maxCombo, $fullCombo, $mods, $count300, $count100, $count50, $countKatu, $countGeki, $countMisses, $playDateTime, $playMode, $completed, $acc]);
-		$r = $GLOBALS['db']->lastInsertId();
-		updateAccuracy($username, $playMode);
-
-		return $r;
-	}
-	// Return 0 if we haven't submitted any score
-	return 0;
-}
 /*
  * getFirstPlacePlayID
  * Get #1 play id on $hash beatmap
@@ -1378,28 +1288,6 @@ function isRankable($mod) {
 		return false;
 	} else {
 		return true;
-	}
-}
-/*
- * updateCountryIfNeeded
- * Updates the user's country in the database if the country is still XX.
- *
- * @param (string) ($username) The username of the user. What a dumb explaination.
-*/
-function updateCountryIfNeeded($username) {
-	// If we're doing stuff from localhost, don't even try.
-	if (getIP() == '127.0.0.1') {
-		return;
-	}
-	$userCountry = $GLOBALS['db']->fetch('SELECT country FROM users_stats WHERE username = ?;', $username);
-	if ($userCountry === false) {
-		return;
-	}
-	if ($userCountry['country'] == 'XX') {
-		$actualUserCountry = getUserCountry();
-		if ($actualUserCountry != 'XX') {
-			$GLOBALS['db']->execute('UPDATE users_stats SET country=? WHERE username = ?;', [$actualUserCountry, $username]);
-		}
 	}
 }
 /*
