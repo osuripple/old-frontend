@@ -62,7 +62,7 @@ class D {
 			}
 			// Invalidate beta key
 			$GLOBALS['db']->execute('UPDATE beta_keys SET allowed = 0 WHERE key_md5 = ?', md5($_POST['k']));
-			Schiavo::Bunk("User ($_POST[u] | $_POST[e]) registered (successfully) from " . $_SERVER["REMOTE_ADDR"]);
+			Schiavo::Bunk("User ($_POST[u] | $_POST[e]) registered (successfully) from " . getIP());
 			// All fine, done
 			redirect('index.php?p=3&s=lmao');
 		}

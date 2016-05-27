@@ -6,7 +6,7 @@ class APITokens {
 			return $_SESSION["APIToken"];
 		}
 		$key = randomString(32, '0123456789abcdef');
-		$GLOBALS["db"]->execute("INSERT INTO tokens(user, privileges, description, token, private) VALUES (?, '0', ?, ?, '1')", array($_SESSION['userid'], $_SERVER['REMOTE_ADDR'], md5($key)));
+		$GLOBALS["db"]->execute("INSERT INTO tokens(user, privileges, description, token, private) VALUES (?, '0', ?, ?, '1')", array($_SESSION['userid'], getIP(), md5($key)));
 		$_SESSION["APIToken"] = $key;
 		return $key;
 	}
