@@ -518,7 +518,7 @@ function printNavbar() {
 						<li class="dropdown-submenu"><a href="index.php?p=21"><i class="fa fa-info-circle"></i>	About</a></li>
 					</ul>
 				</li>';
-		if (getUserRank($_SESSION['username']) >= 4) {
+		if (getUserRank($_SESSION['username']) >= 3) {
 			echo '<li><a href="index.php?p=100"><i class="fa fa-cog"></i>	<b>Admin Panel</b></a></li>';
 		}
 	}
@@ -754,7 +754,7 @@ function sessionCheckAdmin($e = 0) {
  * Checks if $u user is an admin
 */
 function checkAdmin($u) {
-	if (getUserRank($u) < 4) {
+	if (getUserRank($u) < 3) {
 		return false;
 	} else {
 		return true;

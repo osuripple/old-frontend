@@ -407,8 +407,9 @@ class D {
 				throw new Exception("That user doesn\'t exist");
 			}
 			// Check if we can edit this user
-			if (getUserRank($_POST['u']) >= getUserRank($_SESSION['username']) && $_POST['u'] != $_SESSION['username']) {
-				throw new Exception("You dont't have enough permissions to edit this user");
+			//if (getUserRank($_POST['u']) >= getUserRank($_SESSION['username']) && $_POST['u'] != $_SESSION['username']) {
+			if (getUserRank($_POST['u']) >= 3 && $_POST['u'] != $_SESSION['username']) {
+				throw new Exception("You don't have enough permissions to edit this user");
 			}
 			// Check if email is valid
 			if (!filter_var($_POST['e'], FILTER_VALIDATE_EMAIL)) {
@@ -467,8 +468,8 @@ class D {
 			// Get user's username and allowed status
 			$user = $GLOBALS['db']->fetch('SELECT username, allowed FROM users WHERE id = ?', $_GET['id']);
 			// Check if we can ban this user
-			if (getUserRank($user["username"]) >= getUserRank($_SESSION['username'])) {
-				throw new Exception("You dont't have enough permissions to ban this user");
+			if (getUserRank($user["username"]) >= 3) {
+				throw new Exception("You don't have enough permissions to ban this user");
 			}
 			// Get new allowed value
 			if ($user["allowed"] == 1) {
@@ -544,12 +545,16 @@ class D {
 	public static function ChangeIdentity() {
 		try {
 			// Check if everything is set
-			if (!isset($_POST['id']) || !isset($_POST['oldu']) || !isset($_POST['newu']) || !isset($_POST['ks']) || empty($_POST['id']) || empty($_POST['oldu']) || empty($_POST['newu'])) {
+			if (!isset($_POST['id']) || !isset($_POST['oldu']) || !isset($_POST['newu']) || empty($_POST['id']) || empty($_POST['oldu']) || empty($_POST['newu'])) {
 				throw new Exception('Nice troll.');
 			}
 			// Check if we can edit this user
-			if (getUserRank($_POST['oldu']) >= getUserRank($_SESSION['username']) && $_POST['oldu'] != $_SESSION['username']) {
-				throw new Exception("You dont't have enough permissions to edit this user");
+			if (getUserRank($_POST['oldu']) >= 3 && $_POST['oldu'] != $_SESSION['username']) {
+				throw new Exception("You don't have enough permissions to edit this user");
+			}
+			// Make sure the new username doesn't already exist
+			if (checkUserExists($_POST['newu'])) {
+				throw new Exception("Username already used by another user. No changes have been made.");
 			}
 			// Change stuff
 			$GLOBALS['db']->execute('UPDATE users SET username = ? WHERE id = ?', [$_POST['newu'], $_POST['id']]);
@@ -1076,7 +1081,7 @@ class D {
 			redirect('index.php?p=99&e='.$e->getMessage());
 		}
 	}
-	
+
 	/*
 	 * SetRulesPage
 	 * Set the new rules page
