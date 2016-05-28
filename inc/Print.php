@@ -158,11 +158,11 @@ class P {
 				break;
 				case 3:
 					$rankColor = 'info';
-					$rankText = 'Mod';
+					$rankText = 'Developer';
 				break;
 				case 4:
 					$rankColor = 'warning';
-					$rankText = 'Admin';
+					$rankText = 'CM';
 				break;
 			}
 			// Print row
@@ -326,9 +326,9 @@ class P {
 				// Allow to edit only user stats
 				$readonly[0] = 'readonly';
 				$selectDisabled = 'disabled';
-			} elseif ($userData['rank'] >= getUserRank($_SESSION['username'])) {
+			} elseif ($userData['rank'] >= 3) {
 				// We are trying to edit a user with same/higher rank than us :akerino:
-				redirect("index.php?p=102&e=You dont't have enough permissions to edit this user");
+				redirect("index.php?p=102&e=You don't have enough permissions to edit this user");
 				die();
 			}
 			// Print edit user stuff
@@ -373,8 +373,8 @@ class P {
 			<select name="r" class="selectpicker" data-width="100%" '.$selectDisabled.'>
 			<option value="1" '.$selected[0][1].'>User</option>
 			<option value="2" '.$selected[0][2].'>Supporter</option>
-			<option value="3" '.$selected[0][3].'>Mod (not working yet)</option>
-			<option value="4" '.$selected[0][4].'>Admin</option>
+			<option value="3" '.$selected[0][3].'>Developer</option>
+			<option value="4" '.$selected[0][4].'>Community Manager</option>
 			</select>
 			</td>
 			<!-- <td><p class="text-center"><input type="number" name="r" class="form-control" value="'.$userData['rank'].'" '.$readonly[0].'></td> -->
@@ -496,8 +496,8 @@ class P {
 				throw new Exception("That user doesn't exist");
 			}
 			// Check if we are trying to edit our account or a higher rank account
-			if ($userData['username'] != $_SESSION['username'] && $userData['rank'] >= getUserRank($_SESSION['username'])) {
-				throw new Exception("You dont't have enough permissions to edit this user.");
+			if ($userData['username'] != $_SESSION['username'] && $userData['rank'] >= 3) {
+				throw new Exception("You don't have enough permissions to edit this user.");
 			}
 			// Print edit user stuff
 			echo '<div id="wrapper">';
@@ -524,18 +524,9 @@ class P {
 			<td>Old Username</td>
 			<td><p class="text-center"><input type="text" name="oldu" class="form-control" value="'.$userData['username'].'" readonly></td>
 			</tr>';
-			echo '<tr class="success">
+			echo '<tr>
 			<td>New Username</td>
 			<td><p class="text-center"><input type="text" name="newu" class="form-control"></td>
-			</tr>';
-			echo '<tr>
-			<td>Keep old scores<br>(with new username)</td>
-			<td>
-			<select name="ks" class="selectpicker" data-width="100%">
-			<option value="1" selected>Yes</option>
-			<option value="0">No</option>
-			</select>
-			</td>
 			</tr>';
 			echo '</tbody></form>';
 			echo '</table>';
@@ -954,7 +945,7 @@ class P {
 				$publicText = 'No';
 			}
 			$ruletxt = "";
-			if ($doc['is_rule']) 
+			if ($doc['is_rule'])
 				$ruletxt = " <b>(rules)</b>";
 			// Print row for this doc page
 			echo '<tr>
