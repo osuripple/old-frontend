@@ -127,7 +127,6 @@ class D {
 			}
 			$key = randomString(80);
 			$GLOBALS['db']->execute('INSERT INTO password_recovery (k, u) VALUES (?, ?);', [$key, $username]);
-			require_once dirname(__FILE__).'/SimpleMailgun.php';
 			$mailer = new SimpleMailgun($MailgunConfig);
 			$mailer->Send('Ripple <noreply@'.$MailgunConfig['domain'].'>', $user['email'], 'Ripple password recovery instructions', sprintf("Hey %s! Someone, which we really hope was you, requested a password reset for your account. In case it was you, please <a href='%s'>click here</a> to reset your password on Ripple. Otherwise, silently ignore this email.", $username, 'http://'.$_SERVER['HTTP_HOST'].'/index.php?p=19&k='.$key.'&user='.$username));
 			redirect('index.php?p=18&s=sent');
@@ -1038,13 +1037,26 @@ class D {
 				throw new Exception('Invalid request');
 			}
 			// Get current report status from db
-			$reportData = $GLOBALS['db']->fetch('SELECT id FROM reports WHERE id = ?', [$_POST['id']]);
+			$reportData = $GLOBALS['db']->fetch('SELECT reports.id, reports.name, users.email, users.username FROM reports LEFT JOIN users ON reports.from_username = users.username WHERE reports.id = ?', [$_POST['id']]);
 			// Make sure the report exists
 			if (!$reportData) {
 				throw new Exception("That report doesn't exist");
 			}
 			// Edit report status
 			$GLOBALS['db']->execute('UPDATE reports SET status = ?, response = ?, update_time = ? WHERE id = ?', [$_POST['s'], $_POST['r'], time(), $_POST['id']]);
+			// Send notification email
+			global $MailgunConfig;
+			$mailer = new SimpleMailgun($MailgunConfig);
+			$mailer->Send(
+				'Ripple <noreply@'.$MailgunConfig['domain'].'>', $reportData['email'],
+				'Response to your report "' . $reportData['name'] . '" ',
+				sprintf(
+					"Hey %s! The Ripple support team replied to your report.<br><blockquote>%s</blockquote><br>Current status of the report: <b>%s</b>.",
+					$reportData['username'],
+					str_replace("\n", "<br>", htmlspecialchars($_POST['r'])),
+					($_POST['s'] == 1 ? "Open" : "Closed")
+				)
+			);
 			// Done, redirect to success page
 			redirect('index.php?p=113&s=Report updated!');
 		}

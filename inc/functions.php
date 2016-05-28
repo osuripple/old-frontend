@@ -13,6 +13,7 @@ require_once $df.'/Print.php';
 require_once $df.'/RememberCookieHandler.php';
 require_once $df.'/PlayStyleEnum.php';
 require_once $df.'/resize.php';
+require_once $df.'/SimpleMailgun.php';
 // Composer
 require_once $df.'/../vendor/autoload.php';
 // Helpers
