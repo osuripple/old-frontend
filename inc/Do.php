@@ -554,10 +554,6 @@ class D {
 			// Change stuff
 			$GLOBALS['db']->execute('UPDATE users SET username = ? WHERE id = ?', [$_POST['newu'], $_POST['id']]);
 			$GLOBALS['db']->execute('UPDATE users_stats SET username = ? WHERE id = ?', [$_POST['newu'], $_POST['id']]);
-			// Change username in scores if needed
-			if ($_POST['ks'] == 1) {
-				$GLOBALS['db']->execute('UPDATE scores SET username = ? WHERE username = ?', [$_POST['newu'], $_POST['oldu']]);
-			}
 			// Done, redirect to success page
 			redirect('index.php?p=102&s=User identity changed!');
 		}
@@ -1010,10 +1006,8 @@ class D {
 				throw new Exception('User doesn\'t exist.');
 			}
 
-			// Get username
-			$username = getUserUsername($_GET['id']);
 			// Delete all scores
-			$GLOBALS['db']->execute('DELETE FROM scores WHERE username = ?', [$username]);
+			$GLOBALS['db']->execute('DELETE FROM scores WHERE userid = ?', [$_GET['id']]);
 			// Reset mode stats
 			$modes = ['std', 'taiko', 'ctb', 'mania'];
 			foreach ($modes as $k) {

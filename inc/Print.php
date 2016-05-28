@@ -10,10 +10,25 @@ class P {
 		$totalScores = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM scores'));
 		$betaKeysLeft = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM beta_keys WHERE allowed = 1'));
 		$rankedBeatmaps = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM beatmaps WHERE ranked = 1'));
-		//$suspiciousScores = current($GLOBALS["db"]->fetch("SELECT COUNT(*) FROM scores WHERE username = 'FokaWooooo'"));
 		$reports = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM reports WHERE status = 1'));
-		$recentPlays = $GLOBALS['db']->fetchAll('SELECT * FROM scores ORDER BY id DESC LIMIT 10');
-		$topPlays = $GLOBALS['db']->fetchAll('SELECT * FROM scores ORDER BY pp DESC LIMIT 10');
+		$recentPlays = $GLOBALS['db']->fetchAll('
+		SELECT 
+			beatmaps.song_name, scores.beatmap_md5, users.username,
+			scores.userid, scores.time, scores.score, scores.pp,
+			scores.play_mode
+		FROM scores
+		LEFT JOIN beatmaps ON beatmaps.beatmap_md5 = scores.beatmap_md5
+		LEFT JOIN users ON users.id = scores.userid
+		ORDER BY scores.id DESC 
+		LIMIT 10');
+		$topPlays = $GLOBALS['db']->fetchAll('SELECT
+			beatmaps.song_name, scores.beatmap_md5, users.username,
+			scores.userid, scores.time, scores.score, scores.pp,
+			scores.play_mode
+		FROM scores
+		LEFT JOIN beatmaps ON beatmaps.beatmap_md5 = scores.beatmap_md5
+		LEFT JOIN users ON users.id = scores.userid
+		ORDER BY scores.pp DESC LIMIT 10');
 		// Print admin dashboard
 		echo '<div id="wrapper">';
 		printAdminSidebar();
@@ -36,14 +51,11 @@ class P {
 		</thead>
 		<tbody>';
 		foreach ($recentPlays as $play) {
-			// Get beatmap name from md5 (beatmaps_names) for this play
-			// TODO: fix calling database each fucking time.
-			$bn = $GLOBALS['db']->fetch('SELECT song_name FROM beatmaps WHERE beatmap_md5 = ?', $play['beatmap_md5']);
+			// set $bn to song name by default. If empty or null, replace with the beatmap md5.
+			$bn = $play['song_name'];
 			// Check if this beatmap has a name cached, if yes show it, otherwise show its md5
-			if ($bn) {
-				$bn = current($bn);
-			} else {
-				$bn = current($GLOBALS['db']->fetch('SELECT beatmap_md5 FROM scores WHERE id = ?', $play['id']));
+			if (!$bn) {
+				$bn = $play['beatmap_md5'];
 			}
 			// Get readable play_mode
 			$pm = getPlaymodeText($play['play_mode']);
@@ -53,7 +65,7 @@ class P {
 			echo '<td class="success"><p class="text-left">'.$bn.'</p></td>';
 			echo '<td class="success"><p class="text-left">'.$pm.'</p></td>';
 			echo '<td class="success"><p class="text-left">'.timeDifference(time(), osuDateToUNIXTimestamp($play['time'])).'</p></td>';
-			echo '<td class="success"><p class="text-right"><b>'.number_format($play['score']).'</b></p></td>';
+			echo '<td class="success"><p class="text-right"><b>'.number_format($play['pp']).'pp; '.number_format($play['pp']).'</b></p></td>';
 			echo '</tr>';
 		}
 		echo '</tbody>';
@@ -64,13 +76,11 @@ class P {
 		</thead>
 		<tbody>';
 		foreach ($topPlays as $play) {
-			// Get beatmap name from md5 (beatmaps_names) for this play
-			$bn = $GLOBALS['db']->fetch('SELECT song_name FROM beatmaps WHERE beatmap_md5 = ?', $play['beatmap_md5']);
+			// set $bn to song name by default. If empty or null, replace with the beatmap md5.
+			$bn = $play['song_name'];
 			// Check if this beatmap has a name cached, if yes show it, otherwise show its md5
-			if ($bn) {
-				$bn = current($bn);
-			} else {
-				$bn = current($GLOBALS['db']->fetch('SELECT beatmap_md5 FROM scores WHERE id = ?', $play['id']));
+			if (!$bn) {
+				$bn = $play['beatmap_md5'];
 			}
 			// Get readable play_mode
 			$pm = getPlaymodeText($play['play_mode']);
@@ -527,15 +537,6 @@ class P {
 			echo '<tr class="success">
 			<td>New Username</td>
 			<td><p class="text-center"><input type="text" name="newu" class="form-control"></td>
-			</tr>';
-			echo '<tr>
-			<td>Keep old scores<br>(with new username)</td>
-			<td>
-			<select name="ks" class="selectpicker" data-width="100%">
-			<option value="1" selected>Yes</option>
-			<option value="0">No</option>
-			</select>
-			</td>
 			</tr>';
 			echo '</tbody></form>';
 			echo '</table>';
@@ -1488,7 +1489,7 @@ WHERE users_stats.id = ?', [$u]);
 			$silenceEndTime = $userData['silence_end'];
 			$silenceReason = $userData['silence_reason'];
 			// Make sure that we have at least one score to calculate maximum combo, otherwise maximum combo is 0
-			$maximumCombo = $GLOBALS['db']->fetch('SELECT max_combo FROM scores WHERE username = ? AND play_mode = ? ORDER BY max_combo DESC LIMIT 1', [$username, $m]);
+			$maximumCombo = $GLOBALS['db']->fetch('SELECT max_combo FROM scores WHERE userid = ? AND play_mode = ? ORDER BY max_combo DESC LIMIT 1', [$userData['id'], $m]);
 			if ($maximumCombo) {
 				$maximumCombo = current($maximumCombo);
 			} else {
