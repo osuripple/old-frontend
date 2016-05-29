@@ -28,7 +28,8 @@ class P {
 		FROM scores
 		LEFT JOIN beatmaps ON beatmaps.beatmap_md5 = scores.beatmap_md5
 		LEFT JOIN users ON users.id = scores.userid
-		ORDER BY scores.pp DESC LIMIT 10');
+		WHERE users.allowed = "1"
+		ORDER BY scores.pp DESC LIMIT 30');
 		// Print admin dashboard
 		echo '<div id="wrapper">';
 		printAdminSidebar();
