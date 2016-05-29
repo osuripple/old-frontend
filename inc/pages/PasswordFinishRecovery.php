@@ -5,7 +5,6 @@ class PasswordFinishRecovery {
 	const URL = 'recovery/finish';
 	const Title = 'Ripple - Password recovery';
 	const LoggedIn = false;
-	public $error_messages = ['Nice troll.', 'Please get your shit together and make a better password.', "barney is a dinosaur your password doesn't maaatch!", "D'ya know? your password is dumb. it's also one of the most used around the entire internet. yup.", "Don't even try."];
 	public $mh_GET = ['k', 'user'];
 	public $mh_POST = ['k', 'user', 'p1', 'p2'];
 
@@ -40,7 +39,7 @@ class PasswordFinishRecovery {
 		try {
 			$d = $GLOBALS['db']->fetch('SELECT id FROM password_recovery WHERE k = ? AND u = ?;', [$_POST['k'], $_POST['user']]);
 			if ($d === false) {
-				throw new Exception(4);
+				throw new Exception("Don't even try.");
 			}
 			// Validate password through our helper
 			$pres = PasswordHelper::ValidatePassword($_POST['p1'], $_POST['p2']);
@@ -54,10 +53,12 @@ class PasswordFinishRecovery {
 			// Delete password reset key
 			$GLOBALS['db']->fetch('DELETE FROM password_recovery WHERE id = ?;', [$d['id']]);
 			// Redirect to success page
-			return 'index.php?p=2&s=0';
+			addSuccess("All right, sunshine! Your password is now changed. Why don't you login with your shiny new password, now?");
+			return 'index.php?p=2';
 		}
 		catch(Exception $e) {
-			return 'index.php?p=19&e='.$e->getMessage().'&k='.$_POST['k'].'&user='.$_POST['user'];
+			addError($e->getMessage());
+			return 'index.php?p=19&e='.'&k='.$_POST['k'].'&user='.$_POST['user'];
 		}
 	}
 }

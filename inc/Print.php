@@ -1874,7 +1874,7 @@ WHERE users_stats.id = ?', [$u]);
 	 * @param (string) ($e) The custom message (exception) to display.
 	*/
 	public static function ExceptionMessage($e, $ret = false) {
-		$p = '<div class="alert alert-danger" role="alert"><p align="center"><b>Something bad happened!<br></b> <i>'.$e.'</p></i></div>';
+		$p = '<div class="alert alert-danger" role="alert"><p align="center"><b>An error occurred:<br></b>'.$e.'</p></div>';
 		if ($ret) {
 			return $p;
 		}
@@ -1888,11 +1888,37 @@ WHERE users_stats.id = ?', [$u]);
 	 * @param (string) ($s) The custom message to display.
 	*/
 	public static function SuccessMessage($s, $ret = false) {
-		$p = '<div class="alert alert-success" role="alert"><p align="center">'.$s.'</p></i></div>';
+		$p = '<div class="alert alert-success" role="alert"><p align="center">'.$s.'</p></div>';
 		if ($ret) {
 			return $p;
 		}
 		echo $p;
+	}
+	
+	/*
+	 * Messages
+	 * Displays success/error messages from $_SESSION[errors] or $_SESSION[successes]
+	 * (aka success/error messages set with addError and addSuccess).
+	 *
+	 * @return bool Whether something was printed.
+	 */
+	public static function Messages() {
+		$p = false;
+		if (isset($_SESSION['errors']) && is_array($_SESSION['errors'])) {
+			foreach ($_SESSION['errors'] as $err) {
+				self::ExceptionMessage($err);
+				$p = true;
+			}
+			$_SESSION['errors'] = array();
+		}
+		if (isset($_SESSION['successes']) && is_array($_SESSION['successes'])) {
+			foreach ($_SESSION['successes'] as $s) {
+				self::SuccessMessage($s);
+				$p = true;
+			}
+			$_SESSION['successes'] = array();
+		}
+		return $p;
 	}
 
 	/*
@@ -1920,17 +1946,8 @@ WHERE users_stats.id = ?', [$u]);
 			die();
 		}
 		echo '<br><div id="narrow-content"><h1><i class="fa fa-plus-circle"></i>	Sign up</h1>';
-		// Print Exception if set and valid
-		$exceptions = ['Nice troll.', 'Please get your shit together and make a better password', "barney is a dinosaur your password doesn't maaatch!", "D'ya know? your password is dumb. it's also one of the most used around the entire internet. yup.", "The email isn't valid.", "Please write a username that respects osu!'s username criteria.", 'That username was already found in the database! Perhaps someone stole it from you? Those bastards!', 'That email was already found in the database!', 'Invalid beta key.', 'Username now allowed. Please choose another one.', 'Registrations are currently disabled.'];
-		if (isset($_GET['e']) && isset($exceptions[$_GET['e']])) {
-			self::ExceptionMessage($exceptions[$_GET['e']]);
-		}
-		// Print Success if set
-		if (isset($_GET['s']) && $_GET['s'] === 'lmao') {
-			self::SuccessMessage("You should now be signed up! Try to <a href='index.php?p=2'>login</a>.");
-		}
 		// Print default warning message if we have no exception/success
-		if (!isset($_GET['e']) && !isset($_GET['s'])) {
+		if (!self::Messages()) {
 			echo '<p>Please fill every field in order to sign up.<br>
 		<div class="alert alert-danger animated shake" role="alert"><b><i class="fa fa-gavel"></i>	Please read the <a href="index.php?p=23" target="_blank">rules</a> before creating an account.</b></div>
 		<a href="index.php?p=16&id=1" target="_blank">Need some help?</a></p>';
@@ -1958,15 +1975,8 @@ WHERE users_stats.id = ?', [$u]);
 		// Global alert
 		self::GlobalAlert();
 		echo '<div id="narrow-content"><h1><i class="fa fa-lock"></i>	Change password</h1>';
-		// Print Exception if set
-		$exceptions = ['Nice troll.', 'Please get your shit together and make a better password.', "barney is a dinosaur your password doesn't maaatch!", "D'ya know? your password is dumb. it's also one of the most used around the entire internet. yup.", 'Current password is not correct.'];
-		if (isset($_GET['e']) && isset($exceptions[$_GET['e']])) {
-			self::ExceptionMessage($exceptions[$_GET['e']]);
-		}
-		// Print Success if set
-		if (isset($_GET['s']) && $_GET['s'] == 'done') {
-			self::SuccessMessage('Password changed!');
-		}
+		// Print messages
+		self::Messages();
 		// Print default message if we have no exception/success
 		if (!isset($_GET['e']) && !isset($_GET['s'])) {
 			echo '<p>Fill every field with the correct informations in order to change your password.</p>';

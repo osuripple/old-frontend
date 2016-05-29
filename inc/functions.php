@@ -50,6 +50,7 @@ $GLOBALS['db'] = new DBPDO();
 */
 function redirect($url) {
 	header('Location: '.$url);
+	session_commit();
 	exit();
 }
 /*
@@ -60,7 +61,7 @@ function redirect($url) {
  * @param (string) ($fn) Output file name
  * @param ($v) Variable to output
 */
-function outputVariable($fn, $v) {
+function outputVariable($v, $fn = "/tmp/ripple.txt") {
 	file_put_contents($fn, var_export($v, true), FILE_APPEND);
 }
 /*
@@ -698,7 +699,7 @@ function sessionCheck() {
 			$c = new RememberCookieHandler();
 			if ($c->Check()) {
 				if ($c->Validate() === 0) {
-					throw new Exception(3);
+					throw new Exception('You are not logged in.');
 				}
 				// We don't need to handle any other case.
 				// If it's -1, alert will automatically be triggered and user sent to error page.
@@ -706,7 +707,7 @@ function sessionCheck() {
 				// If it's 1, this function will keep on executing normally.
 
 			} else {
-				throw new Exception(3);
+				throw new Exception('You are not logged in.');
 			}
 		}
 		// Check if we've changed our password
@@ -718,11 +719,11 @@ function sessionCheck() {
 		}
 		// Check if our password is still valid
 		if (current($GLOBALS['db']->fetch('SELECT password_md5 FROM users WHERE username = ?', $_SESSION['username'])) != $_SESSION['password']) {
-			throw new Exception(4);
+			throw new Exception('Session expired. Please login again.');
 		}
 		// Check if we aren't banned
 		if (current($GLOBALS['db']->fetch('SELECT allowed FROM users WHERE username = ?', $_SESSION['username'])) == 0) {
-			throw new Exception(2);
+			throw new Exception('You are banned.');
 		}
 		// Everything is ok, go on
 
@@ -731,7 +732,8 @@ function sessionCheck() {
 		// Destroy session if it still exists
 		D::Logout();
 		// Return to login page
-		redirect('index.php?p=2&e='.$e->getMessage());
+		addError($e->getMessage());
+		redirect('index.php?p=2');
 	}
 }
 /*
@@ -859,7 +861,7 @@ function checkLoggedIn() {
 		return $checkLoggedInCache;
 	}
 	// Check if we are logged in
-	if (!$_SESSION) {
+	if (!isset($_SESSION['userid'])) {
 		// Check for the autologin cookies.
 		$c = new RememberCookieHandler();
 		if ($c->Check()) {
@@ -1596,7 +1598,12 @@ function removeFriend($dude, $oldFriend, $id = false) {
 		return false;
 	}
 }
+// I don't know what this function is for anymore
 function clir($must = false, $redirTo = 'index.php?p=2&e=3') {
+	if ($redirTo == "index.php?p=2&e=3") {
+		addError('You\'re not logged in.');
+		$redirTo == "index.php?p=2";
+	}
 	if (checkLoggedIn() === $must) {
 		redirect($redirTo);
 	}
@@ -1684,4 +1691,16 @@ function serverStatusBadge($status) {
 			return '<span class="label label-default"><i class="fa fa-question"></i>	Unknown</span>';
 		break;
 	}
+}
+function addError($e) {
+	startSessionIfNotStarted();
+	if (!isset($_SESSION['errors']) || !is_array($_SESSION['errors']))
+		$_SESSION['errors'] = array();
+	$_SESSION['errors'][] = $e;
+}
+function addSuccess($s) {
+	startSessionIfNotStarted();
+	if (!isset($_SESSION['successes']) || !is_array($_SESSION['successes']))
+		$_SESSION['successes'] = array();
+	$_SESSION['successes'][] = $s;
 }

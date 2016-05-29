@@ -127,16 +127,7 @@ if ($p == 27) {
     <?php
 $status = '';
 if ($model !== 'old') {
-	if (isset($_GET['s'])) {
-		if (isset($model->success_messages[$_GET['s']])) {
-			$status .= P::SuccessMessage($model->success_messages[$_GET['s']], true);
-		}
-	}
-	if (isset($_GET['e'])) {
-		if (isset($model->error_messages[$_GET['e']])) {
-			$status .= P::ExceptionMessage($model->error_messages[$_GET['e']], true);
-		}
-	}
+	P::Messages();
 }
 if ($p < 100) {
 	// Normal page, print normal layout (will fix this in next commit, dw)

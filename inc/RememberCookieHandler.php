@@ -95,7 +95,8 @@ class RememberCookieHandler {
 	private function SecureFromThieves() {
 		$this->DestroyAll($this->ID, true);
 		// tell the user they fucked up.
-		redirect('index.php?p=2&e=5');
+		addError('Invalid auto-login cookie.');
+		redirect('index.php?p=2');
 	}
 
 	/**
@@ -106,7 +107,8 @@ class RememberCookieHandler {
 		// ban check
 		if (current($GLOBALS['db']->fetch('SELECT allowed FROM users WHERE id = ?', $this->ID)) === '0') {
 			$this->UnsetCookies();
-			redirect('index.php?p=2&e=2');
+			addError("You are banned.");
+			redirect('index.php?p=2');
 		}
 		$password = $GLOBALS['db']->fetch('SELECT password_md5 FROM users WHERE id = ?', $this->ID);
 		startSessionIfNotStarted();

@@ -10,11 +10,11 @@ class D {
 		try {
 			// Check if everything is set
 			if (empty($_POST['u']) || empty($_POST['p1']) || empty($_POST['p2']) || empty($_POST['e']) || empty($_POST['k'])) {
-				throw new Exception(0);
+				throw new Exception('Nope.');
 			}
 			// Make sure registrations are enabled
 			if (!checkRegistrationsEnabled()) {
-				throw new Exception(10);
+				throw new Exception('Registrations are currently disabled.');
 			}
 			// Validate password through our helper
 			$pres = PasswordHelper::ValidatePassword($_POST['p1'], $_POST['p2']);
@@ -22,30 +22,32 @@ class D {
 				throw new Exception($pres);
 			}
 			// trim spaces or other memes from username (hi kirito)
-			$_POST['u'] = trim($_POST["u"]);
+			$_POST['u'] = trim($_POST['u']);
 			// Check if email is valid
 			if (!filter_var($_POST['e'], FILTER_VALIDATE_EMAIL)) {
-				throw new Exception(4);
+				throw new Exception("Email isn't valid.");
 			}
 			// Check if username is valid
 			if (!preg_match('/^[A-Za-z0-9 _\\-\\[\\]]{2,15}$/i', $_POST['u'])) {
-				throw new Exception(5);
+				throw new Exception("Username is not valid! It must be from 2 to 15 characters long, " .
+									"and can only contain alphanumeric chararacters, spaces, and these " .
+									"characters: <code>_-[]</code>");
 			}
 			// Make sure username is not forbidden
 			if (UsernameHelper::isUsernameForbidden($_POST['u'])) {
-				throw new Exception(9);
+				throw new Exception('Username now allowed. Please choose another one.');
 			}
 			// Check if username is already in db
 			if ($GLOBALS['db']->fetch('SELECT * FROM users WHERE username = ?', $_POST['u'])) {
-				throw new Exception(6);
+				throw new Exception('That username was already found in the database! Perhaps someone stole it from you? Those bastards!');
 			}
 			// Check if email is already in db
 			if ($GLOBALS['db']->fetch('SELECT * FROM users WHERE email = ?', $_POST['e'])) {
-				throw new Exception(7);
+				throw new Exception('An user with that email already exists!');
 			}
 			// Check if beta key is valid
 			if (!$GLOBALS['db']->fetch('SELECT id FROM beta_keys WHERE key_md5 = ? AND allowed = 1', md5($_POST['k']))) {
-				throw new Exception(8, 1);
+				throw new Exception('Invalid beta key.');
 			}
 			// Create password
 			$md5Password = password_hash(md5($_POST['p1']), PASSWORD_DEFAULT);
@@ -63,12 +65,17 @@ class D {
 			// Invalidate beta key
 			$GLOBALS['db']->execute('UPDATE beta_keys SET allowed = 0 WHERE key_md5 = ?', md5($_POST['k']));
 			Schiavo::Bunk("User ($_POST[u] | $_POST[e]) registered (successfully) from " . getIP());
+			addSuccess("You should now be signed up! Try to <a href='index.php?p=2'>login</a>.");
 			// All fine, done
-			redirect('index.php?p=3&s=lmao');
+			redirect('index.php?p=3');
 		}
 		catch(Exception $e) {
 			// Redirect to Exception page
-			redirect('index.php?p=3&e='.$e->getMessage());
+			addError($e->getMessage());
+			echo json_encode($_SESSION);
+			echo $e->getMessage();
+			die();
+			redirect('index.php?p=3');
 		}
 	}
 
@@ -82,14 +89,14 @@ class D {
 			sessionCheck();
 			// Check if everything is set
 			if (empty($_POST['pold']) || empty($_POST['p1']) || empty($_POST['p2'])) {
-				throw new Exception(0);
+				throw new Exception('Nope.');
 			}
 			$pres = PasswordHelper::ValidatePassword($_POST['p1'], $_POST['p2']);
 			if ($pres !== -1) {
 				throw new Exception($pres);
 			}
 			if (!PasswordHelper::CheckPass($_SESSION['username'], $_POST['pold'], false)) {
-				throw new Exception(4);
+				throw new Exception('Your old password is incorrect.');
 			}
 			// Calculate new password
 			$newPassword = password_hash(md5($_POST['p1']), PASSWORD_DEFAULT);
@@ -98,11 +105,13 @@ class D {
 			// Set in session that we've changed our password otherwise sessionCheck() will kick us
 			$_SESSION['passwordChanged'] = true;
 			// Redirect to success page
-			redirect('index.php?p=7&s=done');
+			addSuccess('Password changed!');
+			redirect('index.php?p=7');
 		}
 		catch(Exception $e) {
+			addError($e->getMessage());
 			// Redirect to Exception page
-			redirect('index.php?p=7&e='.$e->getMessage());
+			redirect('index.php?p=7');
 		}
 	}
 
@@ -798,6 +807,7 @@ class D {
 				$rch->UnsetCookies();
 			}
 			$_SESSION = [];
+			session_unset();
 			session_destroy();
 		} else {
 			// Uhm, some kind of error/h4xx0r. Let's return to login page just because yes.

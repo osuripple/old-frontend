@@ -6,8 +6,7 @@ class Login {
 	const Title = 'Ripple - Login';
 	const LoggedIn = false;
 	public $mh_POST = ['u', 'p'];
-	public $error_messages = ['Nice troll.', 'Wrong username or password.', 'You are banned.', 'You are not logged in.', 'Session expired. Please login again.', 'Invalid auto-login cookie.', 'You are already logged in.'];
-	public $success_messages = ["All right, sunshine! Your password is now changed. Why don't you login with your shiny new password, now?"];
+	public $error_messages = ['You are not logged in.', 'Session expired. Please login again.', 'Invalid auto-login cookie.', 'You are already logged in.'];
 
 	public function P() {
 		clir(true, 'index.php?p=1&e=1');
@@ -35,7 +34,8 @@ class Login {
 		if (isset($d['success'])) {
 			redirect('index.php?p=1');
 		} else {
-			redirect('index.php?p=2&e='.$d['error']);
+			addError($d['error']);
+			redirect('index.php?p=2');
 		}
 	}
 
@@ -47,7 +47,7 @@ class Login {
 		$ret = [];
 		try {
 			if (!PasswordHelper::CheckPass($_POST['u'], $_POST['p'], false)) {
-				throw new Exception(1);
+				throw new Exception('Wrong username or password.');
 			}
 			$us = $GLOBALS['db']->fetch('
 			SELECT
@@ -58,7 +58,7 @@ class Login {
 			WHERE users.username = ?', [$_POST['u']]);
 			// Ban check
 			if ($us['allowed'] === '0') {
-				throw new Exception(2);
+				throw new Exception('You are banned.');
 			}
 			// Get username with right case
 			$username = $us['username'];
