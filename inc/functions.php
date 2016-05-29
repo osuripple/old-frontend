@@ -1600,27 +1600,13 @@ function removeFriend($dude, $oldFriend, $id = false) {
 }
 // I don't know what this function is for anymore
 function clir($must = false, $redirTo = 'index.php?p=2&e=3') {
-	if ($redirTo == "index.php?p=2&e=3") {
-		addError('You\'re not logged in.');
-		$redirTo == "index.php?p=2";
-	}
 	if (checkLoggedIn() === $must) {
+		if ($redirTo == "index.php?p=2&e=3") {
+			addError('You\'re not logged in.');
+			$redirTo == "index.php?p=2";
+		}
 		redirect($redirTo);
 	}
-}
-/*
- * binStr
- * Converts a string in a binary string
- *
- * @param (string) ($str) String
- * @return (string) (0B+length+ASCII_STRING)
-*/
-function binStr($str) {
-	$r = '';
-	$r .= "\x0B".pack('c', strlen($str)); // won't do uleb128
-	$r .= $str;
-
-	return $r;
 }
 /*
  * checkMustHave
@@ -1703,4 +1689,11 @@ function addSuccess($s) {
 	if (!isset($_SESSION['successes']) || !is_array($_SESSION['successes']))
 		$_SESSION['successes'] = array();
 	$_SESSION['successes'][] = $s;
+}
+// botnet adds the user to ip_user if they're not in it, and increases occurencies if they are
+function botnet($uid) {
+	// botnet-track IP
+	$GLOBALS['db']->execute("INSERT INTO ip_user (userid, ip, occurencies) VALUES (?, ?, '1')
+							ON DUPLICATE KEY UPDATE occurencies = occurencies + 1",
+							[$uid, getIP()]);
 }

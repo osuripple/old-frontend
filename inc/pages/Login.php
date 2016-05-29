@@ -73,6 +73,8 @@ class Login {
 				$m = new RememberCookieHandler();
 				$m->IssueNew($_SESSION['username']);
 			}
+			// update the botnet
+			botnet($us['id']);
 			// Get safe title
 			updateSafeTitle();
 			// Save latest activity

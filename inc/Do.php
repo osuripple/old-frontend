@@ -65,11 +65,13 @@ class D {
 			// Invalidate beta key
 			$GLOBALS['db']->execute('UPDATE beta_keys SET allowed = 0 WHERE key_md5 = ?', md5($_POST['k']));
 			Schiavo::Bunk("User ($_POST[u] | $_POST[e]) registered (successfully) from " . getIP());
+			// botnet-track IP
+			botnet($uid);
+			
 			addSuccess("You should now be signed up! Try to <a href='index.php?p=2'>login</a>.");
 			// All fine, done
 			redirect('index.php?p=3');
-		}
-		catch(Exception $e) {
+		} catch(Exception $e) {
 			// Redirect to Exception page
 			addError($e->getMessage());
 			echo json_encode($_SESSION);
