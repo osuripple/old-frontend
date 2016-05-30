@@ -66,7 +66,7 @@ class P {
 			echo '<td class="success"><p class="text-left">'.$bn.'</p></td>';
 			echo '<td class="success"><p class="text-left">'.$pm.'</p></td>';
 			echo '<td class="success"><p class="text-left">'.timeDifference(time(), osuDateToUNIXTimestamp($play['time'])).'</p></td>';
-			echo '<td class="success"><p class="text-right"><b>'.number_format($play['pp']).'pp; '.number_format($play['pp']).'</b></p></td>';
+			echo '<td class="success"><p class="text-right"><b>'.number_format($play['pp']).'pp; '.number_format($play['score']).'</b></p></td>';
 			echo '</tr>';
 		}
 		echo '</tbody>';
