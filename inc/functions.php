@@ -571,19 +571,10 @@ function printAdminSidebar() {
 							<a href="index.php?p=111"><i class="fa fa-server"></i>	Bancho settings</a>
 						</li>
 						<li>
-							<a href="index.php?p=112"><i class="fa fa-comment"></i>	Chatlog</a>
-						</li>
-						<li>
 							<a href="index.php?p=102"><i class="fa fa-user"></i>	Users</a>
 						</li>
 						<li>
 							<a href="index.php?p=108"><i class="fa fa-certificate"></i>	Badges</a>
-						</li>
-						<li>
-							<a href="#"><i class="fa fa-gamepad"></i><s>	Scores</s></a>
-						</li>
-						<li>
-							<a href="#"><i class="fa fa-music"></i>	<s>Beatmaps</s></a>
 						</li>
 						<li>
 							<a href="index.php?p=105"><i class="fa fa-gift"></i>	Beta keys</a>
@@ -593,9 +584,6 @@ function printAdminSidebar() {
 						</li>
 						<li>
 							<a href="index.php?p=113"><i class="fa fa-paper-plane"></i>	Reports</a>
-						</li>
-						<li>
-							<a href="1#"><i class="fa fa-info-circle"></i>	<s>Info</s></a>
 						</li>
 					</ul>
 				</div>';
