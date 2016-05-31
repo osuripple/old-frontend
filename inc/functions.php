@@ -1654,6 +1654,7 @@ function checkServiceStatus($url) {
 function serverStatusBadge($status) {
 	switch ($status) {
 		case 1:
+		case 200:
 			return '<span class="label label-success"><i class="fa fa-check"></i>	Online</span>';
 		break;
 		case -1:
