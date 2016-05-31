@@ -1207,7 +1207,7 @@ function osuDateToUNIXTimestamp($date) {
 		$d = DateTime::createFromFormat('ymdHis', $date);
 		$d->add(new DateInterval('PT1H'));
 
-		return $d->getTimestamp();
+		return ($d->getTimestamp())-3600;
 	} else {
 		return time() - 60 * 60 * 24; // Remove one day from the time because reasons
 
@@ -1632,11 +1632,12 @@ function accuracy($acc) {
 }
 function checkServiceStatus($url) {
 	// allow very little timeout for each service
-	ini_set('default_socket_timeout', 5);
+	//ini_set('default_socket_timeout', 5);
 	// 0: offline, 1: online, -1: restarting
 	try {
 		// Bancho status
-		$result = @json_decode(@file_get_contents($url), true);
+		//$result = @json_decode(@file_get_contents($url), true);
+		$result = getJsonCurl($url);
 		if (!isset($result)) {
 			throw new Exception();
 		}
@@ -1684,4 +1685,19 @@ function botnet($uid) {
 	$GLOBALS['db']->execute("INSERT INTO ip_user (userid, ip, occurencies) VALUES (?, ?, '1')
 							ON DUPLICATE KEY UPDATE occurencies = occurencies + 1",
 							[$uid, getIP()]);
+}
+
+function getJsonCurl($url, $timeout = 1) {
+	try {
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+		$result=curl_exec($ch);
+		curl_close($ch);
+		return json_decode($result, true);
+	} catch (Exception $e) {
+		return false;
+	}
 }

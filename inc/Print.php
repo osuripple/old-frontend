@@ -9,17 +9,16 @@ class P {
 		// Get admin dashboard data
 		$totalScores = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM scores'));
 		$betaKeysLeft = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM beta_keys WHERE allowed = 1'));
-		$rankedBeatmaps = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM beatmaps WHERE ranked = 1'));
 		$reports = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM reports WHERE status = 1'));
 		$recentPlays = $GLOBALS['db']->fetchAll('
-		SELECT 
+		SELECT
 			beatmaps.song_name, scores.beatmap_md5, users.username,
 			scores.userid, scores.time, scores.score, scores.pp,
 			scores.play_mode
 		FROM scores
 		LEFT JOIN beatmaps ON beatmaps.beatmap_md5 = scores.beatmap_md5
 		LEFT JOIN users ON users.id = scores.userid
-		ORDER BY scores.id DESC 
+		ORDER BY scores.id DESC
 		LIMIT 10');
 		$topPlays = $GLOBALS['db']->fetchAll('SELECT
 			beatmaps.song_name, scores.beatmap_md5, users.username,
@@ -30,6 +29,12 @@ class P {
 		LEFT JOIN users ON users.id = scores.userid
 		WHERE users.allowed = "1"
 		ORDER BY scores.pp DESC LIMIT 30');
+		$onlineUsers = getJsonCurl("http://127.0.0.1:5001/api/v1/onlineUsers");
+		if ($onlineUsers == false) {
+			$onlineUsers = 0;
+		} else {
+			$onlineUsers = $onlineUsers["result"];
+		}
 		// Print admin dashboard
 		echo '<div id="wrapper">';
 		printAdminSidebar();
@@ -41,14 +46,14 @@ class P {
 		// Stats panels
 		echo '<div class="row">';
 		printAdminPanel('primary', 'fa fa-gamepad fa-5x', $totalScores, 'Total scores');
+		printAdminPanel('green', 'fa fa-user fa-5x', $onlineUsers, 'Online users');
 		printAdminPanel('red', 'fa fa-gift fa-5x', $betaKeysLeft, 'Beta keys left');
-		printAdminPanel('green', 'fa fa-music fa-5x', $rankedBeatmaps, 'Ranked beatmaps');
 		printAdminPanel('yellow', 'fa fa-paper-plane fa-5x', $reports, 'Opened reports');
 		echo '</div>';
 		// Recent plays table
 		echo '<table class="table table-striped table-hover">
 		<thead>
-		<tr><th class="text-left"><i class="fa fa-clock-o"></i>	Recent plays</th><th>Beatmap</th></th><th>Mode</th><th>Sent</th><th class="text-right">Score</th></tr>
+		<tr><th class="text-left"><i class="fa fa-clock-o"></i>	Recent plays</th><th>Beatmap</th></th><th>Mode</th><th>Sent</th><th>Score</th><th class="text-right">PP</th></tr>
 		</thead>
 		<tbody>';
 		foreach ($recentPlays as $play) {
@@ -61,12 +66,13 @@ class P {
 			// Get readable play_mode
 			$pm = getPlaymodeText($play['play_mode']);
 			// Print row
-			echo '<tr>';
-			echo '<td class="success"><p class="text-left"><b>'.$play['username'].'</b></p></td>';
-			echo '<td class="success"><p class="text-left">'.$bn.'</p></td>';
-			echo '<td class="success"><p class="text-left">'.$pm.'</p></td>';
-			echo '<td class="success"><p class="text-left">'.timeDifference(time(), osuDateToUNIXTimestamp($play['time'])).'</p></td>';
-			echo '<td class="success"><p class="text-right"><b>'.number_format($play['pp']).'pp; '.number_format($play['score']).'</b></p></td>';
+			echo '<tr class="success">';
+			echo '<td><p class="text-left"><b><a href="index.php?u='.$play["username"].'">'.$play['username'].'</a></b></p></td>';
+			echo '<td><p class="text-left">'.$bn.'</p></td>';
+			echo '<td><p class="text-left">'.$pm.'</p></td>';
+			echo '<td><p class="text-left">'.timeDifference(time(), osuDateToUNIXTimestamp($play['time'])).'</p></td>';
+			echo '<td><p class="text-left">'.number_format($play['score']).'</p></td>';
+			echo '<td><p class="text-right"><b>'.number_format($play['pp']).'pp</b></p></td>';
 			echo '</tr>';
 		}
 		echo '</tbody>';
@@ -86,12 +92,12 @@ class P {
 			// Get readable play_mode
 			$pm = getPlaymodeText($play['play_mode']);
 			// Print row
-			echo '<tr>';
-			echo '<td class="warning"><p class="text-left"><b>'.$play['username'].'</b></p></td>';
-			echo '<td class="warning"><p class="text-left">'.$bn.'</p></td>';
-			echo '<td class="warning"><p class="text-left">'.$pm.'</p></td>';
-			echo '<td class="warning"><p class="text-left">'.timeDifference(time(), osuDateToUNIXTimestamp($play['time'])).'</p></td>';
-			echo '<td class="warning"><p class="text-right"><b>'.number_format($play['pp']).'</b></p></td>';
+			echo '<tr class="warning">';
+			echo '<td><p class="text-left"><a href="index.php?u='.$play["username"].'"><b>'.$play['username'].'</b></a></p></td>';
+			echo '<td><p class="text-left">'.$bn.'</p></td>';
+			echo '<td><p class="text-left">'.$pm.'</p></td>';
+			echo '<td><p class="text-left">'.timeDifference(time(), osuDateToUNIXTimestamp($play['time'])).'</p></td>';
+			echo '<td><p class="text-right"><b>'.number_format($play['pp']).'</b></p></td>';
 			echo '</tr>';
 		}
 		echo '</tbody>';
@@ -1894,7 +1900,7 @@ WHERE users_stats.id = ?', [$u]);
 		}
 		echo $p;
 	}
-	
+
 	/*
 	 * Messages
 	 * Displays success/error messages from $_SESSION[errors] or $_SESSION[successes]
