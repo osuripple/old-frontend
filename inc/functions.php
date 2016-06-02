@@ -1645,7 +1645,11 @@ function checkServiceStatus($url) {
 			throw new Exception();
 		}
 
-		return $result['status'];
+		if (array_key_exists('result', $result)) {
+			return $result['result'];
+		} else {
+			return $result['status'];
+		}
 	}
 	catch(Exception $e) {
 		return 0;

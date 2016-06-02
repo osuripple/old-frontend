@@ -34,7 +34,7 @@ class ServerStatus {
 							</thead>
 							<tbody>
 								<tr><td><p class="text-center"><i class="fa fa-globe"></i>	Website</p></td><td><p class="text-center">'.serverStatusBadge(1).'</p></td></tr>
-								<tr><td><p class="text-center"><i class="fa fa-flash"></i>	Bancho</p></td><td><p class="text-center">'.serverStatusBadge(checkServiceStatus($ServerStatusConfig['service_status']['bancho_url'].'/api/server-status')).'</p></td></tr>
+								<tr><td><p class="text-center"><i class="fa fa-flash"></i>	Bancho</p></td><td><p class="text-center">'.serverStatusBadge(checkServiceStatus($ServerStatusConfig['service_status']['bancho_url'].'/api/v1/serverStatus')).'</p></td></tr>
 								<tr><td><p class="text-center"><i class="fa fa-gamepad"></i>	Scores</p></td><td><p class="text-center">'.serverStatusBadge(checkServiceStatus($ServerStatusConfig['service_status']['lets_url'].'/api/v1/status')).'</p></td></tr>
 								<tr><td><p class="text-center"><i class="fa fa-picture-o"></i>	Avatars</p></td><td><p class="text-center">'.serverStatusBadge(checkServiceStatus($ServerStatusConfig['service_status']['avatars_url'].'/status')).'</p></td></tr>
 								<tr><td><p class="text-center"><i class="fa fa-code"></i>	Ripple API</p></td><td><p class="text-center">'.serverStatusBadge(checkServiceStatus($ServerStatusConfig['service_status']['api_url'].'/status')).'</p></td></tr>
