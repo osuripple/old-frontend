@@ -2505,7 +2505,11 @@ WHERE users_stats.id = ?', [$u]);
 		self::GlobalAlert();
 		// Get user friends
 		$ourID = getUserID($_SESSION['username']);
-		$friends = $GLOBALS['db']->fetchAll('SELECT user2 FROM users_relationships WHERE user1 = ?', [$ourID]);
+		$friends = $GLOBALS['db']->fetchAll('
+		SELECT user2, users.username
+		FROM users_relationships
+		LEFT JOIN users ON users_relationships.user2 = users.id
+		WHERE user1 = ? AND users.allowed = "1"', [$ourID]);
 		// Title and header message
 		echo '<h1><i class="fa fa-star"></i>	Friendlist</h1>';
 		if (count($friends) == 0) {
@@ -2519,7 +2523,7 @@ WHERE users_stats.id = ?', [$u]);
 			<tbody>';
 			// Loop through every friend and output its username and mutual status
 			foreach ($friends as $friend) {
-				$uname = getUserUsername($friend['user2']);
+				$uname = $friend['username'];
 				$mutualIcon = ($friend['user2'] == 999 || getFriendship($friend['user2'], $ourID, true) == 2) ? '<i class="fa fa-heart"></i>' : '';
 				echo '<tr><td><div align="center"><a href="index.php?u='.$friend['user2'].'">'.$uname.'</a></div></td><td><div align="center">'.$mutualIcon.'</div></td></tr>';
 			}
