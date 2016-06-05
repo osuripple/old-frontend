@@ -49,6 +49,14 @@ class D {
 			if (!$GLOBALS['db']->fetch('SELECT id FROM beta_keys WHERE key_md5 = ? AND allowed = 1', md5($_POST['k']))) {
 				throw new Exception('Invalid beta key.');
 			}
+			// Make sure there are no users that used this ip before
+			$multiUserID = $GLOBALS['db']->fetch("SELECT userid FROM ip_user WHERE ip = ?", [getIp()]);
+			if ($multiUserID) {
+				$multiUsername = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [current($multiUserID)]);
+				if ($multiUsername)
+					Schiavo::Bunk("User " . current($multiUsername) . " tried to create a multiaccount (" . $_POST['u'] . ") from IP " . getIP());
+				throw new Exception("It seems you have another account registered on Ripple. You can own only one account. If you think this is an error, please contact us at support@ripple.moe.");
+			}
 			// Create password
 			$md5Password = password_hash(md5($_POST['p1']), PASSWORD_DEFAULT);
 			// Put some data into the db
@@ -67,7 +75,7 @@ class D {
 			Schiavo::Bunk("User ($_POST[u] | $_POST[e]) registered (successfully) from " . getIP());
 			// botnet-track IP
 			botnet($uid);
-			
+
 			addSuccess("You should now be signed up! Try to <a href='index.php?p=2'>login</a>.");
 			// All fine, done
 			redirect('index.php?p=3');

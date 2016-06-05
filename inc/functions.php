@@ -1706,3 +1706,27 @@ function getJsonCurl($url, $timeout = 1) {
 		return false;
 	}
 }
+
+/*
+ * bloodcatDirectString()
+ * Return a osu!direct-like string for a specific song
+ * from a bloodcat song array
+ *
+ * @param (array) ($arr) Bloodcat data array
+ * @param (bool) ($np) If true, output chat np beatmap, otherwise output osu direct search beatmap
+ * @return (string) osu!direct-like string
+*/
+function bloodcatDirectString($arr, $np = false) {
+	$s = '';
+	if ($np) {
+		$s = $arr['id'].'.osz|'.$arr['artist'].'|'.$arr['title'].'|'.$arr['creator'].'|'.$arr['status'].'|10.00000|'.$arr['synced'].'|'.$arr['id'].'|'.$arr['id'].'|0|0|0|';
+	} else {
+		$s = $arr['id'].'|'.$arr['artist'].'|'.$arr['title'].'|'.$arr['creator'].'|'.$arr['status'].'|10.00000|'.$arr['synced'].'|'.$arr['id'].'|'.$arr['beatmaps'][0]['id'].'|0|0|0||';
+		foreach ($arr['beatmaps'] as $diff) {
+			$s .= $diff['name'].'@'.$diff['mode'].',';
+		}
+		$s = rtrim($s, ',');
+		$s .= '|';
+	}
+	return $s;
+}
