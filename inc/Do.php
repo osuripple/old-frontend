@@ -87,9 +87,6 @@ class D {
 		} catch(Exception $e) {
 			// Redirect to Exception page
 			addError($e->getMessage());
-			echo json_encode($_SESSION);
-			echo $e->getMessage();
-			die();
 			redirect('index.php?p=3');
 		}
 	}
