@@ -163,6 +163,7 @@ function setTitle($p) {
 			113 => 'Reports',
 			114 => 'Read report',
 			115 => 'IP Logs',
+			116 => 'Admin Logs',
 		];
 		if (isset($namesRipple[$p])) {
 			return __maketitle('Ripple', $namesRipple[$p]);
@@ -411,6 +412,12 @@ function printPage($p) {
 				sessionCheckAdmin();
 				P::AdminIPLogsMain();
 			break;
+
+			// Admin panel - Admin logs
+			case 116:
+				sessionCheckAdmin();
+				P::AdminLog();
+			break;
 				// 404 page
 
 			default:
@@ -594,6 +601,9 @@ function printAdminSidebar() {
 						</li>
 						<li>
 							<a href="index.php?p=113"><i class="fa fa-paper-plane"></i>	Reports</a>
+						</li>
+						<li class="animated infinite pulse">
+							<a href="index.php?p=116"><i class="fa fa-calendar"></i>	Admin log&nbsp;&nbsp;&nbsp;<div class="label label-primary">Free botnets</div></a>
 						</li>
 					</ul>
 				</div>';
@@ -1739,4 +1749,29 @@ function bloodcatDirectString($arr, $np = false) {
 		$s .= '|';
 	}
 	return $s;
+}
+
+function printBubble($userID, $username, $message, $time, $through) {
+	echo '
+	<img class="circle" src="http://a.ripple.moe/' . $userID . '">
+	<div class="bubble">
+		<b>' . $username . '</b> ' . $message . '<br>
+		<span style="font-size: 80%">' . timeDifference($time, time()) .' through <i>' . $through . '</i></span>
+	</div>';
+}
+
+function rapLog($message, $userID = -1, $through = "RAP") {
+	if ($userID == -1)
+		$userID = $_SESSION["userid"];
+	$GLOBALS["db"]->execute("INSERT INTO rap_logs (id, userid, text, datetime, through) VALUES (NULL, ?, ?, ?, ?);", [$userID, $message, time(), $through]);
+}
+
+function readableRank($rank) {
+	switch ($rank) {
+		case 1: return "normal"; break;
+		case 2: return "supporter"; break;
+		case 3: return "developer"; break;
+		case 4: return "community manager"; break;
+		default: return "akerino"; break;
+	}
 }

@@ -223,6 +223,8 @@ class D {
 			}
 			// Change allowed value
 			$GLOBALS['db']->execute('UPDATE beta_keys SET allowed = ? WHERE id = ?', [$newAllowed, $_GET['id']]);
+			// RAP log
+			rapLog(sprintf("has set beta key %d as %s", $_GET["id"], $newAllowed == 0 ? "not allowed" : "allowed"));
 			// Done, redirect to success page
 			redirect('index.php?p=105&s=Allowed value changed!');
 		}
@@ -252,6 +254,8 @@ class D {
 			}
 			// Change allowed value
 			$GLOBALS['db']->execute('UPDATE beta_keys SET public = ? WHERE id = ?', [$newPublic, $_GET['id']]);
+			// RAP log
+			rapLog(sprintf("has set beta key %d as %s", $_GET["id"], $newPublic == 0 ? "private" : "public"));
 			// Done, redirect to success page
 			redirect('index.php?p=105&s=Public value changed!');
 		}
@@ -279,6 +283,8 @@ class D {
 			}
 			// Delete beta key
 			$GLOBALS['db']->execute('DELETE FROM beta_keys WHERE id = ?', $_GET['id']);
+			// Rap log
+			rapLog(sprintf("has set deleted beta key %d", $_GET["id"]));
 			// Done, redirect to success page
 			redirect('index.php?p=105&s=Beta key deleted!');
 		}
@@ -326,6 +332,8 @@ class D {
 			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'registrations_enabled'", [$r]);
 			$GLOBALS['db']->execute("UPDATE system_settings SET value_string = ? WHERE name = 'website_global_alert'", [$ga]);
 			$GLOBALS['db']->execute("UPDATE system_settings SET value_string = ? WHERE name = 'website_home_alert'", [$ha]);
+			// RAP log
+			rapLog("has updated system settings");
 			// Done, redirect to success page
 			redirect('index.php?p=101&s=Settings saved!');
 		}
@@ -391,6 +399,8 @@ class D {
 			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_string = ? WHERE name = 'login_notification'", [$ln]);
 			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_string = ? WHERE name = 'osu_versions'", [$cv]);
 			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_string = ? WHERE name = 'osu_md5s'", [$cmd5]);
+			// Rap log
+			rapLog("has updated bancho settings");
 			// Done, redirect to success page
 			redirect('index.php?p=111&s=Settings saved!');
 		}
@@ -430,7 +440,6 @@ class D {
 				throw new Exception("That user doesn\'t exist");
 			}
 			// Check if we can edit this user
-			//if (getUserRank($_POST['u']) >= getUserRank($_SESSION['username']) && $_POST['u'] != $_SESSION['username']) {
 			if (getUserRank($_POST['u']) >= 3 && $_POST['u'] != $_SESSION['username']) {
 				throw new Exception("You don't have enough permissions to edit this user");
 			}
@@ -438,6 +447,9 @@ class D {
 			if (!filter_var($_POST['e'], FILTER_VALIDATE_EMAIL)) {
 				throw new Exception("The email isn't valid");
 			}
+			// Get old data
+			$oldData = $GLOBALS["db"]->fetch("SELECT * FROM users LEFT JOIN users_stats ON users.username = ?", [$_POST["u"]]);
+
 			// Check if silence end has changed. if so, we have to kick the client
 			// in order to silence him
 			//$oldse = current($GLOBALS["db"]->fetch("SELECT silence_end FROM users WHERE username = ?", array($_POST["u"])));
@@ -446,12 +458,14 @@ class D {
 			// Save new userpage
 			$GLOBALS['db']->execute('UPDATE users_stats SET userpage_content = ? WHERE id = ?', [$_POST['up'], $_POST['id']]);
 			// Save new data if set (rank, allowed, UP and silence)
-			if (isset($_POST['r']) && !empty($_POST['r'])) {
+			if (isset($_POST['r']) && !empty($_POST['r']) && $oldData["rank"] != $_POST["r"]) {
 				$GLOBALS['db']->execute('UPDATE users SET rank = ? WHERE id = ?', [$_POST['r'], $_POST['id']]);
+				rapLog(sprintf("has changed %s's rank to %s", $_POST["u"], readableRank($_POST['r'])));
 			}
-			if (isset($_POST['a'])) {
+			if (isset($_POST['a']) && $oldData["allowed"] != $_POST["a"]) {
 				$banDateTime = $_POST['a'] == 0 ? time() : 0;
 				$GLOBALS['db']->execute('UPDATE users SET allowed = ?, ban_datetime = ? WHERE id = ?', [$_POST['a'], $banDateTime, $_POST['id']]);
+				rapLog(sprintf("has %s user %s", $_POST['a'] == 0 ? "banned" : "unbanned", $_POST["u"]));
 			}
 			// Get username style/color
 			if (isset($_POST['c']) && !empty($_POST['c'])) {
@@ -465,11 +479,14 @@ class D {
 				$bg = '';
 			}
 			// Update country flag if set
-			if (isset($_POST['country']) && countryCodeToReadable($_POST['country']) != 'unknown country') {
+			if (isset($_POST['country']) && countryCodeToReadable($_POST['country']) != 'unknown country' && $oldData["country"] != $_POST['country']) {
 				$GLOBALS['db']->execute('UPDATE users_stats SET country = ? WHERE id = ?', [$_POST['country'], $_POST['id']]);
+				rapLog(sprintf("has changed %s's flag to %s", $_POST["u"], $_POST['country']));
 			}
 			// Set username style/color/aka
 			$GLOBALS['db']->execute('UPDATE users_stats SET user_color = ?, user_style = ?, username_aka = ? WHERE id = ?', [$c, $bg, $_POST['aka'], $_POST['id']]);
+			// RAP log
+			rapLog(sprintf("has edited user %s", $_POST["u"]));
 			// Done, redirect to success page
 			redirect('index.php?p=102&s=User edited!');
 		}
@@ -505,6 +522,8 @@ class D {
 			}
 			// Change allowed value
 			$GLOBALS['db']->execute('UPDATE users SET allowed = ?, ban_datetime = ? WHERE id = ?', [$newAllowed, $banDateTime, $_GET['id']]);
+			// Rap log
+			rapLog(sprintf("has %s user %s", $newAllowed == 0 ? "banned" : "unbanned", $user["username"]));
 			// Done, redirect to success page
 			redirect('index.php?p=102&s=User banned/unbanned/activated!');
 		}
@@ -585,6 +604,8 @@ class D {
 			// Change stuff
 			$GLOBALS['db']->execute('UPDATE users SET username = ? WHERE id = ?', [$_POST['newu'], $_POST['id']]);
 			$GLOBALS['db']->execute('UPDATE users_stats SET username = ? WHERE id = ?', [$_POST['newu'], $_POST['id']]);
+			// rap log
+			rapLog(sprintf("has changed %s's username to %s", $_POST["oldu"], $_POST["newu"]));
 			// Done, redirect to success page
 			redirect('index.php?p=102&s=User identity changed!');
 		}
@@ -610,6 +631,8 @@ class D {
 			} else {
 				$GLOBALS['db']->execute('UPDATE docs SET doc_name = ?, doc_contents = ?, public = ? WHERE id = ?', [$_POST['t'], $_POST['c'], $_POST['p'], $_POST['id']]);
 			}
+			// RAP log
+			rapLog(sprintf("has %s documentation page \"%s\"", $_POST['id'] == 0 ? "created" : "edited", $_POST["t"]));
 			// Done, redirect to success page
 			redirect('index.php?p=106&s=Documentation page edited!');
 		}
@@ -635,6 +658,8 @@ class D {
 			} else {
 				$GLOBALS['db']->execute('UPDATE badges SET name = ?, icon = ? WHERE id = ?', [$_POST['n'], $_POST['i'], $_POST['id']]);
 			}
+			// RAP log
+			rapLog(sprintf("has %s badge %s", $_POST['id'] == 0 ? "created" : "edited", $_POST["n"]));
 			// Done, redirect to success page
 			redirect('index.php?p=108&s=Badge edited!');
 		}
@@ -662,6 +687,8 @@ class D {
 			$badgesString = $_POST['b01'].','.$_POST['b02'].','.$_POST['b03'].','.$_POST['b04'].','.$_POST['b05'].','.$_POST['b06'];
 			// Save the new badges string
 			$GLOBALS['db']->execute('UPDATE users_stats SET badges_shown = ? WHERE username = ?', [$badgesString, $_POST['u']]);
+			// RAP log
+			rapLog(sprintf("has edited %s's badges", $_POST["u"]));
 			// Done, redirect to success page
 			redirect('index.php?p=108&s=Badge edited!');
 		}
@@ -682,11 +709,14 @@ class D {
 				throw new Exception('Nice troll.');
 			}
 			// Check if this doc page exists
-			if (!$GLOBALS['db']->fetch('SELECT id FROM docs WHERE id = ?', $_GET['id'])) {
+			$name = $GLOBALS['db']->fetch('SELECT doc_name FROM docs WHERE id = ?', $_GET['id']);
+			if (!$name) {
 				throw new Exception("That documentation page doesn't exists");
 			}
 			// Delete doc page
 			$GLOBALS['db']->execute('DELETE FROM docs WHERE id = ?', $_GET['id']);
+			// RAP log
+			rapLog(sprintf("has deleted documentation page \"%s\"", current($name)));
 			// Done, redirect to success page
 			redirect('index.php?p=106&s=Documentation page deleted!');
 		}
@@ -707,13 +737,15 @@ class D {
 				throw new Exception("You can't delete this badge.");
 			}
 			// Make sure that this badge exists
-			$exists = $GLOBALS['db']->fetch('SELECT id FROM badges WHERE id = ?', $_GET['id']);
+			$name = $GLOBALS['db']->fetch('SELECT name FROM badges WHERE id = ?', $_GET['id']);
 			// Beta key doesn't exists wtf
-			if (!$exists) {
+			if (!$name) {
 				throw new Exception("This badge doesn't exists");
 			}
 			// Delete badge
 			$GLOBALS['db']->execute('DELETE FROM badges WHERE id = ?', $_GET['id']);
+			// RAP log
+			rapLog(sprintf("has deleted badge %s", current($name)));
 			// Done, redirect to success page
 			redirect('index.php?p=108&s=Badge deleted!');
 		}
@@ -727,8 +759,10 @@ class D {
 	 * SilenceUser
 	 * Silence someone (ADMIN CP)
 	*/
-	public static function SilenceUser() {
+	public static function silenceUser() {
 		try {
+			throw new Exception("This feature doesn't wory anymore. Use !silence ingame instead.");
+
 			// Check if everything is set
 			if (!isset($_POST['u']) || !isset($_POST['c']) || !isset($_POST['un']) || !isset($_POST['r']) || empty($_POST['u']) || empty($_POST['c']) || empty($_POST['un']) || empty($_POST['r'])) {
 				throw new Exception('Invalid request');
@@ -747,7 +781,9 @@ class D {
 			}
 			// Silence and reconnect that user
 			silenceUser($id, time() + $sl, $_POST['r']);
-			kickUser($id);
+			//kickUser($id);
+			// RAP log
+			//rapLog(sprintf("has silenced user %s for %s for the following reason: \"%s\"", $_POST['u'], timeDifference(time()+$sl, time()), $_POST["r"]));
 			// Done, redirect to success page
 			redirect('index.php?p=102&s=User silenced!');
 		}
@@ -763,6 +799,7 @@ class D {
 	*/
 	public static function KickUser() {
 		try {
+			throw new Exception("This feature doesn't wory anymore. Use !kick <username> ingame instead.");
 			// Check if everything is set
 			if (!isset($_POST['u']) || empty($_POST['u'])) {
 				throw new Exception('Invalid request');
@@ -801,6 +838,8 @@ class D {
 			}
 			// Delete user avatar
 			unlink($avatar);
+			// Rap log
+			rapLog(sprintf("has reset %s's avatar", getUserUsername($_GET['id'])));
 			// Done, redirect to success page
 			redirect('index.php?p=102&s=Avatar reset!');
 		}
@@ -1015,6 +1054,9 @@ class D {
 			$newReportStatus = $reportStatus == 1 ? 0 : 1;
 			// Edit report status
 			$GLOBALS['db']->execute('UPDATE reports SET status = ?, update_time = ? WHERE id = ?', [$newReportStatus, time(), $_GET['id']]);
+			// RAP log
+			$name = $GLOBALS['db']->fetch("SELECT name FROM reports WHERE id = ?", [$_GET["id"]]);
+			rapLog(sprintf("has %s report %s", $newReportStatus == 0 ? "closed" : "opened", current($name)));
 			// Done, redirect to success page
 			redirect('index.php?p=113&s=Report status changed!');
 		}
@@ -1045,6 +1087,9 @@ class D {
 			foreach ($modes as $k) {
 				$GLOBALS['db']->execute('UPDATE users_stats SET ranked_score_'.$k.' = 0, total_score_'.$k.' = 0, replays_watched_'.$k.' = 0, playcount_'.$k.' = 0, avg_accuracy_'.$k.' = 0.0, total_hits_'.$k.' = 0, level_'.$k.' = 0, pp_'.$k.' = 0 WHERE id = ?', [$_GET['id']]);
 			}
+
+			// RAP log
+			rapLog(sprintf("has wiped %s's account", getUserUsername($_GET['id'])));
 
 			// Done
 			redirect('index.php?p=102&s=User scores and stats have been wiped!');
@@ -1085,6 +1130,9 @@ class D {
 					($_POST['s'] == 1 ? "Open" : "Closed")
 				)
 			);
+			// RAP log
+			$name = $GLOBALS["db"]->fetch("SELECT name FROM reports WHERE id = ?", [$_GET["id"]]);
+			rapLog(sprintf("has edited/replied to report \"%s\"", current($name)));
 			// Done, redirect to success page
 			redirect('index.php?p=113&s=Report updated!');
 		}
@@ -1132,6 +1180,9 @@ class D {
 				throw new Exception('no');
 			$GLOBALS['db']->execute('UPDATE docs SET is_rule = "0"');
 			$GLOBALS['db']->execute('UPDATE docs SET is_rule = "1" WHERE id = ?', [$_GET['id']]);
+			// RAP log
+			$name = $GLOBALS["db"]->fetch("SELECT doc_name FROM docs WHERE id = ?", [$_GET["id"]]);
+			rapLog(sprintf("has set \"%s\" as rules page", current($name)));
 			redirect('index.php?p=106&s='.$_GET['id'].' is now the new rules page!');
 		}
 		catch (Exception $e) {

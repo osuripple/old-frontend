@@ -1461,6 +1461,67 @@ class P {
 	}
 
 	/*
+	 * AdminLog
+	 * Prints the admin log page
+	*/
+	public static function AdminLog() {
+		// TODO: Ask stampa piede COME SI DICHIARANO LE COSTANTY IN PIACCAPPI??
+		$pageInterval = 50;
+
+		// Get data
+		$first = false;
+		if (isset($_GET["from"])) {
+			$from = $_GET["from"];
+			$first = current($GLOBALS["db"]->fetch("SELECT id FROM rap_logs ORDER BY datetime DESC LIMIT 1")) == $from;
+		} else {
+			$from = current($GLOBALS["db"]->fetch("SELECT id FROM rap_logs ORDER BY datetime DESC LIMIT 1"));
+			$first = true;
+		}
+		$to = $from-$pageInterval;
+		$logs = $GLOBALS['db']->fetchAll('SELECT rap_logs.*, users.username FROM rap_logs LEFT JOIN users ON rap_logs.userid = users.id WHERE rap_logs.id <= ? AND rap_logs.id > ? ORDER BY rap_logs.datetime DESC', [$from, $to]);
+		// Print sidebar and template stuff
+		echo '<div id="wrapper">';
+		printAdminSidebar();
+		echo '<div id="page-content-wrapper">';
+		// Maintenance check
+		self::MaintenanceStuff();
+		// Print Success if set
+		if (isset($_GET['s']) && !empty($_GET['s'])) {
+			self::SuccessMessage($_GET['s']);
+		}
+		// Print Exception if set
+		if (isset($_GET['e']) && !empty($_GET['e'])) {
+			self::ExceptionMessage($_GET['e']);
+		}
+		// Header
+		echo '<span align="center"><h2><i class="fa fa-calendar"></i>	Admin Log</h2></span>';
+		// Main page content here
+		echo '<div class="bubbles-container">';
+		if (!$logs) {
+			printBubble(999, "You", "have reached the end of the life the universe and everything. Now go fuck a donkey.", time()-(43*60), "The Hitchhiker's Guide to the Galaxy");
+		} else {
+			$lastDay = -1;
+			foreach ($logs as $entry) {
+				$currentDay = date("z", $entry["datetime"]);
+				if ($lastDay != $currentDay)
+					echo'<div class="line"><div class="line-text"><span class="label label-primary">' . date("d/m/Y", $entry["datetime"]) . '</span></div></div>';
+				printBubble($entry["userid"], $entry["username"], $entry["text"], $entry["datetime"], $entry["through"]);
+				$lastDay = $currentDay;
+			}
+		}
+		echo '</div>';
+		echo '<br><br><p align="center">';
+		if (!$first)
+			echo '<a href="index.php?p=116&from=' .($from+$pageInterval) . '">< Prev page</a>';
+		if (!$first && $logs)
+			echo ' | ';
+		if ($logs)
+			echo '<a href="index.php?p=116&from=' . $to . '">Next page</a> ></p>';
+		// Template end
+		echo '</div>';
+	}
+
+	/*
 	 * HomePage
 	 * Prints the homepage
 	*/
