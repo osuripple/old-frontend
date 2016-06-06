@@ -162,6 +162,7 @@ function setTitle($p) {
 			112 => 'Chatlog',
 			113 => 'Reports',
 			114 => 'Read report',
+			115 => 'IP Logs',
 		];
 		if (isset($namesRipple[$p])) {
 			return __maketitle('Ripple', $namesRipple[$p]);
@@ -404,6 +405,12 @@ function printPage($p) {
 				sessionCheckAdmin();
 				P::AdminViewReport();
 			break;
+
+			// Admin panel - IP logs main page
+			case 115:
+				sessionCheckAdmin();
+				P::AdminIPLogsMain();
+			break;
 				// 404 page
 
 			default:
@@ -572,6 +579,9 @@ function printAdminSidebar() {
 						</li>
 						<li>
 							<a href="index.php?p=102"><i class="fa fa-user"></i>	Users</a>
+						</li>
+						<li>
+							<a href="index.php?p=115"><i class="fa fa-user-secret"></i>	IP Logs</a>
 						</li>
 						<li>
 							<a href="index.php?p=108"><i class="fa fa-certificate"></i>	Badges</a>

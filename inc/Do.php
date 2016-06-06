@@ -12,6 +12,8 @@ class D {
 			if (empty($_POST['u']) || empty($_POST['p1']) || empty($_POST['p2']) || empty($_POST['e']) || empty($_POST['k'])) {
 				throw new Exception('Nope.');
 			}
+			// Get user IP
+			$ip = getIp();
 			// Make sure registrations are enabled
 			if (!checkRegistrationsEnabled()) {
 				throw new Exception('Registrations are currently disabled.');
@@ -50,12 +52,15 @@ class D {
 				throw new Exception('Invalid beta key.');
 			}
 			// Make sure there are no users that used this ip before
-			$multiUserID = $GLOBALS['db']->fetch("SELECT userid FROM ip_user WHERE ip = ?", [getIp()]);
-			if ($multiUserID) {
-				$multiUsername = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [current($multiUserID)]);
-				if ($multiUsername)
-					Schiavo::Bunk("User " . current($multiUsername) . " tried to create a multiaccount (" . $_POST['u'] . ") from IP " . getIP());
-				throw new Exception("It seems you have another account registered on Ripple. You can own only one account. If you think this is an error, please contact us at support@ripple.moe.");
+			// Multiaccs are allowed locally for testing purposes
+			if ($ip != "127.0.0.1") {
+				$multiUserID = $GLOBALS['db']->fetch("SELECT userid FROM ip_user WHERE ip = ?", [$ip]);
+				if ($multiUserID) {
+					$multiUsername = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [current($multiUserID)]);
+					if ($multiUsername)
+						Schiavo::Bunk("User " . current($multiUsername) . " tried to create a multiaccount (" . $_POST['u'] . ") from IP " . $ip);
+					throw new Exception("It seems you have another account registered on Ripple. You can own only one account. If you think this is an error, please contact us at support@ripple.moe.");
+				}
 			}
 			// Create password
 			$md5Password = password_hash(md5($_POST['p1']), PASSWORD_DEFAULT);
@@ -72,7 +77,7 @@ class D {
 			}
 			// Invalidate beta key
 			$GLOBALS['db']->execute('UPDATE beta_keys SET allowed = 0 WHERE key_md5 = ?', md5($_POST['k']));
-			Schiavo::Bunk("User ($_POST[u] | $_POST[e]) registered (successfully) from " . getIP());
+			Schiavo::Bunk("User ($_POST[u] | $_POST[e]) registered (successfully) from " . $ip);
 			// botnet-track IP
 			botnet($uid);
 
@@ -415,7 +420,7 @@ class D {
 	*/
 	public static function SaveEditUser() {
 		try {
-			// Check if everything is set (username color, username style, rank and allowed can be empty)
+			// Check if everything is set (username color, username style, rank, allowed and notes can be empty)
 			if (!isset($_POST['id']) || !isset($_POST['u']) || !isset($_POST['e']) || !isset($_POST['up']) || !isset($_POST['aka']) || !isset($_POST['se']) || !isset($_POST['sr']) || empty($_POST['id']) || empty($_POST['u']) || empty($_POST['e'])) {
 				throw new Exception('Nice troll');
 			}
@@ -436,8 +441,8 @@ class D {
 			// Check if silence end has changed. if so, we have to kick the client
 			// in order to silence him
 			//$oldse = current($GLOBALS["db"]->fetch("SELECT silence_end FROM users WHERE username = ?", array($_POST["u"])));
-			// Save new data (email, silence end and silence reason)
-			$GLOBALS['db']->execute('UPDATE users SET email = ?, silence_end = ?, silence_reason = ? WHERE id = ?', [$_POST['e'], $_POST['se'], $_POST['sr'], $_POST['id']]);
+			// Save new data (email, silence end, silence reason and cm notes)
+			$GLOBALS['db']->execute('UPDATE users SET email = ?, silence_end = ?, silence_reason = ?, notes = ? WHERE id = ?', [$_POST['e'], $_POST['se'], $_POST['sr'], $_POST['ncm'], $_POST['id'] ]);
 			// Save new userpage
 			$GLOBALS['db']->execute('UPDATE users_stats SET userpage_content = ? WHERE id = ?', [$_POST['up'], $_POST['id']]);
 			// Save new data if set (rank, allowed, UP and silence)
@@ -445,7 +450,8 @@ class D {
 				$GLOBALS['db']->execute('UPDATE users SET rank = ? WHERE id = ?', [$_POST['r'], $_POST['id']]);
 			}
 			if (isset($_POST['a'])) {
-				$GLOBALS['db']->execute('UPDATE users SET allowed = ? WHERE id = ?', [$_POST['a'], $_POST['id']]);
+				$banDateTime = $_POST['a'] == 0 ? time() : 0;
+				$GLOBALS['db']->execute('UPDATE users SET allowed = ?, ban_datetime = ? WHERE id = ?', [$_POST['a'], $banDateTime, $_POST['id']]);
 			}
 			// Get username style/color
 			if (isset($_POST['c']) && !empty($_POST['c'])) {
@@ -492,11 +498,13 @@ class D {
 			// Get new allowed value
 			if ($user["allowed"] == 1) {
 				$newAllowed = 0;
+				$banDateTime = time();
 			} else {
 				$newAllowed = 1;
+				$banDateTime = 0;
 			}
 			// Change allowed value
-			$GLOBALS['db']->execute('UPDATE users SET allowed = ? WHERE id = ?', [$newAllowed, $_GET['id']]);
+			$GLOBALS['db']->execute('UPDATE users SET allowed = ?, ban_datetime = ? WHERE id = ?', [$newAllowed, $banDateTime, $_GET['id']]);
 			// Done, redirect to success page
 			redirect('index.php?p=102&s=User banned/unbanned/activated!');
 		}

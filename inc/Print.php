@@ -140,7 +140,7 @@ class P {
 		// Quick edit/silence/kick user button
 		echo '<br><p align="center"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#quickEditUserModal">Quick edit user</button>';
 		echo '&nbsp;&nbsp; <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#silenceUserModal">Silence user</button>';
-		echo '&nbsp;&nbsp; <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#kickUserModal">Kick user from Bancho</button>';
+		echo '&nbsp;&nbsp; <button disabled type="button" class="btn btn-warning" data-toggle="modal" data-target="#kickUserModal">Kick user from Bancho</button>';
 		// Users plays table
 		echo '<table class="table table-striped table-hover table-50-center">
 		<thead>
@@ -269,7 +269,7 @@ class P {
 
 		<p style="line-height: 15px"></p>
 
-		That user will be silenced and kicked from the server. During the silence period, his client will be locked. <b>Max silence time is 7 days.</b>
+		We reccomend silencing the user from bancho. If you silence someone using this form, they won\'t see the silence ingame until they login again. During the silence period, their client will be locked. <b>Max silence time is 7 days.</b>
 
 		</form>
 		</p>
@@ -422,16 +422,24 @@ class P {
 			</td>
 			</tr>';
 			echo '<tr>
-			<td>Allowed</td>
+			<td>Allowed <b>(ban)</b></td>
 			<td>
 			<select name="a" class="selectpicker" data-width="100%" '.$selectDisabled.'>
 			<option value="0" '.$selected[1][0].'>Banned</option>
 			<option value="1" '.$selected[1][1].'>Ok</option>
-			<option value="2" '.$selected[1][2].'>Pending activation</option>
 			</select>
 			</td>
 			<!-- <td><p class="text-center"><input type="number" name="a" class="form-control" value="'.$userData['allowed'].'" '.$readonly[0].'></td> -->
 			</tr>';
+			if ($userData["allowed"] == 0) {
+				$canAppeal = time()-$userData["ban_datetime"] >= 86400*30;
+				echo '<tr class="'; echo $canAppeal ? 'success' : 'warning'; echo '">
+				<td>BAN Date (dd/mm/yyyy)</td>
+				<td>' . date('d/m/Y', $userData["ban_datetime"]);
+				echo $canAppeal ? '<i> (can appeal)</i>' : '<i> (can\'t appeal yet)<i>';
+				echo '</td>
+				</tr>';
+			}
 			echo '<tr>
 			<td>Username color<br>(HTML or HEX color)</td>
 			<td><p class="text-center"><input type="text" name="c" class="form-control" value="'.$userStatsData['user_color'].'" '.$readonly[1].'></td>
@@ -463,9 +471,15 @@ class P {
 			echo '<tr>
 			<td>Detected AQN folder
 				<br>
-				<i>If \'yes\', AQN (hax) folder has been<br>detected on this user, so he is<br>probably cheating.</i></td>
+				<i>(If \'yes\', AQN (hax) folder has been<br>detected on this user, so he is<br>probably cheating).</i></td>
 			</td>
 			<td><span class="label label-'.$haxCol.'">'.$haxText.'</span></td>
+			</tr>';
+			echo '<tr>
+			<td>Notes for CMs
+			<br>
+			<i>(visible only from RAP)</i></td>
+			<td><textarea name="ncm" class="form-control" style="overflow:auto;resize:vertical;height:100px">' . $userData["notes"] . '</textarea></td>
 			</tr>';
 			echo '</tbody></form>';
 			echo '</table>';
@@ -915,7 +929,7 @@ class P {
 		<td>Home alert<br>(visible only in homepage)</td>
 		<td><textarea type="text" name="ha" class="form-control" maxlength="512" style="overflow:auto;resize:vertical;height:100px">'.$ha.'</textarea></td>
 		</tr>';
-		echo '<tr class="success"><td></td><td>For bancho settings, click <a href="index.php?p=111">here</a<</td></tr>';
+		echo '<tr class="success"><td colspan=2><p align="center">Click <a href="index.php?p=111">here</a> for bancho settings</p></td></tr>';
 		echo '</tbody></form>';
 		echo '</table>';
 		echo '<div class="text-center"><div class="btn-group" role="group">
@@ -1351,6 +1365,9 @@ class P {
 		<td>Supported osu!.exe md5s<br>(separated by |)</td>
 		<td><p class="text-center"><input type="text" value="'.$cmd5.'" name="cmd5" class="form-control"></td>
 		</tr>';
+		echo '<tr class="success">
+		<td colspan=2><p align="center"><b>Type <i>!system reload</i> in chat after updating the settings from RAP to reload bancho settings.</b></p></td>
+		</tr>';
 		echo '</tbody><table>
 		<div class="text-center"><button type="submit" class="btn btn-primary">Save settings</button></div></form>';
 		echo '</div>';
@@ -1411,6 +1428,35 @@ class P {
 			echo '<a href="index.php?p=112&pg='.($page + 1).'">Next Page ></a>';
 		}
 		echo '</p>';
+		echo '</div>';
+	}
+
+	/*
+	 * AdminIPLogsMain
+	 * Prints the admin ip logs main page
+	*/
+	public static function AdminIPLogsMain() {
+		// Get data
+		$reports = $GLOBALS['db']->fetchAll('SELECT * FROM reports ORDER BY id DESC');
+		// Print sidebar and template stuff
+		echo '<div id="wrapper">';
+		printAdminSidebar();
+		echo '<div id="page-content-wrapper">';
+		// Maintenance check
+		self::MaintenanceStuff();
+		// Print Success if set
+		if (isset($_GET['s']) && !empty($_GET['s'])) {
+			self::SuccessMessage($_GET['s']);
+		}
+		// Print Exception if set
+		if (isset($_GET['e']) && !empty($_GET['e'])) {
+			self::ExceptionMessage($_GET['e']);
+		}
+		// Header
+		echo '<span align="center"><h2><i class="fa fa-user-secret"></i>	IP Logs</h2></span>';
+		// Main page content here
+		echo '<div align="center"><br><br><h4><i class="fa fa-cog fa-spin fa-2x"></i>	Coming soonTM</h4></div>';
+		// Template end
 		echo '</div>';
 	}
 
@@ -1601,7 +1647,7 @@ WHERE users_stats.id = ?', [$u]);
 				echo '<small><i>A.K.A '.htmlspecialchars($usernameAka).'</i></small>';
 			}
 			echo '<br><a href="index.php?u='.$u.'&m=0">'.$modesText[0].'</a> | <a href="index.php?u='.$u.'&m=1">'.$modesText[1].'</a> | <a href="index.php?u='.$u.'&m=2">'.$modesText[2].'</a> | <a href="index.php?u='.$u.'&m=3">'.$modesText[3].'</a>';
-			if (getUserRank($_SESSION['username']) >= 4) {
+			if (getUserRank($_SESSION['username']) >= 3) {
 				echo '<br><a href="index.php?p=103&id='.$u.'">Edit user</a> | <a onclick="sure(\'submit.php?action=banUnbanUser&id='.$u.'\')";>Ban user</a> | <a href="index.php?p=110&id='.$u.'">Edit badges</a></p>';
 			}
 			echo '<div id="rank"><font size=5><b> '.$rankSymbol.$rank.'</b></font><br>';
