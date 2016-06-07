@@ -2473,7 +2473,7 @@ WHERE users_stats.id = ?', [$u]);
 		}
 		// Print default message if we have no exception/success
 		if (!isset($_GET['e']) && !isset($_GET['s'])) {
-			echo '<p>Here you can view your bug reports and fetaure requests.</p>';
+			echo '<p>Here you can view your bug reports and feature requests.</p>';
 		}
 		if (!$reports) {
 			echo '<b>You haven\'t sent any bug report or feature request. You can send one <a href="index.php?p=22">here</a>.</b>';
