@@ -99,6 +99,7 @@ function timeSince(date) {
 
 function getScoreMods(m) {
 	var r = '';
+	var hasNightcore = false;
 	if (m & NoFail) {
 		r += 'NF, ';
 	}
@@ -117,7 +118,11 @@ function getScoreMods(m) {
 	if (m & SuddenDeath) {
 		r += 'SD, ';
 	}
-	if (m & DoubleTime) {
+	if (m & Nightcore) {
+		r += 'NC, ';
+		hasNightcore = true;
+	}
+	if (!hasNightcore && (m & DoubleTime)) {
 		r += 'DT, ';
 	}
 	if (m & Relax) {
@@ -125,10 +130,6 @@ function getScoreMods(m) {
 	}
 	if (m & HalfTime) {
 		r += 'HT, ';
-	}
-	if (m & Nightcore) {
-		r += 'NC, ';
-		r.replace("DT, ", "");
 	}
 	if (m & Flashlight) {
 		r += 'FL, ';
