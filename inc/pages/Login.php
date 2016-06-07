@@ -32,6 +32,8 @@ class Login {
 	public function D() {
 		$d = $this->DoGetData();
 		if (isset($d['success'])) {
+			if (isset($_SESSION['redirpage']) && $_SESSION['redirpage'] != '')
+				redirect($_SESSION['redirpage']);
 			redirect('index.php?p=1');
 		} else {
 			addError($d['error']);

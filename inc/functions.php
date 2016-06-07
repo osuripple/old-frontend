@@ -702,11 +702,13 @@ function sessionCheck() {
 		// Start session
 		startSessionIfNotStarted();
 		// Check if we are logged in
-		if (!$_SESSION) {
+		if (!isset($_SESSION["username"])) {
 			// Check for the autologin cookies.
 			$c = new RememberCookieHandler();
 			if ($c->Check()) {
 				if ($c->Validate() === 0) {
+					unset($_SESSION['redirpage']);
+					$_SESSION['redirpage'] = $_SERVER['REQUEST_URI'];
 					throw new Exception('You are not logged in.');
 				}
 				// We don't need to handle any other case.
@@ -715,6 +717,8 @@ function sessionCheck() {
 				// If it's 1, this function will keep on executing normally.
 
 			} else {
+				unset($_SESSION['redirpage']);
+				$_SESSION['redirpage'] = $_SERVER['REQUEST_URI'];
 				throw new Exception('You are not logged in.');
 			}
 		}
@@ -737,10 +741,10 @@ function sessionCheck() {
 
 	}
 	catch(Exception $e) {
+		addError($e->getMessage());
 		// Destroy session if it still exists
 		D::Logout();
 		// Return to login page
-		addError($e->getMessage());
 		redirect('index.php?p=2');
 	}
 }
