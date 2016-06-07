@@ -2285,7 +2285,7 @@ WHERE users_stats.id = ?', [$u]);
 		<p align="center"><textarea name="c" class="sceditor" style="width:700px; height:400px;">'.$userpageContent.'</textarea></p>
 		<p style="line-height: 15px"></p>
 		<button type="submit" class="btn btn-primary">Save userpage</button>
-		<a href="index.php?u='.getUserID($_SESSION['username']).'" class="btn btn-success">View userpage</a>
+		<button type="submit" class="btn btn-success" name="view" value="1">Save and view userpage</a>
 		</form>
 		';
 	}
