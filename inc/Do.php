@@ -1056,7 +1056,7 @@ class D {
 			$GLOBALS['db']->execute('UPDATE reports SET status = ?, update_time = ? WHERE id = ?', [$newReportStatus, time(), $_GET['id']]);
 			// RAP log
 			$name = $GLOBALS['db']->fetch("SELECT name FROM reports WHERE id = ?", [$_GET["id"]]);
-			rapLog(sprintf("has %s report %s", $newReportStatus == 0 ? "closed" : "opened", current($name)));
+			rapLog(sprintf("has %s report \"%s\"", $newReportStatus == 0 ? "closed" : "opened", current($name)));
 			// Done, redirect to success page
 			redirect('index.php?p=113&s=Report status changed!');
 		}
@@ -1131,7 +1131,7 @@ class D {
 				)
 			);
 			// RAP log
-			$name = $GLOBALS["db"]->fetch("SELECT name FROM reports WHERE id = ?", [$_GET["id"]]);
+			$name = $GLOBALS["db"]->fetch("SELECT name FROM reports WHERE id = ?", [$_POST["id"]]);
 			rapLog(sprintf("has edited/replied to report \"%s\"", current($name)));
 			// Done, redirect to success page
 			redirect('index.php?p=113&s=Report updated!');
