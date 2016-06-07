@@ -14,7 +14,7 @@ class P {
 		SELECT
 			beatmaps.song_name, scores.beatmap_md5, users.username,
 			scores.userid, scores.time, scores.score, scores.pp,
-			scores.play_mode
+			scores.play_mode, scores.mods
 		FROM scores
 		LEFT JOIN beatmaps ON beatmaps.beatmap_md5 = scores.beatmap_md5
 		LEFT JOIN users ON users.id = scores.userid
@@ -23,7 +23,7 @@ class P {
 		$topPlays = $GLOBALS['db']->fetchAll('SELECT
 			beatmaps.song_name, scores.beatmap_md5, users.username,
 			scores.userid, scores.time, scores.score, scores.pp,
-			scores.play_mode
+			scores.play_mode, scores.mods
 		FROM scores
 		LEFT JOIN beatmaps ON beatmaps.beatmap_md5 = scores.beatmap_md5
 		LEFT JOIN users ON users.id = scores.userid
@@ -68,7 +68,7 @@ class P {
 			// Print row
 			echo '<tr class="success">';
 			echo '<td><p class="text-left"><b><a href="index.php?u='.$play["username"].'">'.$play['username'].'</a></b></p></td>';
-			echo '<td><p class="text-left">'.$bn.'</p></td>';
+			echo '<td><p class="text-left">'.$bn.' <b>' . getScoreMods($play['mods']) . '</b></p></td>';
 			echo '<td><p class="text-left">'.$pm.'</p></td>';
 			echo '<td><p class="text-left">'.timeDifference(time(), osuDateToUNIXTimestamp($play['time'])).'</p></td>';
 			echo '<td><p class="text-left">'.number_format($play['score']).'</p></td>';
@@ -94,7 +94,7 @@ class P {
 			// Print row
 			echo '<tr class="warning">';
 			echo '<td><p class="text-left"><a href="index.php?u='.$play["username"].'"><b>'.$play['username'].'</b></a></p></td>';
-			echo '<td><p class="text-left">'.$bn.'</p></td>';
+			echo '<td><p class="text-left">'.$bn.' <b>' . getScoreMods($play['mods']) . '</b></p></td>';
 			echo '<td><p class="text-left">'.$pm.'</p></td>';
 			echo '<td><p class="text-left">'.timeDifference(time(), osuDateToUNIXTimestamp($play['time'])).'</p></td>';
 			echo '<td><p class="text-right"><b>'.number_format($play['pp']).'</b></p></td>';
