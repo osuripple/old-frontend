@@ -99,7 +99,11 @@ try {
 		break;
 		case 'quickEditUser':
 			sessionCheckAdmin();
-			D::QuickEditUser();
+			D::QuickEditUser(false);
+		break;
+		case 'quickEditUserEmail':
+			sessionCheckAdmin();
+			D::QuickEditUser(true);
 		break;
 		case 'changeIdentity':
 			sessionCheckAdmin();

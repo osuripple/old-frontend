@@ -111,11 +111,14 @@ class P {
 	public static function AdminUsers() {
 		// Get admin dashboard data
 		$totalUsers = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM users'));
-		$pendingUsers = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM users WHERE allowed = 2'));
+		$supporters = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM users WHERE rank = 2'));
 		$bannedUsers = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM users WHERE allowed = 0'));
 		$modUsers = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM users WHERE rank >= 3'));
-		// TODO: Multiple pages
-		$users = $GLOBALS['db']->fetchAll('SELECT * FROM users');
+		// Multiple pages
+		$pageInterval = 100;
+		$from = (isset($_GET["from"])) ? $_GET["from"] : 999;
+		$to = $from+$pageInterval;
+		$users = $GLOBALS['db']->fetchAll('SELECT * FROM users WHERE id >= ? AND id < ?', [$from, $to]);
 		// Print admin dashboard
 		echo '<div id="wrapper">';
 		printAdminSidebar();
@@ -133,18 +136,18 @@ class P {
 		// Stats panels
 		echo '<div class="row">';
 		printAdminPanel('primary', 'fa fa-user fa-5x', $totalUsers, 'Total users');
-		printAdminPanel('red', 'fa fa-pause fa-5x', $pendingUsers, 'Pending users');
-		printAdminPanel('yellow', 'fa fa-thumbs-down fa-5x', $bannedUsers, 'Banned users');
-		printAdminPanel('green', 'fa fa-star fa-5x', $modUsers, 'Mod/Admins');
+		printAdminPanel('red', 'fa fa-thumbs-down fa-5x', $bannedUsers, 'Banned users');
+		printAdminPanel('yellow', 'fa fa-money fa-5x', $supporters, 'Supporters');
+		printAdminPanel('green', 'fa fa-star fa-5x', $modUsers, 'CM/Devs');
 		echo '</div>';
 		// Quick edit/silence/kick user button
-		echo '<br><p align="center"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#quickEditUserModal">Quick edit user</button>';
-		echo '&nbsp;&nbsp; <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#silenceUserModal">Silence user</button>';
-		echo '&nbsp;&nbsp; <button disabled type="button" class="btn btn-warning" data-toggle="modal" data-target="#kickUserModal">Kick user from Bancho</button>';
+		echo '<br><p align="center"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#quickEditUserModal">Quick edit user (username)</button>';
+		echo '&nbsp;&nbsp; <button type="button" class="btn btn-info" data-toggle="modal" data-target="#quickEditEmailModal">Quick edit user (email)</button>';
+		echo '</p>';
 		// Users plays table
 		echo '<table class="table table-striped table-hover table-50-center">
 		<thead>
-		<tr><th class="text-center"><i class="fa fa-user"></i>	Users</th><th class="text-center">Username</th><th class="text-center">Rank</th><th class="text-center">Allowed</th><th class="text-center">Actions</th></tr>
+		<tr><th class="text-center"><i class="fa fa-user"></i>	ID</th><th class="text-center">Username</th><th class="text-center">Rank</th><th class="text-center">Allowed</th><th class="text-center">Actions</th></tr>
 		</thead>
 		<tbody>';
 		foreach ($users as $user) {
@@ -184,11 +187,11 @@ class P {
 			}
 			// Print row
 			echo '<tr>';
-			echo '<td class="success"><p class="text-center">'.$user['id'].'</p></td>';
-			echo '<td class="success"><p class="text-center"><b>'.$user['username'].'</b></p></td>';
-			echo '<td class="success"><p class="text-center"><span class="label label-'.$rankColor.'">'.$rankText.'</span></p></td>';
-			echo '<td class="success"><p class="text-center"><span class="label label-'.$allowedColor.'">'.$allowedText.'</span></p></td>';
-			echo '<td class="success"><p class="text-center">
+			echo '<td><p class="text-center">'.$user['id'].'</p></td>';
+			echo '<td><p class="text-center"><b>'.$user['username'].'</b></p></td>';
+			echo '<td><p class="text-center"><span class="label label-'.$rankColor.'">'.$rankText.'</span></p></td>';
+			echo '<td><p class="text-center"><span class="label label-'.$allowedColor.'">'.$allowedText.'</span></p></td>';
+			echo '<td><p class="text-center">
 			<div class="btn-group">
 			<a title="Edit user" class="btn btn-xs btn-primary" href="index.php?p=103&id='.$user['id'].'"><span class="glyphicon glyphicon-pencil"></span></a>';
 			if ($user['allowed'] == 1) {
@@ -201,7 +204,8 @@ class P {
 			</p></td>';
 			echo '</tr>';
 		}
-		echo '</tbody>';
+		echo '</tbody></table>';
+		echo '<p align="center"><a href="index.php?p=102&from='.($from-($pageInterval+1)).'">< Previous page</a> | <a href="index.php?p=102&from='.($to).'">Next page ></a></p>';
 		echo '</div>';
 		// Quick edit modal
 		echo '<div class="modal fade" id="quickEditUserModal" tabindex="-1" role="dialog" aria-labelledby="quickEditUserModalLabel">
@@ -225,6 +229,32 @@ class P {
 		<div class="modal-footer">
 		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 		<button type="submit" form="quick-edit-user-form" class="btn btn-primary">Edit user</button>
+		</div>
+		</div>
+		</div>
+		</div>';
+		// Search user by email modal
+		echo '<div class="modal fade" id="quickEditEmailModal" tabindex="-1" role="dialog" aria-labelledby="quickEditEmailModalLabel">
+		<div class="modal-dialog">
+		<div class="modal-content">
+		<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<h4 class="modal-title" id="quickEditEmailModalLabel">Quick edit user</h4>
+		</div>
+		<div class="modal-body">
+		<p>
+		<form id="quick-edit-user-email-form" action="submit.php" method="POST">
+		<input name="action" value="quickEditUserEmail" hidden>
+		<div class="input-group">
+		<span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></span>
+		<input type="text" name="u" class="form-control" placeholder="Email" aria-describedby="basic-addon1" required>
+		</div>
+		</form>
+		</p>
+		</div>
+		<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		<button type="submit" form="quick-edit-user-email-form" class="btn btn-primary">Edit user</button>
 		</div>
 		</div>
 		</div>

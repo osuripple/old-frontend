@@ -534,14 +534,14 @@ class D {
 	 * QuickEditUser
 	 * Redirects to the edit user page for the user with $_POST["u"] username
 	*/
-	public static function QuickEditUser() {
+	public static function QuickEditUser($email = false) {
 		try {
 			// Check if everything is set
 			if (empty($_POST['u'])) {
 				throw new Exception('Nice troll.');
 			}
 			// Get user id
-			$id = current($GLOBALS['db']->fetch('SELECT id FROM users WHERE username = ?', $_POST['u']));
+			$id = current($GLOBALS['db']->fetch(sprintf('SELECT id FROM users WHERE %s = ?', $email ? 'email' : 'username'), [$_POST['u']]));
 			// Check if that user exists
 			if (!$id) {
 				throw new Exception("That user doesn't exist");
