@@ -808,53 +808,45 @@ function timeDifference($t1, $t2, $ago = true) {
 	// abs and +1 should fix memes
 	$d = abs($t1 - $t2 + 1);
 	switch ($d) {
-			// Right now
-
+		// Right now
 		default:
 			return 'Right now';
 		break;
-			// 1 year or more
 
+		// 1 year or more
 		case $d >= 31556926:
-			$n = floor($d / 31556926);
+			$n = round($d / 31556926);
 			$i = 'year';
 		break;
-			// 1 month or more
 
+		// 1 month or more
 		case $d >= 2629743 && $d < 31556926:
-			$n = floor($d / 2629743);
+			$n = round($d / 2629743);
 			$i = 'month';
 		break;
-			// 1 day or more
 
+		// 1 day or more
 		case $d >= 86400 && $d < 2629743:
-			$n = floor($d / 86400);
+			$n = round($d / 86400);
 			$i = 'day';
 		break;
-			// 1 hour or more
 
+		// 1 hour or more
 		case $d >= 3600 && $d < 86400:
-			$n = floor($d / 3600);
+			$n = round($d / 3600);
 			$i = 'hour';
 		break;
-			// 1 minute or more
 
+		// 1 minute or more
 		case $d >= 60 && $d < 3600:
-			$n = floor($d / 60);
+			$n = round($d / 60);
 			$i = 'minute';
 		break;
 	}
-	// Plural
-	if ($n > 1) {
-		$s = 's';
-	} else {
-		$s = '';
-	}
-	if ($ago) {
-		$a = 'ago';
-	} else {
-		$a = '';
-	}
+
+	// Plural, ago and more
+	$s = $n > 1 ? 's' : '';
+	$a = $ago ? 'ago' : '';
 
 	return $n.' '.$i.$s.' '.$a;
 }

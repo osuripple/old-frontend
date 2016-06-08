@@ -1670,6 +1670,10 @@ WHERE users_stats.id = ?', [$u]);
 					$badgeIcon[$i] = '';
 				}
 			}
+			// Silence thing
+			if ($silenceEndTime - time() > 0) {
+				echo '<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i>	<b>'.$username.'</b> can\'t speak in the chat for the next <b>'.timeDifference($silenceEndTime, time(), false).'</b> for the following reason: "<b>'.$silenceReason.'</b>"</div>';
+			}
 			// Userpage custom stuff
 			if (strlen($userpageContent) > 0) {
 				// BB Code parser
@@ -1823,14 +1827,7 @@ WHERE users_stats.id = ?', [$u]);
 			echo '<table class="table" id="recent-plays-table">
 			<tr><th class="text-left"><i class="fa fa-clock-o"></i>	Recent plays</th><th class="text-right">' . $scoringName . '</th></tr>';
 			echo '</table>';
-			echo '<button type="button" class="btn btn-default load-more-user-scores" data-rel="recent" disabled>Show me more!</button>';
-			echo '<br><br><br>';
-
-			// Silence thing
-			if ($silenceEndTime - time() > 0) {
-				echo "<div class='alert alert-danger'><i class='fa fa-exclamation-triangle'></i>	<b>".$username."'s account is not in good standing!</b><br><br><b>This user has been silenced for the following reason:</b><br><i>".$silenceReason.'</i><br><br><b>Silence ends in:</b><br><i>'.timeDifference($silenceEndTime, time(), false).'</i></div>';
-			}
-			echo '</div>';
+			echo '<button type="button" class="btn btn-default load-more-user-scores" data-rel="recent" disabled>Show me more!</button></div>';
 		}
 		catch(Exception $e) {
 			echo '<br><div class="alert alert-danger" role="alert"><i class="fa fa-exclamation-triangle"></i>	<b>'.$e->getMessage().'</b></div>';
