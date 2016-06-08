@@ -99,6 +99,7 @@ function timeSince(date) {
 
 function getScoreMods(m) {
 	var r = '';
+	var hasNightcore = false;
 	if (m & NoFail) {
 		r += 'NF, ';
 	}
@@ -117,7 +118,11 @@ function getScoreMods(m) {
 	if (m & SuddenDeath) {
 		r += 'SD, ';
 	}
-	if (m & DoubleTime) {
+	if (m & Nightcore) {
+		r += 'NC, ';
+		hasNightcore = true;
+	}
+	if (!hasNightcore && (m & DoubleTime)) {
 		r += 'DT, ';
 	}
 	if (m & Relax) {
@@ -125,10 +130,6 @@ function getScoreMods(m) {
 	}
 	if (m & HalfTime) {
 		r += 'HT, ';
-	}
-	if (m & Nightcore) {
-		r += 'NC, ';
-		r.replace("DT, ", "");
 	}
 	if (m & Flashlight) {
 		r += 'FL, ';
@@ -240,19 +241,29 @@ function addCommas(nStr) {
 function getRank(gameMode, mods, acc, c300, c100, c50, cmiss) {
 	var total = c300+c100+c50+cmiss;
 
+	var ss = function() {
+		if (((mods & Hidden) > 0) || ((mods & Flashlight) > 0)) {
+			return "sshd";
+		} else {
+			return "ss";
+		}
+	}
+
+	var s = function() {
+		if (((mods & Hidden) > 0) || ((mods & Flashlight) > 0)) {
+			return "shd";
+		} else {
+			return "s";
+		}
+	}
+
 	switch(gameMode) {
 		case 0:
 			if (acc == 100)
-				if ((mods & Hidden > 0) || (mods & Flashlight > 0))
-					return "sshd";
-				else
-					return "ss";
+				return ss();
 
 			if (c300 / total > 0.90 && c50 / total < 0.1 && cmiss == 0)
-				if ((mods & Hidden > 0) || (mods & Flashlight > 0))
-					return "shd";
-				else
-					return "s";
+				return s();
 
 			if ( (c300 / total > 0.80 && cmiss == 0) || (c300 / total > 0.90) )
 				return "a";
@@ -271,16 +282,10 @@ function getRank(gameMode, mods, acc, c300, c100, c50, cmiss) {
 
 		case 2:
 			if (acc == 100)
-				if ((mods & Hidden > 0) || (mods & Flashlight > 0))
-					return "sshd";
-				else
-					return "ss";
+				return ss();
 
 			if (acc >= 98.01 && acc <= 99.99)
-				if ((mods & Hidden > 0) || (mods & Flashlight > 0))
-					return "shd";
-				else
-					return "s";
+				return s();
 
 			if (acc >= 94.01 && acc <= 98.00)
 				return "a";
@@ -295,16 +300,10 @@ function getRank(gameMode, mods, acc, c300, c100, c50, cmiss) {
 
 		case 3:
 			if (acc == 100)
-				if ((mods & Hidden > 0) || (mods & Flashlight > 0))
-					return "sshd";
-				else
-					return "ss";
+				return ss();
 
 			if (acc > 95)
-				if ((mods & Hidden > 0) || (mods & Flashlight > 0))
-					return "shd";
-				else
-					return "s";
+				return s();
 
 			if (acc > 90)
 				return "a";

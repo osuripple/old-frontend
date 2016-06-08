@@ -307,4 +307,8 @@ if (isset($_GET["u"]) && !isset($_GET["p"])) {
 
 </html>
 <?php
+// clear redirpage if we're not on login page
+if ($p != 2) {
+	unset($_SESSION['redirpage']);
+}
 ob_end_flush();

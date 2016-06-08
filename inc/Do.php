@@ -87,9 +87,6 @@ class D {
 		} catch(Exception $e) {
 			// Redirect to Exception page
 			addError($e->getMessage());
-			echo json_encode($_SESSION);
-			echo $e->getMessage();
-			die();
 			redirect('index.php?p=3');
 		}
 	}
@@ -945,6 +942,9 @@ class D {
 			}
 			// Save data in db
 			$GLOBALS['db']->execute('UPDATE users_stats SET userpage_content = ? WHERE username = ?', [$_POST['c'], $_SESSION['username']]);
+			if (isset($_POST['view']) && $_POST['view'] == 1) {
+				redirect('index.php?u=' . $_SESSION['userid']);
+			}
 			// Done, redirect to success page
 			redirect('index.php?p=8&s=ok');
 		}
