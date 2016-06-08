@@ -51,7 +51,7 @@ function getScores(type) {
 				u += addCommas(v.score);
 			}
 			if (v.completed == 3) {
-				u += ' <a href="/web/osu-getreplay-full.php?c=' + v.id + '"><i class="fa fa-star"></i></a>';
+				u += ' <a href="/web/replays/' + v.id + '"><i class="fa fa-star"></i></a>';
 			}
 			u += '</b><br>' + small + '</p></td>';
 			u += "</tr>";
@@ -64,7 +64,7 @@ function getScores(type) {
 }
 
 $(".load-more-user-scores").click(function() {
-	if ($(this).attr("disabled")) 
+	if ($(this).attr("disabled"))
 		return;
 	getScores($(this).data("rel"));
 });
