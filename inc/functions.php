@@ -1755,7 +1755,7 @@ function bloodcatDirectString($arr, $np = false) {
 
 function printBubble($userID, $username, $message, $time, $through) {
 	echo '
-	<img class="circle" src="http://a.ripple.moe/' . $userID . '">
+	<img class="circle" src="' . URL::Avatar() . '/' . $userID . '">
 	<div class="bubble">
 		<b>' . $username . '</b> ' . $message . '<br>
 		<span style="font-size: 80%">' . timeDifference($time, time()) .' through <i>' . $through . '</i></span>
