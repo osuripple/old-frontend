@@ -22,7 +22,7 @@ class TwoFASetup {
 				<h1><i class="fa fa-ticket"></i> Two-Factor Auth Setup</h1>
 				<br>
 				With Two-Factor Authentication (or 2FA), we\'ll send you a special code through Telegram every time you log in from a new IP address.
-				We highly reccomend setting up 2FA to increase your account security.<br><br>';
+				We highly recommend setting up 2FA to increase your account security.<br><br>';
 
 				if ($_SESSION["2fa"]) {
 					echo '<div class="alert alert-success" role="alert"><i class="fa fa-check-circle"></i>	<b>Telegram 2FA is enabled on your account</b></div><br>

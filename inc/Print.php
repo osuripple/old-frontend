@@ -299,7 +299,7 @@ class P {
 
 		<p style="line-height: 15px"></p>
 
-		We reccomend silencing the user from bancho. If you silence someone using this form, they won\'t see the silence ingame until they login again. During the silence period, their client will be locked. <b>Max silence time is 7 days.</b>
+		We recommend silencing the user from bancho. If you silence someone using this form, they won\'t see the silence ingame until they login again. During the silence period, their client will be locked. <b>Max silence time is 7 days.</b>
 
 		</form>
 		</p>
