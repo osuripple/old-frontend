@@ -28,12 +28,16 @@ require_once $df.'/pages/Leaderboard.php';
 require_once $df.'/pages/PasswordFinishRecovery.php';
 require_once $df.'/pages/ServerStatus.php';
 require_once $df.'/pages/UserLookup.php';
+require_once $df.'/pages/2fa.php';
+require_once $df.'/pages/2faSetup.php';
 $pages = [
 	new Login(),
 	new Leaderboard(),
 	new PasswordFinishRecovery(),
 	new ServerStatus(),
 	new UserLookup(),
+	new TwoFA(),
+	new TwoFASetup(),
 ];
 // Set timezone to UTC
 date_default_timezone_set('Europe/Rome');
@@ -78,7 +82,6 @@ function randomString($l, $c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv
 	for ($i = 0; $i < $l; $i++) {
 		$res .= $c[rand() % strlen($c)];
 	}
-
 	return $res;
 }
 /*
@@ -553,6 +556,9 @@ function printNavbar() {
 						<li class="dropdown-submenu"><a href="index.php?p=7"><i class="fa fa-lock"></i>	Change password</a></li>
 						<li class="dropdown-submenu"><a href="index.php?p=8"><i class="fa fa-pencil"></i> Edit userpage 	<span class="label label-info">Beta</span></a></li>
 						<li class="dropdown-submenu"><a href="index.php?p=6"><i class="fa fa-cog"></i>	User settings</a></li>
+						<li class="dropdown-submenu"><a href="index.php?p=30"><i class="fa fa-ticket"></i>	Two-Factor Auth	';
+						if (!$_SESSION["2fa"]) echo '<span class="label label-warning">!</span>';
+						echo '</a></li>
 						<li class="dropdown-submenu"><a href="index.php?p=24"><i class="fa fa-paper-plane"></i>	My reports</a></li>
 						<li class="dropdown-submenu"><a href="submit.php?action=forgetEveryCookie"><i class="fa fa-chain-broken"></i>	Delete all login tokens</a></li>
 						<li class="divider"></li>
@@ -1770,4 +1776,71 @@ function readableRank($rank) {
 		case 4: return "community manager"; break;
 		default: return "akerino"; break;
 	}
+}
+
+function check2FA($userID) {
+	// Check if 2fa is enabled
+	if (!is2FAEnabled($userID))
+		return false;
+
+	// New ip?
+	$ip = getIp();
+	if ($GLOBALS["db"]->fetch("SELECT * FROM ip_user WHERE userid = ? AND ip = ?", [$userID, $ip]))
+		return false;
+
+	// Check if we already have a pending 2FA token from that IP
+	if ($GLOBALS["db"]->fetch("SELECT * FROM 2fa WHERE userid = ? AND ip = ? AND expire > ?", [$userID, $ip, time()]))
+		return false;
+
+	// No 2FA tokens from that IP, add a new one
+	$GLOBALS["db"]->execute("INSERT INTO 2fa (id, userid, token, ip, expire, sent) VALUES (NULL, ?, ?, ?, ?, 0)", [$userID, strtoupper(randomString(8)), $ip, time()+3600]);
+
+	// Send 2FA telegram message
+	getJsonCurl("http://127.0.0.1:8888/update");
+	return true;
+}
+
+function redirect2FA() {
+	// Check 2FA only if we are logged in
+	if (!checkLoggedIn())
+		return;
+
+	// Generate 2FA token if needed
+	check2FA($_SESSION["userid"]);
+
+	// Don't redirect to 2FA page if we are on submit.php with resend2FA, 2fa or logout action
+	if ( ($_SERVER['PHP_SELF'] == "/submit.php") && (isset($_GET["action"]) || isset($_POST["action"])) && ($_GET["action"] == "resend2FACode" || $_POST["action"] == "2fa" || $_GET["action"] == "logout"))
+		return;
+
+	// Don't redirect to 2FA page if we are already in 2FA page
+	if (isset($_GET["p"]) && $_GET["p"] == 29)
+		return;
+
+	// Redirect to 2FA page
+	if ($GLOBALS['db']->fetch("SELECT * FROM 2fa WHERE userid = ? AND ip = ?", [$_SESSION["userid"], getIp()])) {
+		redirect("index.php?p=29");
+	}
+}
+
+function cleanExpiredConfirmationToken() {
+	$GLOBALS["db"]->execute("DELETE FROM 2fa_confirmation WHERE expire < ?", [time()]);
+}
+
+function getConfirmationToken($userID) {
+	// Get current token
+	$token = $GLOBALS["db"]->fetch("SELECT token FROM 2fa_confirmation WHERE userid = ? LIMIT 1", [$userID]);
+	// Generate a new token if not found
+	if (!$token) {
+		$GLOBALS["db"]->execute("INSERT INTO 2fa_confirmation (id, userid, token, expire) VALUES (NULL, ?, ?, ?)", [$userID, randomString(32), time()+3600]);
+		return getConfirmationToken($userID);
+	} else {
+		return $token["token"];
+	}
+}
+
+function is2FAEnabled($userID, $force = false) {
+	if (session_status() != PHP_SESSION_NONE && !$force)
+		return $_SESSION["2fa"];
+	$result = $GLOBALS["db"]->fetch("SELECT * FROM 2fa_telegram WHERE userid = ? LIMIT 1", [$userID]);
+	return $result ? true : false;
 }

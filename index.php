@@ -10,6 +10,9 @@ $c = new RememberCookieHandler();
 if ($c->Check()) {
 	$c->Validate();
 }
+// Redirect to 2FA block page if needed
+redirect2FA();
+
 // CONTROLLER SYSTEM v2
 $model = 'old';
 if (isset($_GET['p'])) {

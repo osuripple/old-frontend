@@ -1189,4 +1189,44 @@ class D {
 			redirect('index.php?p=106&e='.$e->getMessage());
 		}
 	}
+
+	/*
+	 * Resend2FACode
+	 * Generete and send a new 2FA code for logged user
+	*/
+	public static function Resend2FACode() {
+		try {
+			// Check if we are logged in
+			sessionCheck();
+			// Delete old 2FA token and generate a new one
+			$GLOBALS["db"]->execute("DELETE FROM 2fa WHERE userid = ? AND ip = ?", [$_SESSION["userid"], getIP()]);
+			check2FA($_SESSION["userid"]);
+			// Redirect
+			addSuccess("A new 2FA code has been generated and sent to you through telegram!");
+			redirect("index.php?p=29");
+		}
+		catch(Exception $e) {
+			redirect('index.php?p=99&e='.$e->getMessage());
+		}
+	}
+
+	/*
+	 * Disable2FA
+	 * Disable 2FA for current user
+	*/
+	public static function Disable2FA() {
+		try {
+			// Check if we are logged in
+			sessionCheck();
+			// Disable 2fa
+			$GLOBALS["db"]->execute("DELETE FROM 2fa_telegram WHERE userid = ?", [$_SESSION["userid"]]);
+			// Update session
+			$_SESSION["2fa"] = is2FAEnabled($_SESSION["userid"], true);
+			// Redirect
+			redirect("index.php?p=30");
+		}
+		catch(Exception $e) {
+			redirect('index.php?p=99&e='.$e->getMessage());
+		}
+	}
 }

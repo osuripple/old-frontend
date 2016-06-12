@@ -70,13 +70,16 @@ class Login {
 			$_SESSION['userid'] = $us['id'];
 			$_SESSION['password'] = $us['password_md5'];
 			$_SESSION['passwordChanged'] = false;
+			$_SESSION['2fa'] = is2FAEnabled($us["id"], true);
 			// Check if the user requested to be remembered. If they did, initialise cookies.
 			if (isset($_POST['remember']) && (bool) $_POST['remember']) {
 				$m = new RememberCookieHandler();
 				$m->IssueNew($_SESSION['username']);
 			}
-			// update the botnet
-			botnet($us['id']);
+			// update the botnet only if we don't have 2FA enabled or this ip is allowed
+			// if 2FA is enabled, botnet will be run when this IP has been allowed
+			if (!check2FA($us['id']))
+				botnet($us['id']);
 			// Get safe title
 			updateSafeTitle();
 			// Save latest activity

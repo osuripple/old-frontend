@@ -4,6 +4,9 @@
 */
 require_once './inc/functions.php';
 try {
+	// Make sure we are not locked due to 2FA
+	redirect2FA();
+
 	// Find what the user wants to do (compatible with both GET/POST forms)
 	if (isset($_POST['action']) && !empty($_POST['action'])) {
 		$action = $_POST['action'];
@@ -55,6 +58,12 @@ try {
 		break;
 		case 'addRemoveFriend':
 			D::AddRemoveFriend();
+		break;
+		case 'resend2FACode':
+			D::Resend2FACode();
+		break;
+		case 'disable2FA':
+			D::Disable2FA();
 		break;
 		default:
 			throw new Exception('Invalid action value');
