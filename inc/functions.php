@@ -1331,7 +1331,7 @@ function getChangelogPage($p = 1) {
 	// Get only the commits we're interested in.
 	$data = array_slice($data, $initoffset, 50);
 	// check whether user is admin
-	$useradmin = getUserRank($_SESSION['username']) >= 4;
+	$useradmin = getUserRank($_SESSION['username']) >= 3;
 	// Get each commit
 	foreach ($data as $commit) {
 		// Separate the various components of the commit
