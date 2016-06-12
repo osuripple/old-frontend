@@ -31,7 +31,7 @@ class TwoFASetup {
 					echo '<div class="alert alert-danger" role="alert"><i class="fa fa-exclamation-triangle"></i>	<b>Telegram 2FA is not enabled on your account</b></div>
 					<br>
 					<b>To enable 2FA, click this button, then click "Start" on Telegram.</b><br>
-					<a href="http://telegram.me/osuripple_bot?start='.$token.'" type="button" class="btn btn-primary"><i class="fa fa-paper-plane"></i>	Enable Telegram 2FA</a><br>';
+					<a href="http://telegram.me/ripple2fabot?start='.$token.'" type="button" class="btn btn-primary"><i class="fa fa-paper-plane"></i>	Enable Telegram 2FA</a><br>';
 				}
 			echo '</div>
 		</div>';
