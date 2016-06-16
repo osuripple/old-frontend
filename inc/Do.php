@@ -1221,7 +1221,8 @@ class D {
 			// Disable 2fa
 			$GLOBALS["db"]->execute("DELETE FROM 2fa_telegram WHERE userid = ?", [$_SESSION["userid"]]);
 			// Update session
-			$_SESSION["2fa"] = is2FAEnabled($_SESSION["userid"], true);
+			if (isset($_SESSION["2fa"]))
+				$_SESSION["2fa"] = is2FAEnabled($_SESSION["userid"], true);
 			// Redirect
 			redirect("index.php?p=30");
 		}

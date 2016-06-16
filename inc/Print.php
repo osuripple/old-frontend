@@ -1975,7 +1975,8 @@ WHERE users_stats.id = ?', [$u]);
 			$selected[$_GET['type']] = 'selected';
 		}
 		// Changelog
-		echo '<div id="narrow-content"><h1><i class="fa fa-paper-plane"></i>	Send a report</h1>Here you can report bugs or request features. Please try to descbibe your bug/feature as detailed as possible.<br>The whole team speaks English and Italian. Don\'t be afraid to write in a maccaroni language!<br><br>';
+		echo '<div id="narrow-content"><h1><i class="fa fa-paper-plane"></i>	Send a report</h1>Here you can report bugs or request features. Please try to describe your bug/feature as detailed as possible.<br><br>';
+		echo '<h2>IF YOU REPORT ANY BUG/FEATURE ABOUT OSU!DIRECT, YOU\'LL BE SILENCED FOR TWO DAYS. YOU\'VE BEEN WARNED.</h2>';
 		echo '<form method="POST" action="submit.php" id="send-report-form">
 		<input name="action" value="sendReport" hidden>
 		<div class="input-group" style="width:100%">
@@ -1997,7 +1998,7 @@ WHERE users_stats.id = ?', [$u]);
 
 		<div class="input-group" style="width:100%">
 			<span class="input-group-addon" id="basic-addon1" style="width:40%">Report</span>
-			<textarea name="c" class="form-control" placeholder="Main content here. Max 1024 characters" maxlength="1024" style="overflow:auto;resize:vertical;height:100px" required></textarea>
+			<textarea name="c" class="form-control" maxlength="1024" style="overflow:auto;resize:vertical;height:100px" placeholder="DIRECT IS NOT WORKING WE KNOW YOU\'RE NOT THE FIRST ONE TO NOTICE" required></textarea>
 		</div>
 
 		<p style="line-height: 15px"></p>

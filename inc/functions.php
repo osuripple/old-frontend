@@ -557,7 +557,7 @@ function printNavbar() {
 						<li class="dropdown-submenu"><a href="index.php?p=8"><i class="fa fa-pencil"></i> Edit userpage 	<span class="label label-info">Beta</span></a></li>
 						<li class="dropdown-submenu"><a href="index.php?p=6"><i class="fa fa-cog"></i>	User settings</a></li>
 						<li class="dropdown-submenu"><a href="index.php?p=30"><i class="fa fa-ticket"></i>	Two-Factor Auth	';
-						if (!$_SESSION["2fa"]) echo '<span class="label label-warning">!</span>';
+						if (is2FAEnabled($_SESSION["userid"], false)) echo '<span class="label label-warning">!</span>';
 						echo '</a></li>
 						<li class="dropdown-submenu"><a href="index.php?p=24"><i class="fa fa-paper-plane"></i>	My reports</a></li>
 						<li class="dropdown-submenu"><a href="submit.php?action=forgetEveryCookie"><i class="fa fa-chain-broken"></i>	Delete all login tokens</a></li>
@@ -1839,7 +1839,7 @@ function getConfirmationToken($userID) {
 }
 
 function is2FAEnabled($userID, $force = false) {
-	if (session_status() != PHP_SESSION_NONE && !$force)
+	if (session_status() != PHP_SESSION_NONE && !$force && isset($_SESSION["2fa"]))
 		return $_SESSION["2fa"];
 	$result = $GLOBALS["db"]->fetch("SELECT * FROM 2fa_telegram WHERE userid = ? LIMIT 1", [$userID]);
 	return $result ? true : false;
