@@ -30,8 +30,25 @@ class TwoFASetup {
 				} else {
 					echo '<div class="alert alert-danger" role="alert"><i class="fa fa-exclamation-triangle"></i>	<b>Telegram 2FA is not enabled on your account</b></div>
 					<br>
+					<hr>
 					<b>To enable 2FA, click this button, then click "Start" on Telegram.</b><br>
-					<a href="http://telegram.me/ripple2fabot?start='.$token.'" type="button" class="btn btn-primary"><i class="fa fa-paper-plane"></i>	Enable Telegram 2FA</a><br>';
+					<a href="http://telegram.me/ripple2fabot?start='.$token.'" type="button" class="btn btn-primary"><i class="fa fa-paper-plane"></i>	Enable Telegram 2FA</a>
+					<hr>
+					<b>You don\'t have Telegram on this device?<br>Scan this QR Code on your smartphone!</b><br>
+					<img src="https://chart.googleapis.com/chart?chs=130x130&cht=qr&chl=http://telegram.me/ripple2fabot?start='.$token.'&chld=L|1">
+					<br><b>Then click "Start" on Telegram.</b>
+					<hr>
+					<b>You can\'t even scan QR Codes? Start chatting with <a href="http://telegram.me/ripple2fabot">@ripple2fabot</a> on Telegram and send this message</b><br><br>
+					<div class="spoiler">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<button type="button" class="btn btn-default btn-xs spoiler-trigger" data-toggle="collapse">Show</button>
+							</div>
+							<div class="panel-collapse collapse">
+									<div class="panel-body">/start '.$token.'</div>
+							</div>
+						</div>
+					</div>';
 				}
 			echo '</div>
 		</div>';
