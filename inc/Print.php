@@ -2737,6 +2737,12 @@ WHERE users_stats.id = ?', [$u]);
 				$rankButton[3] = 1;
 				$rowClass = $today ? "success" : "default";
 			}
+
+			$rankButton[4] = "";
+			if ($req["blacklisted"] == 1) {
+				$rowClass = "danger";
+				$rankButton[4] = "disabled";
+			}
 			echo "<tr class='$rowClass'>
 				<td><a href='http://m.zxq.co/$bsid.osz'>$req[type]/$req[bid]</a></td>
 				<td>$song</td>
@@ -2744,7 +2750,8 @@ WHERE users_stats.id = ?', [$u]);
 				<td>".timeDifference(time(), $req["time"])."</td>
 				<td>
 					<p class='text-center'>
-						<a title='$rankButton[0]' class='btn btn-xs btn-$rankButton[1]' href='submit.php?action=processRankRequest&id=$req[id]&r=$rankButton[3]'><span class='glyphicon glyphicon-thumbs-$rankButton[2]'></span></a>
+						<a title='$rankButton[0]' class='btn btn-xs btn-$rankButton[1]' href='submit.php?action=processRankRequest&id=$req[id]&r=$rankButton[3]' $rankButton[4]><span class='glyphicon glyphicon-thumbs-$rankButton[2]'></span></a>
+						<a title='Toggle blacklist' class='btn btn-xs btn-danger' href='submit.php?action=blacklistRankRequest&id=$req[id]'><span class='glyphicon glyphicon-flag'></span></a>
 					</p>
 				</td>
 			</tr>";

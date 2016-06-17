@@ -174,6 +174,10 @@ try {
 			sessionCheckAdmin();
 			D::ProcessRankRequest();
 		break;
+		case 'blacklistRankRequest':
+			sessionCheckAdmin();
+			D::BlacklistRankRequest();
+		break;
 	}
 }
 catch(Exception $e) {

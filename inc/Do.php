@@ -1277,4 +1277,21 @@ class D {
 		}
 	}
 
+
+	/*
+	 * BlacklistRankRequest
+	 * Toggle blacklist for a rank request
+	*/
+	public static function BlacklistRankRequest() {
+		try {
+			if (!isset($_GET["id"]) || empty($_GET["id"]))
+				throw new Exception("no");
+			$GLOBALS["db"]->execute("UPDATE rank_requests SET blacklisted = IF(blacklisted=1, 0, 1) WHERE id = ?", [$_GET["id"]]);
+			redirect("index.php?p=117&s=Blacklisted flag changed");
+		}
+		catch(Exception $e) {
+			redirect('index.php?p=117&e='.$e->getMessage());
+		}
+	}
+
 }

@@ -85,8 +85,24 @@ class RequestRankedBeatmap {
 				throw new Exception("That beatmap is already ranked.");
 			}
 
+			// Make sure the beatmap was not already requested
+			// Exact match
+			if ($GLOBALS["db"]->fetch("SELECT * FROM rank_requests WHERE bid = ? AND type = ?", [$matches[2], $matches[1]])) {
+				throw new Exception("That beatmap was already requested.");
+			}
+
+			// Opposite match (if found in db)
+			$otherType = $matches[1] == "s" ? "b" : "s";
+			$otherCriteria = $criteria == "beatmap_id" ? "beatmapset_id" : "beatmap_id";
+			$otherID = $GLOBALS["db"]->fetch("SELECT ".$otherCriteria." FROM beatmaps WHERE ".$criteria." = ?", [$matches[2]]);
+			if ($otherID) {
+				if ($GLOBALS["db"]->fetch("SELECT * FROM rank_requests WHERE bid = ? AND type = ?", [current($otherID), $otherType])) {
+					throw new Exception("That beatmap was already requested.");
+				}
+			}
+
 			// Everything seems fine, add rank request in db
-			$GLOBALS["db"]->execute("INSERT INTO rank_requests (id, userid, bid, type, time) VALUES (NULL, ?, ?, ?, ?)", [$_SESSION["userid"], $matches[2], $matches[1], time()]);
+			$GLOBALS["db"]->execute("INSERT INTO rank_requests (id, userid, bid, type, time, blacklisted) VALUES (NULL, ?, ?, ?, ?, 0)", [$_SESSION["userid"], $matches[2], $matches[1], time()]);
 
 			// Send schiavo message
 			Schiavo::Bunk($_SESSION["username"]." has sent a rank request for beatmap ".$_POST["url"]);
