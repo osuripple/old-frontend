@@ -170,6 +170,10 @@ try {
 			sessionCheckAdmin();
 			D::SetRulesPage();
 		break;
+		case 'processRankRequest':
+			sessionCheckAdmin();
+			D::ProcessRankRequest();
+		break;
 	}
 }
 catch(Exception $e) {

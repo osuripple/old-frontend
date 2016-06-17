@@ -2665,4 +2665,93 @@ WHERE users_stats.id = ?', [$u]);
 			echo '</tbody></table>';
 		}
 	}
+
+	/*
+	 * RankRequests
+	 * Prints the admin rank requests
+	*/
+	public static function RankRequests() {
+		// Get data
+		$rankRequestsToday = $GLOBALS["db"]->fetchAll("SELECT * FROM rank_requests WHERE time > ? LIMIT 10", [time()-(24*3600)]);
+		$rankRequests = $GLOBALS["db"]->fetchAll("SELECT rank_requests.*, users.username FROM rank_requests LEFT JOIN users ON rank_requests.userid = users.id WHERE time > ? ORDER BY id DESC LIMIT 10", [time()-(24*3600)]);
+		// Print sidebar and template stuff
+		echo '<div id="wrapper">';
+		printAdminSidebar();
+		echo '<div id="page-content-wrapper" align="center">';
+		// Maintenance check
+		self::MaintenanceStuff();
+		// Print Success if set
+		if (isset($_GET['s']) && !empty($_GET['s'])) {
+			self::SuccessMessage($_GET['s']);
+		}
+		// Print Exception if set
+		if (isset($_GET['e']) && !empty($_GET['e'])) {
+			self::ExceptionMessage($_GET['e']);
+		}
+		// Header
+		echo '<span align="center"><h2><i class="fa fa-music"></i>	Beatmap rank requests</h2></span>';
+		// Main page content here
+		echo '<div class="page-content-wrapper">';
+		echo '<div style="width: 50%" class="alert alert-info" role="alert"><i class="fa fa-info-circle"></i>	Only the requests made in the past 24 hours are shown. <b>Remember to load ingame the leaderboard (that shows Latest pending version or whatever) every difficulty from a set <u>before</u> ranking it!!</b><br><i>(We\'ll add a system that does it automatically soonTM)</i></div>';
+		echo '<hr>
+		<h2 style="display: inline;">'.count($rankRequestsToday).'</h2><h3 style="display: inline;">/10</h3><br><h4>requests submitted today</h4>
+		<hr>';
+		echo '<table class="table table-striped table-hover" style="width: 75%">
+		<thead>
+		<tr><th><i class="fa fa-music"></i>	ID</th><th>Artist & song</th><th>User</th></th><th>When</th><th class="text-center">Actions</th></tr>
+		</thead>';
+		echo '<tbody>';
+		foreach ($rankRequests as $req) {
+			$criteria = $req["type"] == "s" ? "beatmapset_id" : "beatmap_id";
+			$b = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name, ranked FROM beatmaps WHERE ".$criteria." = ? LIMIT 1", [$req["bid"]]);
+
+			if ($b) {
+				$matches = [];
+				if (preg_match("/(.+)(?:\[.+\])/i", $b["song_name"], $matches)) {
+					$song = $matches[1];
+				} else {
+					$song = "Wat";
+				}
+			} else {
+				$song = "Unknown";
+			}
+
+			if ($req["type"] == "s")
+				$bsid = $req["bid"];
+			else
+				$bsid = $b ? $b["beatmapset_id"] : 0;
+
+			$today = !($req["time"] < time()-86400);
+			if ($b["ranked"] >= 2) {
+				// Unrank
+				$rankButton[0] = "Unrank";
+				$rankButton[1] = "warning";
+				$rankButton[2] = "down";
+				$rankButton[3] = 0;
+				$rowClass = "default";
+			} else {
+				// Rank
+				$rankButton[0] = "Rank";
+				$rankButton[1] = "success";
+				$rankButton[2] = "up";
+				$rankButton[3] = 1;
+				$rowClass = $today ? "success" : "default";
+			}
+			echo "<tr class='$rowClass'>
+				<td><a href='http://m.zxq.co/$bsid.osz'>$req[type]/$req[bid]</a></td>
+				<td>$song</td>
+				<td>$req[username]</td>
+				<td>".timeDifference(time(), $req["time"])."</td>
+				<td>
+					<p class='text-center'>
+						<a title='$rankButton[0]' class='btn btn-xs btn-$rankButton[1]' href='submit.php?action=processRankRequest&id=$req[id]&r=$rankButton[3]'><span class='glyphicon glyphicon-thumbs-$rankButton[2]'></span></a>
+					</p>
+				</td>
+			</tr>";
+		}
+		echo '</tbody>';
+		echo '</table>';
+		// Template end
+		echo '</div>';
+	}
 }

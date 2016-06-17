@@ -1230,4 +1230,48 @@ class D {
 			redirect('index.php?p=99&e='.$e->getMessage());
 		}
 	}
+
+	/*
+	 * ProcessRankRequest
+	 * Rank/unrank a beatmap
+	*/
+	public static function ProcessRankRequest() {
+		try {
+			if (!isset($_GET["id"]) || !isset($_GET["r"]) || empty($_GET["id"]))
+				throw new Exception("no");
+
+			// Get beatmapset id
+			$requestData = $GLOBALS["db"]->fetch("SELECT * FROM rank_requests WHERE id = ?", [$_GET["id"]]);
+			if (!$requestData)
+				throw new Exception("Rank request not found");
+
+			if ($requestData["type"] == "s") {
+				// We already have the beatmapset id
+				$bsid = $requestData["bid"];
+			} else {
+				// We have the beatmap but we don't have the beatmap set id.
+				$result = $GLOBALS["db"]->fetch("SELECT beatmapset_id FROM beatmaps WHERE beatmap_id = ?", [$requestData["bid"]]);
+				if (!$result)
+					throw new Exception("Beatmap set id not found. Load the beatmap ingame and try again.");
+				$bsid = current($result);
+			}
+
+			// TODO: Save all beatmaps from a set in db with a given beatmap set id
+
+			if ($_GET["r"] == 0) {
+				// Unrank the map set and force osu!api update by setting latest update to 01/01/1970 top stampa piede
+				$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 0, ranked_status_freezed = 0, latest_update = 0 WHERE beatmapset_id = ?", [$bsid]);
+			} else {
+				// Rank the map set and freeze status rank
+				$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 2, ranked_status_freezed = 1 WHERE beatmapset_id = ?", [$bsid]);
+			}
+
+			// Done
+			redirect("index.php?p=117&s=野生のちんちんが現れる");
+		}
+		catch(Exception $e) {
+			redirect("index.php?p=117&e=".$e->getMessage());
+		}
+	}
+
 }

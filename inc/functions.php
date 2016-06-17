@@ -30,6 +30,7 @@ require_once $df.'/pages/ServerStatus.php';
 require_once $df.'/pages/UserLookup.php';
 require_once $df.'/pages/2fa.php';
 require_once $df.'/pages/2faSetup.php';
+require_once $df.'/pages/RequestRankedBeatmap.php';
 $pages = [
 	new Login(),
 	new Leaderboard(),
@@ -38,6 +39,7 @@ $pages = [
 	new UserLookup(),
 	new TwoFA(),
 	new TwoFASetup(),
+	new RequestRankedBeatmap(),
 ];
 // Set timezone to UTC
 date_default_timezone_set('Europe/Rome');
@@ -167,6 +169,7 @@ function setTitle($p) {
 			114 => 'Read report',
 			115 => 'IP Logs',
 			116 => 'Admin Logs',
+			117 => 'Rank requests',
 		];
 		if (isset($namesRipple[$p])) {
 			return __maketitle('Ripple', $namesRipple[$p]);
@@ -421,6 +424,12 @@ function printPage($p) {
 				sessionCheckAdmin();
 				P::AdminLog();
 			break;
+
+			// Admin panel - Beatmap rank requests
+			case 117:
+				sessionCheckAdmin();
+				P::RankRequests();
+			break;
 				// 404 page
 
 			default:
@@ -529,6 +538,7 @@ function printNavbar() {
 						<li class="divider"></li>
 						<li class="dropdown-submenu"><a href="index.php?p=22&type=0"><i class="fa fa-bug"></i> '.($trollerino ? 'Request' : 'Report').' a bug</a></li>
 						<li class="dropdown-submenu"><a href="index.php?p=22&type=1"><i class="fa fa-plus-circle"></i>	'.($trollerino ? 'Report' : 'Request').' a feature</a></li>
+						<li class="dropdown-submenu"><a href="index.php?p=31"><i class="fa fa-music"></i>	Request ranked beatmap</a></li>
 						<li class="divider"></li>
 						<li class="dropdown-submenu"><a href="https://mu.nyodev.xyz/upd.php?id=18"><i class="fa fa-server"></i>	Ripple Server switcher</a></li>
 						<li class="divider"></li>
@@ -607,6 +617,9 @@ function printAdminSidebar() {
 						</li>
 						<li>
 							<a href="index.php?p=113"><i class="fa fa-paper-plane"></i>	Reports</a>
+						</li>
+						<li>
+							<a href="index.php?p=117"><i class="fa fa-music"></i>	Rank requests</a>
 						</li>
 						<li class="animated infinite pulse">
 							<a href="index.php?p=116"><i class="fa fa-calendar"></i>	Admin log&nbsp;&nbsp;&nbsp;<div class="label label-primary">Free botnets</div></a>
