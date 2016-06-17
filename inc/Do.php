@@ -1266,6 +1266,9 @@ class D {
 				$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 2, ranked_status_freezed = 1 WHERE beatmapset_id = ?", [$bsid]);
 			}
 
+			// RAP log
+			rapLog(sprintf("has %s beatmap set %s", $_GET["r"] == 0 ? "unranked" : "ranked", $bsid), $_SESSION["userid"]);
+
 			// Done
 			redirect("index.php?p=117&s=野生のちんちんが現れる");
 		}

@@ -538,7 +538,7 @@ function printNavbar() {
 						<li class="divider"></li>
 						<li class="dropdown-submenu"><a href="index.php?p=22&type=0"><i class="fa fa-bug"></i> '.($trollerino ? 'Request' : 'Report').' a bug</a></li>
 						<li class="dropdown-submenu"><a href="index.php?p=22&type=1"><i class="fa fa-plus-circle"></i>	'.($trollerino ? 'Report' : 'Request').' a feature</a></li>
-						<li class="dropdown-submenu"><a href="index.php?p=31"><i class="fa fa-music"></i>	Request ranked beatmap</a></li>
+						<li class="dropdown-submenu"><a href="index.php?p=31"><i class="fa fa-music"></i>	Request beatmap ranking</a></li>
 						<li class="divider"></li>
 						<li class="dropdown-submenu"><a href="https://mu.nyodev.xyz/upd.php?id=18"><i class="fa fa-server"></i>	Ripple Server switcher</a></li>
 						<li class="divider"></li>

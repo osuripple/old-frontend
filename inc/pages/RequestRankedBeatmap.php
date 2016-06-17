@@ -3,7 +3,7 @@
 class RequestRankedBeatmap {
 	const PageID = 31;
 	const URL = 'RequestRankedBeatmap';
-	const Title = 'Ripple - Request Ranked Beatmap';
+	const Title = 'Ripple - Request Beatmap Ranking';
 	const LoggedIn = true;
 	public $error_messages = [];
 	public $mh_GET = [];
@@ -16,7 +16,7 @@ class RequestRankedBeatmap {
 		echo '
 		<div id="content">
 			<div align="center">
-				<h1><i class="fa fa-music"></i> Request ranked beatmap</h1>
+				<h1><i class="fa fa-music"></i> Request beatmap ranking</h1>
 				<h4>Here you can send a request to rank an unranked beatmap on ripple.</h4>';
 				if ($hasSentRequest) {
 					if (!isset($_GET["s"]))
@@ -92,7 +92,7 @@ class RequestRankedBeatmap {
 			Schiavo::Bunk($_SESSION["username"]." has sent a rank request for beatmap ".$_POST["url"]);
 
 			// Set success message
-			$ret["success"] = "Your beatmap rank request has been submitted successfully! Our Community Managers will check your request and eventually rank it.";
+			$ret["success"] = "Your beatmap ranking request has been submitted successfully! Our Community Managers will check your request and eventually rank it.";
 		} catch (Exception $e) {
 			$ret["error"] = $e->getMessage();
 		}
