@@ -2015,7 +2015,7 @@ WHERE users_stats.id = ?', [$u]);
 	 * @param (string) ($e) The custom message (exception) to display.
 	*/
 	public static function ExceptionMessage($e, $ret = false) {
-		$p = '<div class="alert alert-danger" role="alert"><p align="center"><b>An error occurred:<br></b>'.$e.'</p></div>';
+		$p = '<div class="container alert alert-danger" role="alert"><p align="center"><b>An error occurred:<br></b>'.$e.'</p></div>';
 		if ($ret) {
 			return $p;
 		}
@@ -2068,7 +2068,7 @@ WHERE users_stats.id = ?', [$u]);
 	 * Printed when a logged in user tries to view a guest only page.
 	*/
 	public static function LoggedInAlert() {
-		echo '<div class="container alert alert-warning" role="alert">You are already logged in.</i></div>';
+		echo '<div class="alert alert-warning" role="alert">You are already logged in.</i></div>';
 	}
 
 	/*
