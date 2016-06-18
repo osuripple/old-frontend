@@ -145,7 +145,7 @@ ul.nav li:hover > ul.dropdown-menu {
 }
 
 #content{
-	width: 75%;
+	min-width: 75%;
 	margin: 0 auto;
 }
 
