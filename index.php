@@ -18,13 +18,11 @@ $model = 'old';
 if (isset($_GET['p'])) {
 	$found = false;
 	foreach ($pages as $page) {
-		if ($page::PageID == $_GET['p']) {
+		if (defined(get_class($page).'::PageID') && $page::PageID == $_GET['p']) {
 			$found = true;
 			$model = $page;
 			$title = '<title>'.$page::Title.'</title>';
-			if (defined(get_class($page).'::PageID')) {
-				$p = $page::PageID;
-			}
+			$p = $page::PageID;
 			if (defined(get_class($page).'::LoggedIn')) {
 				if ($page::LoggedIn) {
 					clir();
