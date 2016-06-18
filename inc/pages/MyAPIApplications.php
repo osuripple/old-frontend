@@ -11,13 +11,15 @@ class MyAPIApplications {
 		?>
 		<div id="narrow-content" style="width:500px">
 			<h1><i class="fa fa-plane"></i> My API applications</h1>
+			<p>The Ripple public API allows developers to easily make applications and utilities that integrate with Ripple. If you don't know what an API is, you probably don't need to do anything on this page.</p>
+			<p><a href="https://en.wikipedia.org/wiki/Application_programming_interface">API (Wikipedia)</a> | <a href="https://git.zxq.co/ripple/api-docs/wiki">Ripple API documentation</a></p>
 			<?php
 			if (!$myApps) {
-				echo '<b>Looks like you don\'t have any API application! (yet!)';
+				echo '<b>Looks like you don\'t have any API application! (yet!)</b>';
 			} else {
 				echo '<ul style="text-align:left;">';
 				foreach ($myApps as $app) {
-					echo "<li><a href='#$app[id]'>" . (trim($app['name']) == '' ? "(No title)" : htmlentities($app['name'])) . "</a></li>";
+					echo "<li><a href='index.php?p=33&id=$app[id]'>" . (trim($app['name']) == '' ? "(No title)" : htmlentities($app['name'])) . "</a></li>";
 				}
 				echo '</ul>';
 			}

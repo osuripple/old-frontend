@@ -32,6 +32,8 @@ require_once $df.'/pages/2fa.php';
 require_once $df.'/pages/2faSetup.php';
 require_once $df.'/pages/RequestRankedBeatmap.php';
 require_once $df.'/pages/MyAPIApplications.php';
+require_once $df.'/pages/EditApplication.php';
+require_once $df.'/pages/DeleteApplication.php';
 $pages = [
 	new Login(),
 	new Leaderboard(),
@@ -42,6 +44,8 @@ $pages = [
 	new TwoFASetup(),
 	new RequestRankedBeatmap(),
 	new MyAPIApplications(),
+	new EditApplication(),
+	new DeleteApplication(),
 ];
 // Set timezone to UTC
 date_default_timezone_set('Europe/Rome');
@@ -1824,7 +1828,8 @@ function redirect2FA() {
 	check2FA($_SESSION["userid"]);
 
 	// Don't redirect to 2FA page if we are on submit.php with resend2FA, 2fa or logout action
-	if ( ($_SERVER['PHP_SELF'] == "/submit.php") && (isset($_GET["action"]) || isset($_POST["action"])) && ($_GET["action"] == "resend2FACode" || $_POST["action"] == "2fa" || $_GET["action"] == "logout"))
+	if (($_SERVER['PHP_SELF'] == "/submit.php") && 
+		(@$_GET["action"] == "resend2FACode" || @$_POST["action"] == "2fa" || @$_GET["action"] == "logout"))
 		return;
 
 	// Don't redirect to 2FA page if we are already in 2FA page

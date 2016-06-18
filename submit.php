@@ -4,6 +4,8 @@
 */
 require_once './inc/functions.php';
 try {
+	startSessionIfNotStarted();
+	
 	// Make sure we are not locked due to 2FA
 	redirect2FA();
 
@@ -17,6 +19,13 @@ try {
 	}
 	foreach ($pages as $page) {
 		if ($action == $page::URL) {
+			if (defined(get_class($page).'::LoggedIn')) {
+				if ($page::LoggedIn) {
+					clir();
+				} else {
+					clir(true, 'index.php?p=1&e=1');
+				}
+			}
 			checkMustHave($page);
 			$page->D();
 
