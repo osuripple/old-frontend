@@ -31,6 +31,7 @@ require_once $df.'/pages/UserLookup.php';
 require_once $df.'/pages/2fa.php';
 require_once $df.'/pages/2faSetup.php';
 require_once $df.'/pages/RequestRankedBeatmap.php';
+require_once $df.'/pages/MyAPIApplications.php';
 $pages = [
 	new Login(),
 	new Leaderboard(),
@@ -40,6 +41,7 @@ $pages = [
 	new TwoFA(),
 	new TwoFASetup(),
 	new RequestRankedBeatmap(),
+	new MyAPIApplications(),
 ];
 // Set timezone to UTC
 date_default_timezone_set('Europe/Rome');
