@@ -804,10 +804,10 @@ function checkAdmin($u) {
  * updateLatestActivity
  * Updates the latest_activity column for $u user
  *
- * @param ($u) (string) Username
+ * @param ($u) (string) User ID
 */
 function updateLatestActivity($u) {
-	$GLOBALS['db']->execute('UPDATE users SET latest_activity = ? WHERE username = ?', [time(), $u]);
+	$GLOBALS['db']->execute('UPDATE users SET latest_activity = ? WHERE id = ?', [time(), $u]);
 }
 /*
  * updateSafeTitle
