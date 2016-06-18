@@ -83,7 +83,7 @@ class Login {
 			// Get safe title
 			updateSafeTitle();
 			// Save latest activity
-			updateLatestActivity($_SESSION['username']);
+			updateLatestActivity($_us['id']);
 			// Update country if XX
 			if ($us['country'] == 'XX')
 				updateUserCountry($us['id'], 'id');

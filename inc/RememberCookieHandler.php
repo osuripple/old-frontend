@@ -112,11 +112,12 @@ class RememberCookieHandler {
 		}
 		$password = $GLOBALS['db']->fetch('SELECT password_md5 FROM users WHERE id = ?', $this->ID);
 		startSessionIfNotStarted();
+		$_SESSION['userid'] = $this->ID;
 		$_SESSION['username'] = getUserUsername($this->ID);
 		$_SESSION['password'] = $password['password_md5'];
 		$_SESSION['passwordChanged'] = false;
 		// Save latest activity
-		updateLatestActivity($_SESSION['username']);
+		updateLatestActivity($this->ID);
 	}
 
 	/**
