@@ -1877,7 +1877,7 @@ WHERE users_stats.id = ?', [$u]);
 		echo '<p align="center"><h1><i class="fa fa-key"></i>	Beta Keys</h1>';
 		// Actual User CP
 		echo 'Here you can find some Beta keys.<br>You can\'t find a valid beta key? Don\'t worry, we add new ones periodically.<br></p>';
-		$betaKeys = $GLOBALS['db']->fetchAll('SELECT description,allowed FROM beta_keys WHERE public = 1 ORDER BY allowed DESC');
+		$betaKeys = $GLOBALS['db']->fetchAll('SELECT description,allowed FROM beta_keys WHERE public = 1 AND allowed = 1 ORDER BY allowed DESC');
 		if ($betaKeys) {
 			// Print table header
 			echo "<table class='table table-hover'>
