@@ -259,41 +259,41 @@ function getRank(gameMode, mods, acc, c300, c100, c50, cmiss) {
 
 	switch(gameMode) {
 		case 0:
+		case 1:
+			var ratio300 = c300 / total;
+			var ratio50 = c50 / total;
+
 			if (acc == 100)
 				return ss();
 
-			if (c300 / total > 0.90 && c50 / total < 0.1 && cmiss == 0)
+			if (ratio300 > 0.90 && ratio50 < 0.1 && cmiss == 0)
 				return s();
 
-			if ( (c300 / total > 0.80 && cmiss == 0) || (c300 / total > 0.90) )
+			if ( (ratio300 > 0.80 && cmiss == 0) || (ratio300 > 0.90) )
 				return "a";
 
-			if ( (c300 / total > 0.70 && cmiss == 0) || (c300 / total > 0.80) )
+			if ( (ratio300 > 0.70 && cmiss == 0) || (ratio300 > 0.80) )
 				return "b";
 
-			if (c300 / total > 0.60)
+			if (ratio300 > 0.60)
 				return "c";
 
 			return "d";
-
-		case 1:
-			// TODO: Taiko ranking
-			return "a";
 
 		case 2:
 			if (acc == 100)
 				return ss();
 
-			if (acc >= 98.01 && acc <= 99.99)
+			if (acc > 98)
 				return s();
 
-			if (acc >= 94.01 && acc <= 98.00)
+			if (acc > 94)
 				return "a";
 
-			if (acc >= 90.01 && acc <= 94.00)
+			if (acc > 90)
 				return "b";
 
-			if (acc >= 85.01 && acc <= 90.00)
+			if (acc > 85)
 				return "c";
 
 			return "d";
