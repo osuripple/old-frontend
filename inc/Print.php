@@ -1966,7 +1966,7 @@ WHERE users_stats.id = ?', [$u]);
 		}
 		// Print Success if set
 		if (isset($_GET['s']) && $_GET['s'] === 'ok') {
-			self::SuccessMessage("Report send! Thank you for your contribute! We'll try to reply to your report as soon as possible. <b>Check out <a href='index.php?p=24'>this</a> page to get future updates.</b>");
+			self::SuccessMessage("Report sent! Thank you for contributing! We'll try to reply to your report as soon as possible. <b>Check out <a href='index.php?p=24'>this</a> page to get future updates.</b>");
 		}
 		// Selected thing (for automatic bug report or feature request)
 		$selected[0] = '';
