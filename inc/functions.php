@@ -550,6 +550,7 @@ function printNavbar() {
 						<li class="divider"></li>
 						<li class="dropdown-submenu"><a href="https://github.com/osuripple/ripple"><i class="fa fa-github"></i>	Github</a></li>
 						<li class="dropdown-submenu"><a href="https://discord.gg/0rJcZruIsA6rXuIx"><i class="fa fa-comment"></i>	Discord</a></li>
+						<li class="dropdown-submenu"><a href="https://reddit.com/r/osuripple"><i class="fa fa-reddit"></i>	Reddit</a></li>
 						<li class="dropdown-submenu"><a href="index.php?p=21"><i class="fa fa-info-circle"></i>	About</a></li>
 					</ul>
 				</li>';
