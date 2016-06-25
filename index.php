@@ -163,6 +163,15 @@ if ($p < 100) {
     <!-- jQuery -->
     <script src="./js/jquery.js"></script>
 
+	<!-- User lookup -->
+	<?php
+		if (checkLoggedIn()) {
+			APITokens::PrintScript();
+			echo '<script src="/js/typeahead.min.js"></script>
+				<script src="/js/userlookup.js"></script>';
+		}
+	?>
+
     <!-- Bootstrap Core JavaScript -->
     <script src="./js/bootstrap.min.js"></script>
 
@@ -291,12 +300,6 @@ switch ($p) {
 					window.onload = changeTitlePlaceholder;
 				</script>';
 	break;
-	case 28:
-		?>
-		<script src="/js/typeahead.min.js"></script>
-		<script src="/js/userlookup.js"></script>
-		<?php
-		break;
 }
 
 // Userpage JS

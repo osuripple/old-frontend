@@ -563,6 +563,7 @@ function printNavbar() {
 	// Logged in right elements
 	if (checkLoggedIn()) {
 		global $URL;
+		echo '<li><input type="text" style="width:200px; margin-top: 10px;" class="form-control" name="query" id="query" placeholder="Search users..."></li>';
 		echo '<li class="dropdown">
 					<a data-toggle="dropdown"><img src="'.URL::Avatar().'/'.getUserID($_SESSION['username']).'" height="22" width="22" />	<b>'.$_SESSION['username'].'</b><span class="caret"></span></a>
 					<ul class="dropdown-menu">
@@ -1829,7 +1830,7 @@ function redirect2FA() {
 	check2FA($_SESSION["userid"]);
 
 	// Don't redirect to 2FA page if we are on submit.php with resend2FA, 2fa or logout action
-	if (($_SERVER['PHP_SELF'] == "/submit.php") && 
+	if (($_SERVER['PHP_SELF'] == "/submit.php") &&
 		(@$_GET["action"] == "resend2FACode" || @$_POST["action"] == "2fa" || @$_GET["action"] == "logout"))
 		return;
 

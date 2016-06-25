@@ -21,4 +21,3 @@ class UserLookup {
 		APITokens::PrintScript();
 	}
 }
-
