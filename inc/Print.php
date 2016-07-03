@@ -27,7 +27,7 @@ class P {
 		FROM scores
 		LEFT JOIN beatmaps ON beatmaps.beatmap_md5 = scores.beatmap_md5
 		LEFT JOIN users ON users.id = scores.userid
-		WHERE users.allowed = "1"
+		WHERE users.privileges & 1 > 0
 		ORDER BY scores.pp DESC LIMIT 30');
 		$onlineUsers = getJsonCurl("http://127.0.0.1:5001/api/v1/onlineUsers");
 		if ($onlineUsers == false) {
@@ -111,14 +111,15 @@ class P {
 	public static function AdminUsers() {
 		// Get admin dashboard data
 		$totalUsers = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM users'));
-		$supporters = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM users WHERE rank = 2'));
-		$bannedUsers = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM users WHERE allowed = 0'));
-		$modUsers = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM users WHERE rank >= 3'));
+		$supporters = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM users WHERE privileges & '.Privileges::UserDonor.' > 0'));
+		$bannedUsers = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM users WHERE privileges & 1 = 0'));
+		$modUsers = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM users WHERE privileges & '.Privileges::AdminAccessRAP.'> 0'));
 		// Multiple pages
 		$pageInterval = 100;
 		$from = (isset($_GET["from"])) ? $_GET["from"] : 999;
 		$to = $from+$pageInterval;
 		$users = $GLOBALS['db']->fetchAll('SELECT * FROM users WHERE id >= ? AND id < ?', [$from, $to]);
+		$groups = $GLOBALS["db"]->fetchAll("SELECT * FROM privileges_groups");
 		// Print admin dashboard
 		echo '<div id="wrapper">';
 		printAdminSidebar();
@@ -137,8 +138,8 @@ class P {
 		echo '<div class="row">';
 		printAdminPanel('primary', 'fa fa-user fa-5x', $totalUsers, 'Total users');
 		printAdminPanel('red', 'fa fa-thumbs-down fa-5x', $bannedUsers, 'Banned users');
-		printAdminPanel('yellow', 'fa fa-money fa-5x', $supporters, 'Supporters');
-		printAdminPanel('green', 'fa fa-star fa-5x', $modUsers, 'CM/Devs');
+		printAdminPanel('yellow', 'fa fa-money fa-5x', $supporters, 'Donors');
+		printAdminPanel('green', 'fa fa-star fa-5x', $modUsers, 'Admins');
 		echo '</div>';
 		// Quick edit/silence/kick user button
 		echo '<br><p align="center"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#quickEditUserModal">Quick edit user (username)</button>';
@@ -147,57 +148,58 @@ class P {
 		// Users plays table
 		echo '<table class="table table-striped table-hover table-50-center">
 		<thead>
-		<tr><th class="text-center"><i class="fa fa-user"></i>	ID</th><th class="text-center">Username</th><th class="text-center">Rank</th><th class="text-center">Allowed</th><th class="text-center">Actions</th></tr>
+		<tr><th class="text-center"><i class="fa fa-user"></i>	ID</th><th class="text-center">Username</th><th class="text-center">Privileges Group</th><th class="text-center">Allowed</th><th class="text-center">Actions</th></tr>
 		</thead>
 		<tbody>';
 		foreach ($users as $user) {
-			// Set allowed label text/color
-			switch ($user['allowed']) {
-				case 0:
-					$allowedColor = 'danger';
-					$allowedText = 'Banned';
-				break;
-				case 1:
-					$allowedColor = 'success';
-					$allowedText = 'Ok';
-				break;
-				case 2:
-					$allowedColor = 'warning';
-					$allowedText = 'Pending';
-				break;
+
+			// Get group color/text
+			$groupColor = "default";
+			$groupText = "None";
+			foreach ($groups as $group) {
+				if ($user["privileges"] == $group["privileges"] || $user["privileges"] == ($group["privileges"] | Privileges::UserDonor)) {
+					$groupColor = $group["color"];
+					$groupText = $group["name"];
+				}
 			}
-			// Set rank label text/color
-			switch ($user['rank']) {
-				case 1:
-					$rankColor = 'success';
-					$rankText = 'User';
-				break;
-				case 2:
-					$rankColor = 'primary';
-					$rankText = 'Supporter';
-				break;
-				case 3:
-					$rankColor = 'info';
-					$rankText = 'Developer';
-				break;
-				case 4:
-					$rankColor = 'warning';
-					$rankText = 'CM';
-				break;
+
+			// Get allowed color/text
+			$allowedColor = "success";
+			$allowedText = "Ok";
+			if (($user["privileges"] & Privileges::UserPublic) == 0 && ($user["privileges"] & Privileges::UserNormal) == 0) {
+				// Not visible and not active, banned
+				$allowedColor = "danger";
+				$allowedText = "Banned";
+			} else if (($user["privileges"] & Privileges::UserPublic) == 0 && ($user["privileges"] & Privileges::UserNormal) > 0) {
+				// Not visible but active, restricted
+				$allowedColor = "warning";
+				$allowedText = "Restricted";
+			} else if (($user["privileges"] & Privileges::UserPublic) > 0 && ($user["privileges"] & Privileges::UserNormal) == 0) {
+				// Visible but not active, disabled (not supported yet)
+				$allowedColor = "default";
+				$allowedText = "Disabled";
 			}
+
 			// Print row
 			echo '<tr>';
 			echo '<td><p class="text-center">'.$user['id'].'</p></td>';
 			echo '<td><p class="text-center"><b>'.$user['username'].'</b></p></td>';
-			echo '<td><p class="text-center"><span class="label label-'.$rankColor.'">'.$rankText.'</span></p></td>';
+			echo '<td><p class="text-center"><span class="label label-'.$groupColor.'">'.$groupText.'</span></p></td>';
 			echo '<td><p class="text-center"><span class="label label-'.$allowedColor.'">'.$allowedText.'</span></p></td>';
 			echo '<td><p class="text-center">
 			<div class="btn-group">
 			<a title="Edit user" class="btn btn-xs btn-primary" href="index.php?p=103&id='.$user['id'].'"><span class="glyphicon glyphicon-pencil"></span></a>';
-			if ($user['allowed'] == 1) {
-				echo '<a title="Ban user" class="btn btn-xs btn-warning" onclick="sure(\'submit.php?action=banUnbanUser&id='.$user['id'].'\')"><span class="glyphicon glyphicon-thumbs-down"></span></a>';
-			} else {
-				echo '<a title="Unban user" class="btn btn-xs btn-success" onclick="sure(\'submit.php?action=banUnbanUser&id='.$user['id'].'\')"><span class="glyphicon glyphicon-thumbs-up"></span></a>';
+			if (hasPrivilege(Privileges::AdminBanUsers)) {
+				if (isBanned($user["id"])) {
+					echo '<a title="Unban user" class="btn btn-xs btn-success" onclick="sure(\'submit.php?action=banUnbanUser&id='.$user['id'].'\')"><span class="glyphicon glyphicon-thumbs-up"></span></a>';
+				} else {
+					echo '<a title="Ban user" class="btn btn-xs btn-warning" onclick="sure(\'submit.php?action=banUnbanUser&id='.$user['id'].'\')"><span class="glyphicon glyphicon-thumbs-down"></span></a>';
+				}
+				if (isRestricted($user["id"])) {
+					echo '<a title="Remove restrictions" class="btn btn-xs btn-success" onclick="sure(\'submit.php?action=restrictUnrestrictUser&id='.$user['id'].'\')"><span class="glyphicon glyphicon-ok-circle"></span></a>';
+				} else {
+					echo '<a title="Restrict user" class="btn btn-xs btn-warning" onclick="sure(\'submit.php?action=restrictUnrestrictUser&id='.$user['id'].'\')"><span class="glyphicon glyphicon-remove-circle"></span></a>';
+				}
 			}
 			echo '	<a title="Change user identity" class="btn btn-xs btn-danger" href="index.php?p=104&id='.$user['id'].'"><span class="glyphicon glyphicon-refresh"></span></a>
 			</div>
@@ -373,7 +375,7 @@ class P {
 				// Allow to edit only user stats
 				$readonly[0] = 'readonly';
 				$selectDisabled = 'disabled';
-			} elseif ($userData['rank'] >= 3) {
+			} elseif (($userData["privileges"] & Privileges::AdminAccessRAP) > 0) {
 				// We are trying to edit a user with same/higher rank than us :akerino:
 				redirect("index.php?p=102&e=You don't have enough permissions to edit this user");
 				die();
@@ -393,12 +395,14 @@ class P {
 				self::ExceptionMessage($_GET['e']);
 			}
 			// Selected values stuff 1
-			$selected[0] = [1 => '', 2 => '', 3 => '', 4 => ''];
+			//$selected[0] = [1 => '', 2 => '', 3 => '', 4 => ''];
 			// Selected values stuff 2
-			$selected[1] = [0 => '', 1 => '', 2 => ''];
+			//$selected[1] = [0 => '', 1 => '', 2 => ''];
+
 			// Get selected stuff
-			$selected[0][current($GLOBALS['db']->fetch('SELECT rank FROM users WHERE id = ?', $_GET['id']))] = 'selected';
-			$selected[1][current($GLOBALS['db']->fetch('SELECT allowed FROM users WHERE id = ?', $_GET['id']))] = 'selected';
+			//$selected[0][current($GLOBALS['db']->fetch('SELECT rank FROM users WHERE id = ?', $_GET['id']))] = 'selected';
+			//$selected[1][($userData["privileges"] & Privileges::UserBasic) > 0 ? 1 : 0] = 'selected';
+
 			echo '<p align="center"><font size=5><i class="fa fa-user"></i>	Edit user</font></p>';
 			echo '<table class="table table-striped table-hover table-50-center">';
 			echo '<tbody><form id="system-settings-form" action="submit.php" method="POST"><input name="action" value="saveEditUser" hidden>';
@@ -413,18 +417,6 @@ class P {
 			echo '<tr>
 			<td>Email</td>
 			<td><p class="text-center"><input type="text" name="e" class="form-control" value="'.$userData['email'].'" '.$readonly[0].'></td>
-			</tr>';
-			echo '<tr>
-			<td>Rank</td>
-			<td>
-			<select name="r" class="selectpicker" data-width="100%" '.$selectDisabled.'>
-			<option value="1" '.$selected[0][1].'>User</option>
-			<option value="2" '.$selected[0][2].'>Supporter</option>
-			<option value="3" '.$selected[0][3].'>Developer</option>
-			<option value="4" '.$selected[0][4].'>Community Manager</option>
-			</select>
-			</td>
-			<!-- <td><p class="text-center"><input type="number" name="r" class="form-control" value="'.$userData['rank'].'" '.$readonly[0].'></td> -->
 			</tr>';
 			echo '<tr>
 			<td>Country</td>
@@ -452,30 +444,34 @@ class P {
 			</td>
 			</tr>';
 			echo '<tr>
-			<td>Allowed <b>(ban)</b></td>
-			<td>
-			<select name="a" class="selectpicker" data-width="100%" '.$selectDisabled.'>
-			<option value="0" '.$selected[1][0].'>Banned</option>
-			<option value="1" '.$selected[1][1].'>Ok</option>
-			</select>
-			</td>
-			<!-- <td><p class="text-center"><input type="number" name="a" class="form-control" value="'.$userData['allowed'].'" '.$readonly[0].'></td> -->
+			<td>Allowed</td>
+			<td>';
+
+			if (isBanned($userData["id"])) {
+				echo "Banned";
+			} else if (isRestricted($userData["id"])) {
+				echo "Restricted";
+			} else {
+				echo "Ok";
+			}
+
+			echo '</td>
 			</tr>';
-			if ($userData["allowed"] == 0) {
+			if (isBanned($userData["id"]) || isRestricted($userData["id"])) {
 				$canAppeal = time()-$userData["ban_datetime"] >= 86400*30;
 				echo '<tr class="'; echo $canAppeal ? 'success' : 'warning'; echo '">
-				<td>BAN Date (dd/mm/yyyy)</td>
-				<td>' . date('d/m/Y', $userData["ban_datetime"]);
+				<td>Ban/Restricted Date<br><i>(dd/mm/yyyy)</i></td>
+				<td>' . date('d/m/Y', $userData["ban_datetime"]) . "<br>";
 				echo $canAppeal ? '<i> (can appeal)</i>' : '<i> (can\'t appeal yet)<i>';
 				echo '</td>
 				</tr>';
 			}
 			echo '<tr>
-			<td>Username color<br>(HTML or HEX color)</td>
+			<td>Username color<br><i>(HTML or HEX color)</i></td>
 			<td><p class="text-center"><input type="text" name="c" class="form-control" value="'.$userStatsData['user_color'].'" '.$readonly[1].'></td>
 			</tr>';
 			echo '<tr>
-			<td>Username style<br>(like fancy gifs as background)</td>
+			<td>Username CSS<br><i>(like fancy gifs as background)</i></td>
 			<td><p class="text-center"><input type="text" name="bg" class="form-control" value="'.$userStatsData['user_style'].'" '.$readonly[1].'></td>
 			</tr>';
 			echo '<tr>
@@ -486,14 +482,50 @@ class P {
 			<td>Userpage<br><a onclick="censorUserpage();">(reset userpage)</a></td>
 			<td><p class="text-center"><textarea name="up" class="form-control" style="overflow:auto;resize:vertical;height:200px">'.$userStatsData['userpage_content'].'</textarea></td>
 			</tr>';
-			echo '<tr>
-			<td>Silence end time<br><a onclick="removeSilence();">(remove silence)</a></td>
-			<td><p class="text-center"><input type="text" name="se" class="form-control" value="'.$userData['silence_end'].'"></td>
-			</tr>';
-			echo '<tr>
-			<td>Silence reason</td>
-			<td><p class="text-center"><input type="text" name="sr" class="form-control" value="'.$userData['silence_reason'].'"></td>
-			</tr>';
+			if (hasPrivilege(Privileges::AdminSilenceUsers)) {
+				echo '<tr>
+				<td>Silence end time<br><a onclick="removeSilence();">(remove silence)</a></td>
+				<td><p class="text-center"><input type="text" name="se" class="form-control" value="'.$userData['silence_end'].'"></td>
+				</tr>';
+				echo '<tr>
+				<td>Silence reason</td>
+				<td><p class="text-center"><input type="text" name="sr" class="form-control" value="'.$userData['silence_reason'].'"></td>
+				</tr>';
+			}
+			if (hasPrivilege(Privileges::AdminManagePrivileges)) {
+				$gd = $userData["id"] == $_SESSION["userid"] ? "disabled" : "";
+				echo '<tr>
+				<td>Privileges<br><i>(Don\'t touch<br>UserPublic or UserNormal.<br>Use ban/restricted buttons<br>instead to avoid messing up)</i></td>
+				<td>';
+				$refl = new ReflectionClass("Privileges");
+				$privilegesList = $refl->getConstants();
+				foreach ($privilegesList as $i => $v) {
+					if ($v <= 0)
+						continue;
+					$c = (($userData["privileges"] & $v) > 0) ? "checked" : "";
+					$d = ($v <= 2 && $gd != "disabled") ? "disabled" : "";
+					echo '<label><input name="privilege" value="'.$v.'" type="checkbox" onclick="updatePrivileges();" '.$c.' '.$gd.' '.$d.'>	'.$i.' ('.$v.')</label><br>';
+				}
+				echo '</tr>';
+				$ro = $userData["id"] == $_SESSION["userid"] ? "readonly" : "";
+				echo '<tr>
+				<td>Privileges number</td>
+				<td><input class="form-control" id="privileges-value" name="priv" value="'.$userData["privileges"].'" '.$ro.'></td>
+				</tr>';
+				echo '<tr>
+				<td>Privileges group<br><i>(This is basically a preset<br>and will replace every<br>existing privilege)</i></td>
+				<td>
+					<select id="privileges-group" name="privgroup" class="selectpicker" data-width="100%" onchange="groupUpdated();" '.$gd.'>';
+					$groups = $GLOBALS["db"]->fetchAll("SELECT * FROM privileges_groups");
+					echo "<option value='-1'>None</option>";
+					foreach ($groups as $group) {
+						$s = (($userData["privileges"] == $group["privileges"]) || ($userData["privileges"] == ($group["privileges"] | Privileges::UserDonor)))? "selected": "";
+						echo "<option value='$group[privileges]' $s>$group[name]</option>";
+					}
+					echo '</select>
+				</td>
+				</tr>';
+			}
 			echo '<tr>
 			<td>Avatar<br><a onclick="sure(\'submit.php?action=resetAvatar&id='.$_GET['id'].'\')">(reset avatar)</a></td>
 			<td><img src="'.URL::Avatar().'/'.$_GET['id'].'" height="50" width="50"></img></td>
@@ -520,22 +552,31 @@ class P {
 					<b>If you have made any changes to this user through this page, make sure to save them before using one of the following functions, otherwise unsubmitted changes will be lost.</b>
 					<ul class="list-group">
 						<li class="list-group-item list-group-item-info">Actions</li>
-						<li class="list-group-item">
-							<a href="index.php?p=110&id='.$_GET['id'].'" class="btn btn-success">Edit badges</a>
-							<a href="index.php?p=104&id='.$_GET['id'].'" class="btn btn-info">Change identity</a>
+						<li class="list-group-item">';
+							if (hasPrivilege(Privileges::AdminManageBadges)) {
+								echo '<a href="index.php?p=110&id='.$_GET['id'].'" class="btn btn-success">Edit badges</a>';
+							}
+							echo '	<a href="index.php?p=104&id='.$_GET['id'].'" class="btn btn-info">Change identity</a>
 							<a href="index.php?u='.$_GET['id'].'" class="btn btn-warning">View profile</a>
 						</li>
-					</ul>
-					<ul class="list-group">
+					</ul>';
+					if (hasPrivilege(Privileges::AdminBanUsers) || hasPrivilege(Privileges::AdminWipeUsers)) {
+						echo '<ul class="list-group">
 						<li class="list-group-item list-group-item-danger">Dangerous Zone</li>
-						<li class="list-group-item">
-							<a onclick="reallysure(\'submit.php?action=wipeAccount&id='.$_GET['id'].'\')" class="btn btn-danger">Wipe account</a>
-							<a onclick="sure(\'submit.php?action=banUnbanUser&id='.$_GET['id'].'\')" class="btn btn-danger">(Un)ban user</a>
-							<br>
-						</li>
-					</ul>
+						<li class="list-group-item">';
+						if (hasPrivilege(Privileges::AdminWipeUsers)) {
+							echo '<a onclick="reallysure(\'submit.php?action=wipeAccount&id='.$_GET['id'].'\')" class="btn btn-danger">Wipe account</a>';
+						}
+						if (hasPrivilege(Privileges::AdminBanUsers)) {
+							echo '	<a onclick="sure(\'submit.php?action=banUnbanUser&id='.$_GET['id'].'\')" class="btn btn-danger">(Un)ban user</a>';
+							echo '	<a onclick="sure(\'submit.php?action=restrictUnrestrictUser&id='.$_GET['id'].'\')" class="btn btn-danger">(Un)restrict user</a>';
+						}
+						echo '<br>
+							</li>
+						</ul>';
+					}
+				echo '</div>
 				</div>';
-			echo '</div>';
 		}
 		catch(Exception $e) {
 			// Redirect to exception page
@@ -557,7 +598,7 @@ class P {
 				throw new Exception("That user doesn't exist");
 			}
 			// Check if we are trying to edit our account or a higher rank account
-			if ($userData['username'] != $_SESSION['username'] && $userData['rank'] >= 3) {
+			if ($userData['username'] != $_SESSION['username'] && (($userData['privileges'] & Privileges::AdminAccessRAP) > 0)) {
 				throw new Exception("You don't have enough permissions to edit this user.");
 			}
 			// Print edit user stuff
@@ -1556,6 +1597,7 @@ class P {
 	 * Prints the homepage
 	*/
 	public static function HomePage() {
+		P::GlobalAlert();
 		// Home success message
 		$success = ['forgetDone' => 'Done! Your "Stay logged in" tokens have been deleted from the database.'];
 		$error = [1 => 'You are already logged in.'];
@@ -1589,7 +1631,7 @@ class P {
 			// Check banned status
 			$userData = $GLOBALS['db']->fetch('
 SELECT
-	users_stats.*, users.allowed, users.latest_activity,
+	users_stats.*, users.privileges, users.latest_activity,
 	users.silence_end, users.silence_reason
 FROM users_stats
 LEFT JOIN users ON users.id=users_stats.id
@@ -1601,12 +1643,12 @@ WHERE users_stats.id = ?', [$u]);
 
 			// Throw exception if user is banned/not activated
 			// print message if we are admin
-			$allowed = $userData["allowed"];
-			if ($allowed == 0) {
-				if (getUserRank($_SESSION['username']) <= 2) {
-					throw new Exception('User banned');
+			if (($userData["privileges"] & Privileges::UserPublic) == 0 && $userData["id"] != $_SESSION["userid"]) {
+				if (!hasPrivilege(Privileges::AdminManageUsers)) {
+					throw new Exception('That user doesn\'t exist.');
 				} else {
-					echo '<div class="alert alert-danger" role="alert"><i class="fa fa-exclamation-triangle"></i>	<b>User banned.</b></div>';
+					$restrictionType = (($userData["privileges"] & Privileges::UserNormal) == 0) ? "banned" : "restricted";
+					echo '<div class="alert alert-danger" role="alert"><i class="fa fa-exclamation-triangle"></i>	<b>User '.$restrictionType.'.</b></div>';
 				}
 			}
 			// Get all user stats for all modes and username
@@ -1742,9 +1784,16 @@ WHERE users_stats.id = ?', [$u]);
 				echo '<small><i>A.K.A '.htmlspecialchars($usernameAka).'</i></small>';
 			}
 			echo '<br><a href="index.php?u='.$u.'&m=0">'.$modesText[0].'</a> | <a href="index.php?u='.$u.'&m=1">'.$modesText[1].'</a> | <a href="index.php?u='.$u.'&m=2">'.$modesText[2].'</a> | <a href="index.php?u='.$u.'&m=3">'.$modesText[3].'</a>';
-			if (getUserRank($_SESSION['username']) >= 3) {
-				echo '<br><a href="index.php?p=103&id='.$u.'">Edit user</a> | <a onclick="sure(\'submit.php?action=banUnbanUser&id='.$u.'\')";>Ban user</a> | <a href="index.php?p=110&id='.$u.'">Edit badges</a></p>';
+
+			echo "<br>";
+			if (hasPrivilege(Privileges::AdminManageUsers)) {
+				echo '<a href="index.php?p=103&id='.$u.'">Edit user</a> | <a href="index.php?p=110&id='.$u.'">Edit badges</a>';
 			}
+			if (hasPrivilege(Privileges::AdminBanUsers)) {
+				echo ' | <a onclick="sure(\'submit.php?action=banUnbanUser&id='.$u.'\')";>Ban user</a>';
+			}
+			echo "</p>";
+
 			echo '<div id="rank"><font size=5><b> '.$rankSymbol.$rank.'</b></font><br>';
 			if ($ScoresConfig["enablePP"] && $m == 0) echo '<b>' . number_format($pp) . ' pp</b>';
 			echo '</div><br>';
@@ -1955,6 +2004,8 @@ WHERE users_stats.id = ?', [$u]);
 	 * Prints the Bug report/feature request page.
 	*/
 	public static function ReportPage() {
+		// NOTE: Reports/requests are disabled
+		redirect("index.php");
 		// Maintenance check
 		self::MaintenanceStuff();
 		// Global alert
@@ -2014,7 +2065,7 @@ WHERE users_stats.id = ?', [$u]);
 	 * @param (string) ($e) The custom message (exception) to display.
 	*/
 	public static function ExceptionMessage($e, $ret = false) {
-		$p = '<div class="container alert alert-danger" role="alert"><p align="center"><b>An error occurred:<br></b>'.$e.'</p></div>';
+		$p = '<div class="container alert alert-danger" role="alert" style="width: 100%;"><p align="center"><b>An error occurred:<br></b>'.$e.'</p></div>';
 		if ($ret) {
 			return $p;
 		}
@@ -2028,7 +2079,7 @@ WHERE users_stats.id = ?', [$u]);
 	 * @param (string) ($s) The custom message to display.
 	*/
 	public static function SuccessMessage($s, $ret = false) {
-		$p = '<div class="container alert alert-success" role="alert"><p align="center">'.$s.'</p></div>';
+		$p = '<div class="container alert alert-success" role="alert" style="width:100%;"><p align="center">'.$s.'</p></div>';
 		if ($ret) {
 			return $p;
 		}
@@ -2147,7 +2198,7 @@ WHERE users_stats.id = ?', [$u]);
 		// Title
 		echo '<div id="narrow-content"><h1><i class="fa fa-cog"></i>	User settings</h1>';
 		// Print Exception if set
-		$exceptions = ['Nice troll.'];
+		$exceptions = ['Nice troll.', 'You can\'t edit your settings while you\'re restricted.'];
 		if (isset($_GET['e']) && isset($exceptions[$_GET['e']])) {
 			self::ExceptionMessage($exceptions[$_GET['e']]);
 		}
@@ -2251,7 +2302,7 @@ WHERE users_stats.id = ?', [$u]);
 		// Title
 		echo '<div id="narrow-content"><h1><i class="fa fa-picture-o"></i>	Change avatar</h1>';
 		// Print Exception if set
-		$exceptions = ['Nice troll.', 'That file is not a valid image.', 'Invalid file format. Supported extensions are .png, .jpg and .jpeg', 'The file is too large. Maximum file size is 1MB.', 'Error while uploading avatar.'];
+		$exceptions = ['Nice troll.', 'That file is not a valid image.', 'Invalid file format. Supported extensions are .png, .jpg and .jpeg', 'The file is too large. Maximum file size is 1MB.', 'Error while uploading avatar.', "You can't change your avatar while you're restricted."];
 		if (isset($_GET['e']) && isset($exceptions[$_GET['e']])) {
 			self::ExceptionMessage($exceptions[$_GET['e']]);
 		}
@@ -2294,7 +2345,7 @@ WHERE users_stats.id = ?', [$u]);
 		// Title
 		echo '<h1><i class="fa fa-pencil"></i>	Userpage</h1>';
 		// Print Exception if set
-		$exceptions = ['Nice troll.', "Your userpage <b>can't be longer than 1500 characters</b> (bb code syntax included)"];
+		$exceptions = ['Nice troll.', "Your userpage <b>can't be longer than 1500 characters</b> (bb code syntax included)", "You can't edit your userpage while you're restricted."];
 		if (isset($_GET['e']) && isset($exceptions[$_GET['e']])) {
 			self::ExceptionMessage($exceptions[$_GET['e']]);
 		}
@@ -2350,7 +2401,7 @@ WHERE users_stats.id = ?', [$u]);
 	/*
 	 * Alerts
 	 * Print the alerts for the logged in user.
-	*/
+
 	public static function Alerts() {
 		// Account activation alert (not implemented yet)
 		if (getUserAllowed($_SESSION['username']) == 2) {
@@ -2366,7 +2417,7 @@ WHERE users_stats.id = ?', [$u]);
 		}
 		// Other alerts (such as maintenance, ip change and stuff) will be added here
 
-	}
+	}*/
 
 	/*
 	 * MaintenanceAlert
@@ -2380,7 +2431,7 @@ WHERE users_stats.id = ?', [$u]);
 				throw new Exception();
 			}
 			// Check our rank
-			if (getUserRank($_SESSION['username']) < 3) {
+			if (!hasPrivilege(Privileges::AdminAccessRAP)) {
 				throw new Exception();
 			}
 			// Mod/admin, show alert and continue
@@ -2404,7 +2455,7 @@ WHERE users_stats.id = ?', [$u]);
 				throw new Exception();
 			}
 			// Check our rank
-			if (getUserRank($_SESSION['username']) < 3) {
+			if (!hasPrivilege(Privileges::AdminAccessRAP)) {
 				throw new Exception();
 			}
 			// Mod/admin, show alert and continue
@@ -2427,7 +2478,7 @@ WHERE users_stats.id = ?', [$u]);
 				throw new Exception();
 			}
 			// Check our rank
-			if (getUserRank($_SESSION['username']) < 3) {
+			if (!hasPrivilege(Privileges::AdminAccessRAP)) {
 				throw new Exception();
 			}
 			// Mod/admin, show alert and continue
@@ -2467,6 +2518,7 @@ WHERE users_stats.id = ?', [$u]);
 		if ($m != '') {
 			echo '<div class="alert alert-warning" role="alert"><p align="center">'.$m.'</p></div>';
 		}
+		self::RestrictedAlert();
 	}
 
 	/*
@@ -2485,6 +2537,8 @@ WHERE users_stats.id = ?', [$u]);
 	 * Prints the user settings page.
 	*/
 	public static function MyReportsPage() {
+		// NOTE: Reports/requests are disabled
+		redirect("index.php");
 		// Maintenance check
 		self::MaintenanceStuff();
 		// Global alert
@@ -2552,6 +2606,8 @@ WHERE users_stats.id = ?', [$u]);
 	 * Prints the my report view page.
 	*/
 	public static function MyReportViewPage() {
+		// NOTE: Reports/requests are disabled
+		redirect("index.php");
 		// Maintenance check
 		self::MaintenanceStuff();
 		// Global alert
@@ -2643,7 +2699,7 @@ WHERE users_stats.id = ?', [$u]);
 		SELECT user2, users.username
 		FROM users_relationships
 		LEFT JOIN users ON users_relationships.user2 = users.id
-		WHERE user1 = ? AND users.allowed = "1"', [$ourID]);
+		WHERE user1 = ? AND users.privileges & 1 > 0', [$ourID]);
 		// Title and header message
 		echo '<h1><i class="fa fa-star"></i>	Friendlist</h1>';
 		if (count($friends) == 0) {
@@ -2666,10 +2722,10 @@ WHERE users_stats.id = ?', [$u]);
 	}
 
 	/*
-	 * RankRequests
+	 * AdminRankRequests
 	 * Prints the admin rank requests
 	*/
-	public static function RankRequests() {
+	public static function AdminRankRequests() {
 		// Get data
 		$rankRequestsToday = $GLOBALS["db"]->fetchAll("SELECT * FROM rank_requests WHERE time > ? LIMIT 10", [time()-(24*3600)]);
 		$rankRequests = $GLOBALS["db"]->fetchAll("SELECT rank_requests.*, users.username FROM rank_requests LEFT JOIN users ON rank_requests.userid = users.id WHERE time > ? ORDER BY id DESC LIMIT 10", [time()-(24*3600)]);
@@ -2759,5 +2815,206 @@ WHERE users_stats.id = ?', [$u]);
 		echo '</table>';
 		// Template end
 		echo '</div>';
+	}
+
+	public static function AdminPrivilegesGroupsMain() {
+		// Get data
+		$groups = $GLOBALS['db']->fetchAll('SELECT * FROM privileges_groups ORDER BY id ASC');
+		// Print sidebar and template stuff
+		echo '<div id="wrapper">';
+		printAdminSidebar();
+		echo '<div id="page-content-wrapper">';
+		// Maintenance check
+		self::MaintenanceStuff();
+		// Print Success if set
+		if (isset($_GET['s']) && !empty($_GET['s'])) {
+			self::SuccessMessage($_GET['s']);
+		}
+		// Print Exception if set
+		if (isset($_GET['e']) && !empty($_GET['e'])) {
+			self::ExceptionMessage($_GET['e']);
+		}
+		// Header
+		echo '<span align="center"><h2><i class="fa fa-group"></i>	Privileges Groups</h2></span>';
+		// Main page content here
+		echo '<div align="center">';
+		echo '<table class="table table-striped table-hover table-75-center">
+		<thead>
+		<tr><th class="text-left"><i class="fa fa-group"></i>	ID</th><th class="text-center">Name</th><th class="text-center">Privileges</th><th class="text-center">Action</th></tr>
+		</thead>
+		<tbody>';
+		foreach ($groups as $group) {
+			echo "<tr>
+					<td style='text-align: center;'>$group[id]</td>
+					<td style='text-align: center;'>$group[name]</td>
+					<td style='text-align: center;'>$group[privileges]</td>
+					<td style='text-align: center;'>
+						<div class='btn-group'>
+							<a href='index.php?p=119&id=$group[id]' title='Edit' class='btn btn-xs btn-primary'><span class='glyphicon glyphicon-pencil'></span></a>
+							<a href='index.php?p=119&h=$group[id]' title='Inherit' class='btn btn-xs btn-warning'><span class='glyphicon glyphicon-copy'></span></a>
+							<a href='index.php?p=120&id=$group[id]' title='View users in this group' class='btn btn-xs btn-success'><span class='glyphicon glyphicon-search'></span></a>
+						</div>
+					</td>
+				</tr>";
+		}
+		echo '</tbody>
+		</table>';
+
+		echo '<a href="index.php?p=119" type="button" class="btn btn-primary">New group</a>';
+
+		echo '</div>';
+		// Template end
+		echo '</div>';
+	}
+
+
+	public static function AdminEditPrivilegesGroups() {
+		try {
+			// Check if id is set, otherwise set it to 0 (new badge)
+			if (!isset($_GET['id']) && !isset($_GET["h"])) {
+				$_GET['id'] = 0;
+			}
+			// Check if we are editing, creating or inheriting a new group
+			if (isset($_GET["h"])) {
+				$privilegeGroupData = $GLOBALS['db']->fetch('SELECT * FROM privileges_groups WHERE id = ?', [$_GET['h']]);
+				$privilegeGroupData["id"] = 0;
+				$privilegeGroupData["name"] .= " (child)";
+			} else if ($_GET["id"] > 0) {
+				$privilegeGroupData = $GLOBALS['db']->fetch('SELECT * FROM privileges_groups WHERE id = ?', $_GET['id']);
+			} else {
+				$privilegeGroupData = ['id' => 0, 'name' => 'New Privilege Group', 'privileges' => 0, 'color' => 'default'];
+			}
+			// Check if this group exists
+			if (!$privilegeGroupData) {
+				throw new Exception("That privilege group doesn't exists");
+			}
+			// Print edit user stuff
+			echo '<div id="wrapper">';
+			printAdminSidebar();
+			echo '<div id="page-content-wrapper">';
+			// Maintenance check
+			self::MaintenanceStuff();
+			echo '<p align="center"><font size=5><i class="fa fa-group"></i>	Privileges Group</font></p>';
+			echo '<table class="table table-striped table-hover table-50-center">';
+			echo '<tbody><form id="edit-badge-form" action="submit.php" method="POST"><input name="action" value="savePrivilegeGroup" hidden>';
+			echo '<tr>
+			<td>ID</td>
+			<td><input type="number" name="id" class="form-control" value="'.$privilegeGroupData['id'].'" readonly></td>
+			</tr>';
+			echo '<tr>
+			<td>Name</td>
+			<td><input type="text" name="n" class="form-control" value="'.$privilegeGroupData['name'].'" ></td>
+			</tr>';
+			echo '<tr>
+			<td>Privileges</td>
+			<td>';
+
+			$refl = new ReflectionClass("Privileges");
+			$privilegesList = $refl->getConstants();
+			foreach ($privilegesList as $i => $v) {
+				if ($v <= 0)
+					continue;
+				$c = (($privilegeGroupData["privileges"] & $v) > 0) ? "checked" : "";
+				echo '<label class="colucci"><input name="privileges" value="'.$v.'" type="checkbox" onclick="updatePrivileges();" '.$c.'>	'.$i.' ('.$v.')</label><br>';
+			}
+			echo '</td></tr>';
+
+			echo '<tr>
+			<td>Privileges number</td>
+			<td><input class="form-control" id="privileges-value" name="priv" value="'.$privilegeGroupData["privileges"].'"></td>
+			</tr>';
+
+			// Selected stuff
+			$sel = ["","","","","",""];
+			switch($privilegeGroupData["color"]) {
+				case "default": $sel[0] = "selected"; break;
+				case "success": $sel[1] = "selected"; break;
+				case "warning": $sel[2] = "selected"; break;
+				case "danger": $sel[3] = "selected"; break;
+				case "primary": $sel[4] = "selected"; break;
+				case "info": $sel[5] = "selected"; break;
+			}
+
+			echo '<tr>
+			<td>Color<br><i>(used in RAP users listing page)</i></td>
+			<td>
+			<select name="c" class="selectpicker" data-width="100%">
+				<option value="default" '.$sel[0].'>Gray</option>
+				<option value="success" '.$sel[1].'>Green</option>
+				<option value="warning" '.$sel[2].'>Yellow</option>
+				<option value="danger" '.$sel[3].'>Red</option>
+				<option value="primary" '.$sel[4].'>Blue</option>
+				<option value="info" '.$sel[5].'>Light Blue</option>
+			</select>
+			</td>
+			</tr>';
+			echo '</tbody></form>';
+			echo '</table>';
+			echo '<div class="text-center"><button type="submit" form="edit-badge-form" class="btn btn-primary">Save changes</button></div>';
+			echo '</div>';
+		}
+		catch(Exception $e) {
+			// Redirect to exception page
+			redirect('index.php?p=119&e='.$e->getMessage());
+		}
+	}
+
+
+	public static function AdminShowUsersInPrivilegeGroup() {
+		// Exist check
+		try {
+			if (!isset($_GET["id"])) {
+				throw new Exception("That group doesn't exist");
+			}
+
+			// Get data
+			$groupData = $GLOBALS["db"]->fetch("SELECT * FROM privileges_groups WHERE id = ?", [$_GET["id"]]);
+			if (!$groupData) {
+				throw new Exception("That group doesn't exist");
+			}
+			$users = $GLOBALS['db']->fetchAll('SELECT * FROM users WHERE privileges = ?', [$groupData["privileges"]]);
+			// Print sidebar and template stuff
+			echo '<div id="wrapper">';
+			printAdminSidebar();
+			echo '<div id="page-content-wrapper">';
+			// Maintenance check
+			self::MaintenanceStuff();
+			// Header
+			echo '<span align="center"><h2><i class="fa fa-search"></i>	Users in '.$groupData["name"].' group</h2></span>';
+			// Main page content here
+			echo '<div align="center">';
+			echo '<table class="table table-striped table-hover table-75-center">
+			<thead>
+			<tr><th class="text-left"><i class="fa fa-group"></i>	ID</th><th class="text-center">Username</th></tr>
+			</thead>
+			<tbody>';
+			foreach ($users as $user) {
+				echo "<tr>
+						<td style='text-align: center;'>$user[id]</td>
+						<td style='text-align: center;'><a href='index.php?u=$user[id]'>$user[username]</a></td>
+					</tr>";
+			}
+			echo '</tbody>
+			</table>';
+
+			echo '</div>';
+			// Template end
+			echo '</div>';
+		} catch(Exception $e) {
+			redirect("index.php?p=118?e=".$e->getMessage());
+		}
+	}
+
+
+	public static function RestrictedAlert() {
+		if (!checkLoggedIn()) {
+			return;
+		}
+
+		if (!hasPrivilege(Privileges::UserPublic)) {
+			echo '<div class="alert alert-danger" role="alert">
+					<p align="center"><i class="fa fa-exclamation-triangle"></i><b>Your account is currently in restricted mode</b> due to inappropriate behavior or a violation of the <a href=\'index.php?p=23\'>rules</a>.<br>You can\'t interact with other users, you can perform limited actions and your user profile and scores are hidden.<br>Read the <a href=\'index.php?p=23\'>rules</a> again carefully, and if you think this is an error, send an email to <b>support@ripple.moe</b>.</p>
+				  </div>';
+		}
 	}
 }

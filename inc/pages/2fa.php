@@ -10,6 +10,7 @@ class TwoFA {
 	public $mh_POST = ["token"];
 
 	public function P() {
+		P::GlobalAlert();
 		echo '
 		<div style="content">
 			<div align="center">

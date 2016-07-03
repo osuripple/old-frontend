@@ -5,7 +5,7 @@
 require_once './inc/functions.php';
 try {
 	startSessionIfNotStarted();
-	
+
 	// Make sure we are not locked due to 2FA
 	redirect2FA();
 
@@ -80,112 +80,120 @@ try {
 			// Admin functions, need sessionCheckAdmin() because can be performed only by admins
 
 		case 'generateBetaKeys':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminManageBetaKeys);
 			D::GenerateBetaKey();
 		break;
 		case 'allowDisallowBetaKey':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminManageBetaKeys);
 			D::AllowDisallowBetaKey();
 		break;
 		case 'publicPrivateBetaKey':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminManageBetaKeys);
 			D::PublicPrivateBetaKey();
 		break;
 		case 'removeBetaKey':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminManageBetaKeys);
 			D::RemoveBetaKey();
 		break;
 		case 'saveSystemSettings':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminManageSettings);
 			D::SaveSystemSettings();
 		break;
 		case 'saveBanchoSettings':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminManageSettings);
 			D::SaveBanchoSettings();
 		break;
 		case 'runCron':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminManageSettings);
 			D::RunCron();
 		break;
 		case 'saveEditUser':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminManageUsers);
 			D::SaveEditUser();
 		break;
 		case 'banUnbanUser':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminBanUsers);
 			D::BanUnbanUser();
 		break;
+		case 'restrictUnrestrictUser':
+			sessionCheckAdmin(Privileges::AdminBanUsers);
+			D::RestrictUnrestrictUser();
+		break;
 		case 'quickEditUser':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminManageUsers);
 			D::QuickEditUser(false);
 		break;
 		case 'quickEditUserEmail':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminManageUsers);
 			D::QuickEditUser(true);
 		break;
 		case 'changeIdentity':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminManageUsers);
 			D::ChangeIdentity();
 		break;
 		case 'saveDocFile':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminManageDocs);
 			D::SaveDocFile();
 		break;
 		case 'removeDoc':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminManageDocs);
 			D::RemoveDocFile();
 		break;
 		case 'removeBadge':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminManageBadges);
 			D::RemoveBadge();
 		break;
 		case 'saveBadge':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminManageBadges);
 			D::SaveBadge();
 		break;
 		case 'quickEditUserBadges':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminManageUsers);
 			D::QuickEditUserBadges();
 		break;
 		case 'saveUserBadges':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminManageUsers);
 			D::SaveUserBadges();
 		break;
 		case 'silenceUser':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminSilenceUsers);
 			D::SilenceUser();
 		break;
 		case 'kickUser':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminSilenceUsers);
 			D::KickUser();
 		break;
 		case 'resetAvatar':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminManageUsers);
 			D::ResetAvatar();
 		break;
 		case 'openCloseReport':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminManageReports);
 			D::OpenCloseReport();
 		break;
 		case 'saveEditReport':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminManageReports);
 			D::SaveEditReport();
 		break;
 		case 'wipeAccount':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminWipeUsers);
 			D::WipeAccount();
 		break;
 		case 'setRulesPage':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminManageDocs);
 			D::SetRulesPage();
 		break;
 		case 'processRankRequest':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminManageBeatmaps);
 			D::ProcessRankRequest();
 		break;
 		case 'blacklistRankRequest':
-			sessionCheckAdmin();
+			sessionCheckAdmin(Privileges::AdminManageBeatmaps);
 			D::BlacklistRankRequest();
+		break;
+		case 'savePrivilegeGroup':
+			sessionCheckAdmin(Privileges::AdminManagePrivileges);
+			D::savePrivilegeGroup();
 		break;
 	}
 }

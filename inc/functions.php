@@ -14,6 +14,7 @@ require_once $df.'/RememberCookieHandler.php';
 require_once $df.'/PlayStyleEnum.php';
 require_once $df.'/resize.php';
 require_once $df.'/SimpleMailgun.php';
+require_once $df.'/PrivilegesEnum.php';
 // Composer
 require_once $df.'/../vendor/autoload.php';
 // Helpers
@@ -34,6 +35,7 @@ require_once $df.'/pages/RequestRankedBeatmap.php';
 require_once $df.'/pages/MyAPIApplications.php';
 require_once $df.'/pages/EditApplication.php';
 require_once $df.'/pages/DeleteApplication.php';
+require_once $df.'/pages/Support.php';
 $pages = [
 	new Login(),
 	new Leaderboard(),
@@ -46,6 +48,7 @@ $pages = [
 	new MyAPIApplications(),
 	new EditApplication(),
 	new DeleteApplication(),
+	new Support(),
 ];
 // Set timezone to UTC
 date_default_timezone_set('Europe/Rome');
@@ -158,6 +161,7 @@ function setTitle($p) {
 			'u' => 'Userpage',
 		];
 		$namesRAP = [
+			99 => 'You\'ve been tracked',
 			100 => 'Dashboard',
 			101 => 'System settings',
 			102 => 'Users',
@@ -176,6 +180,9 @@ function setTitle($p) {
 			115 => 'IP Logs',
 			116 => 'Admin Logs',
 			117 => 'Rank requests',
+			118 => 'Privileges Groups',
+			119 => 'Edit privilege group',
+			120 => 'View users in privilege group',
 		];
 		if (isset($namesRipple[$p])) {
 			return __maketitle('Ripple', $namesRipple[$p]);
@@ -337,67 +344,67 @@ function printPage($p) {
 				// Admin panel - System settings
 
 			case 101:
-				sessionCheckAdmin();
+				sessionCheckAdmin(Privileges::AdminManageSettings);
 				P::AdminSystemSettings();
 			break;
 				// Admin panel - Users
 
 			case 102:
-				sessionCheckAdmin();
+				sessionCheckAdmin(Privileges::AdminManageUsers);
 				P::AdminUsers();
 			break;
 				// Admin panel - Edit user
 
 			case 103:
-				sessionCheckAdmin();
+				sessionCheckAdmin(Privileges::AdminManageUsers);
 				P::AdminEditUser();
 			break;
 				// Admin panel - Change identity
 
 			case 104:
-				sessionCheckAdmin();
+				sessionCheckAdmin(Privileges::AdminManageUsers);
 				P::AdminChangeIdentity();
 			break;
 				// Admin panel - Beta keys
 
 			case 105:
-				sessionCheckAdmin();
+				sessionCheckAdmin(Privileges::AdminManageBetaKeys);
 				P::AdminBetaKeys();
 			break;
 				// Admin panel - Documentation
 
 			case 106:
-				sessionCheckAdmin();
+				sessionCheckAdmin(Privileges::AdminManageDocs);
 				P::AdminDocumentation();
 			break;
 				// Admin panel - Edit Documentation file
 
 			case 107:
-				sessionCheckAdmin();
+				sessionCheckAdmin(Privileges::AdminManageDocs);
 				P::AdminEditDocumentation();
 			break;
 				// Admin panel - Badges
 
 			case 108:
-				sessionCheckAdmin();
+				sessionCheckAdmin(Privileges::AdminManageBadges);
 				P::AdminBadges();
 			break;
 				// Admin panel - Edit badge
 
 			case 109:
-				sessionCheckAdmin();
+				sessionCheckAdmin(Privileges::AdminManageBadges);
 				P::AdminEditBadge();
 			break;
 				// Admin panel - Edit uesr badges
 
 			case 110:
-				sessionCheckAdmin();
+				sessionCheckAdmin(Privileges::AdminManageUsers);
 				P::AdminEditUserBadges();
 			break;
 				// Admin panel - System settings
 
 			case 111:
-				sessionCheckAdmin();
+				sessionCheckAdmin(Privileges::AdminManageSettings);
 				P::AdminBanchoSettings();
 			break;
 				// Admin panel - Chatlog
@@ -409,33 +416,52 @@ function printPage($p) {
 				// Admin panel - Reports
 
 			case 113:
-				sessionCheckAdmin();
+				sessionCheckAdmin(Privileges::AdminManageReports);
 				P::AdminReports();
 			break;
 				// Admin panel - Read report
 
 			case 114:
-				sessionCheckAdmin();
+				sessionCheckAdmin(Privileges::AdminManageReports);
 				P::AdminViewReport();
 			break;
 
 			// Admin panel - IP logs main page
 			case 115:
-				sessionCheckAdmin();
+				sessionCheckAdmin(Privileges::AdminManageUsers);
 				P::AdminIPLogsMain();
 			break;
 
 			// Admin panel - Admin logs
 			case 116:
-				sessionCheckAdmin();
+				sessionCheckAdmin(Privileges::AdminViewRAPLogs);
 				P::AdminLog();
 			break;
 
 			// Admin panel - Beatmap rank requests
 			case 117:
-				sessionCheckAdmin();
-				P::RankRequests();
+				sessionCheckAdmin(Privileges::AdminManageBeatmaps);
+				P::AdminRankRequests();
 			break;
+
+			// Admin panel - Privileges Groups
+			case 118:
+				sessionCheckAdmin(Privileges::AdminManagePrivileges);
+				P::AdminPrivilegesGroupsMain();
+			break;
+
+			// Admin panel - Privileges Groups
+			case 119:
+				sessionCheckAdmin(Privileges::AdminManagePrivileges);
+				P::AdminEditPrivilegesGroups();
+			break;
+
+			// Admin panel - Show users in group
+			case 120:
+				sessionCheckAdmin(Privileges::AdminManagePrivileges);
+				P::AdminShowUsersInPrivilegeGroup();
+			break;
+
 				// 404 page
 
 			default:
@@ -495,7 +521,6 @@ function printPage($p) {
  *	echo('stuff');
 */
 function printNavbar() {
-	// Navbar stuff
 	echo '<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
 				<div class="container">
 					<div class="navbar-header">
@@ -531,30 +556,29 @@ function printNavbar() {
 		// Just an easter egg that you'll probably never notice, unless you do it on purpose.
 		$trollerino = mt_rand(1, 100) == 1;
 		echo '<li><a href="index.php?p=13"><i class="fa fa-trophy"></i>	Leaderboard</a></li>';
-		echo '<li><a href="http://bloodcat.com/osu"><i class="fa fa-music"></i>	Beatmaps</a></li>';
 		echo '<li class="dropdown">
 					<a data-toggle="dropdown"><i class="fa fa-question-circle"></i>	Help & Info<span class="caret"></span></a>
 					<ul class="dropdown-menu">
 						<li class="dropdown-submenu"><a href="index.php?p=23"><i class="fa fa-gavel"></i> Rules</a></li>
 						<li class="dropdown-submenu"><a href="index.php?p=14"><i class="fa fa-question-circle"></i>	Help</a></li>
-						<li class="dropdown-submenu"><a href="index.php?p=17"><i class="fa fa-code"></i> Changelog</a></li>
 						'.(file_exists(dirname(__FILE__).'/../blog/anchor/config/db.php') ? '<li class="dropdown-submenu"><a href="blog/"><i class="fa fa-anchor"></i>	Blog</a></li>' : '').'
-						<li class="dropdown-submenu"><a href="index.php?p=27"><i class="fa fa-cogs"></i>	Server status</a></li>
-						<li class="dropdown-submenu"><a href="index.php?p=28"><i class="fa fa-search"></i>	User lookup</a></li>
-						<li class="divider"></li>
-						<li class="dropdown-submenu"><a href="index.php?p=22&type=0"><i class="fa fa-bug"></i> '.($trollerino ? 'Request' : 'Report').' a bug</a></li>
-						<li class="dropdown-submenu"><a href="index.php?p=22&type=1"><i class="fa fa-plus-circle"></i>	'.($trollerino ? 'Report' : 'Request').' a feature</a></li>
 						<li class="dropdown-submenu"><a href="index.php?p=31"><i class="fa fa-music"></i>	Request beatmap ranking</a></li>
 						<li class="divider"></li>
-						<li class="dropdown-submenu"><a href="https://mu.nyodev.xyz/upd.php?id=18"><i class="fa fa-server"></i>	Ripple Server switcher</a></li>
-						<li class="divider"></li>
-						<li class="dropdown-submenu"><a href="https://github.com/osuripple/ripple"><i class="fa fa-github"></i>	Github</a></li>
+						<li class="dropdown-submenu"><a href="index.php?p=17"><i class="fa fa-code"></i> Changelog</a></li>
+						<li class="dropdown-submenu"><a href="http://getrektby.us:6996"><i class="fa fa-cogs"></i>	Server status</a></li>
+						<li class="dropdown-submenu"><a href="https://mu.nyodev.xyz/upd.php?id=18"><i class="fa fa-server"></i>	Server switcher</a></li>
+						<li class="divider"></li>';
+						//<li class="dropdown-submenu"><a href="index.php?p=22&type=0"><i class="fa fa-bug"></i> '.($trollerino ? 'Request' : 'Report').' a bug</a></li>
+						//<li class="dropdown-submenu"><a href="index.php?p=22&type=1"><i class="fa fa-plus-circle"></i>	'.($trollerino ? 'Report' : 'Request').' a feature</a></li>
+						//<li class="divider"></li>
+						echo '<li class="dropdown-submenu"><a href="https://github.com/osuripple/ripple"><i class="fa fa-github"></i>	Github</a></li>
 						<li class="dropdown-submenu"><a href="https://discord.gg/0rJcZruIsA6rXuIx"><i class="fa fa-comment"></i>	Discord</a></li>
 						<li class="dropdown-submenu"><a href="https://reddit.com/r/osuripple"><i class="fa fa-reddit"></i>	Reddit</a></li>
 						<li class="dropdown-submenu"><a href="index.php?p=21"><i class="fa fa-info-circle"></i>	About</a></li>
 					</ul>
 				</li>';
-		if (getUserRank($_SESSION['username']) >= 3) {
+		//echo '<li><a class="support-color" href="index.php?p=34"><b><i class="fa fa-heart" ></i>	Support us</a></b></li>';
+		if (hasPrivilege(Privileges::AdminAccessRAP)) {
 			echo '<li><a href="index.php?p=100"><i class="fa fa-cog"></i>	<b>Admin Panel</b></a></li>';
 		}
 	}
@@ -576,9 +600,9 @@ function printNavbar() {
 						<li class="dropdown-submenu"><a href="index.php?p=6"><i class="fa fa-cog"></i>	User settings</a></li>
 						<li class="dropdown-submenu"><a href="index.php?p=30"><i class="fa fa-ticket"></i>	Two-Factor Auth	';
 						if (is2FAEnabled($_SESSION["userid"], false)) echo '<span class="label label-warning">!</span>';
-						echo '</a></li>
-						<li class="dropdown-submenu"><a href="index.php?p=24"><i class="fa fa-paper-plane"></i>	My reports</a></li>
-						<li class="dropdown-submenu"><a href="submit.php?action=forgetEveryCookie"><i class="fa fa-chain-broken"></i>	Delete all login tokens</a></li>
+						echo '</a></li>';
+						//<li class="dropdown-submenu"><a href="index.php?p=24"><i class="fa fa-paper-plane"></i>	My reports</a></li>
+						echo '<li class="dropdown-submenu"><a href="submit.php?action=forgetEveryCookie"><i class="fa fa-chain-broken"></i>	Delete all login tokens</a></li>
 						<li class="divider"></li>
 						<li class="dropdown-submenu"><a href="submit.php?action=logout"><i class="fa fa-sign-out"></i>	Logout</a></li>
 					</ul>
@@ -595,44 +619,42 @@ function printAdminSidebar() {
 	echo '<div id="sidebar-wrapper">
 					<ul class="sidebar-nav">
 						<li class="sidebar-brand">
-							<a href="#">
-								<b>R</b>ipple <b>A</b>dmin <b>P</b>anel
-							</a>
+							<a href="#"><b>R</b>ipple <b>A</b>dmin <b>P</b>anel</a>
 						</li>
-						<li>
-							<a href="index.php?p=100"><i class="fa fa-tachometer"></i>	Dashboard</a>
-						</li>
-						<li>
-							<a href="index.php?p=101"><i class="fa fa-cog"></i>	System settings</a>
-						</li>
-						<li>
-							<a href="index.php?p=111"><i class="fa fa-server"></i>	Bancho settings</a>
-						</li>
-						<li>
-							<a href="index.php?p=102"><i class="fa fa-user"></i>	Users</a>
-						</li>
-						<li>
-							<a href="index.php?p=115"><i class="fa fa-user-secret"></i>	IP Logs</a>
-						</li>
-						<li>
-							<a href="index.php?p=108"><i class="fa fa-certificate"></i>	Badges</a>
-						</li>
-						<li>
-							<a href="index.php?p=105"><i class="fa fa-gift"></i>	Beta keys</a>
-						</li>
-						<li>
-							<a href="index.php?p=106"><i class="fa fa-question-circle"></i>	Documentation</a>
-						</li>
-						<li>
-							<a href="index.php?p=113"><i class="fa fa-paper-plane"></i>	Reports</a>
-						</li>
-						<li>
-							<a href="index.php?p=117"><i class="fa fa-music"></i>	Rank requests</a>
-						</li>
-						<li class="animated infinite pulse">
-							<a href="index.php?p=116"><i class="fa fa-calendar"></i>	Admin log&nbsp;&nbsp;&nbsp;<div class="label label-primary">Free botnets</div></a>
-						</li>
-					</ul>
+						<li><a href="index.php?p=100"><i class="fa fa-tachometer"></i>	Dashboard</a></li>';
+
+						if (hasPrivilege(Privileges::AdminManageSettings)) {
+							echo '<li><a href="index.php?p=101"><i class="fa fa-cog"></i>	System settings</a></li>
+							<li><a href="index.php?p=111"><i class="fa fa-server"></i>	Bancho settings</a></li>';
+						}
+
+						if (hasPrivilege(Privileges::AdminManageUsers)) {
+							echo '<li><a href="index.php?p=102"><i class="fa fa-user"></i>	Users</a></li>
+						<li><a href="index.php?p=115"><i class="fa fa-user-secret"></i>	IP Logs</a></li>';
+						}
+
+						if (hasPrivilege(Privileges::AdminManagePrivileges)) {
+							echo '<li><a href="index.php?p=118"><i class="fa fa-group"></i>	Privileges Groups</a></li>';
+						}
+
+						if (hasPrivilege(Privileges::AdminManageBadges))
+							echo '<li><a href="index.php?p=108"><i class="fa fa-certificate"></i>	Badges</a></li>';
+
+						if (hasPrivilege(Privileges::AdminManageBetaKeys))
+							echo '<li><a href="index.php?p=105"><i class="fa fa-gift"></i>	Beta keys</a></li>';
+
+						if (hasPrivilege(Privileges::AdminManageDocs))
+							echo '<li><a href="index.php?p=106"><i class="fa fa-question-circle"></i>	Documentation</a></li>';
+
+						if (hasPrivilege(Privileges::AdminManageReports))
+							echo '<li><a href="index.php?p=113"><i class="fa fa-paper-plane"></i>	Reports</a></li>';
+
+						if (hasPrivilege(Privileges::AdminManageBeatmaps))
+							echo '<li><a href="index.php?p=117"><i class="fa fa-music"></i>	Rank requests</a></li>';
+
+						if (hasPrivilege(Privileges::AdminViewRAPLogs))
+							echo '<li class="animated infinite pulse"><a href="index.php?p=116"><i class="fa fa-calendar"></i>	Admin log&nbsp;&nbsp;&nbsp;<div class="label label-primary">Free botnets</div></a></li>';
+				echo '</ul>
 				</div>';
 }
 /*
@@ -691,7 +713,7 @@ function countryCodeToReadable($cc) {
  * Get an associative array, saying whether a user is banned or not on Ripple.
  *
  * @returns (array) see above.
-*/
+
 function getAllowedUsers($by = 'username') {
 	// get all the allowed users in Ripple
 	$allowedUsersRaw = $GLOBALS['db']->fetchAll('SELECT '.$by.', allowed FROM users');
@@ -705,7 +727,7 @@ function getAllowedUsers($by = 'username') {
 	unset($allowedUsersRaw);
 
 	return $allowedUsers;
-}
+}*/
 /****************************************
  **	 LOGIN/LOGOUT/SESSION FUNCTIONS	   **
  ****************************************/
@@ -760,8 +782,12 @@ function sessionCheck() {
 		if (current($GLOBALS['db']->fetch('SELECT password_md5 FROM users WHERE username = ?', $_SESSION['username'])) != $_SESSION['password']) {
 			throw new Exception('Session expired. Please login again.');
 		}
-		// Check if we aren't banned
+		/* Check if we aren't banned (OLD)
 		if (current($GLOBALS['db']->fetch('SELECT allowed FROM users WHERE username = ?', $_SESSION['username'])) == 0) {
+			throw new Exception('You are banned.');
+		} */
+		// Ban check (NEW)
+		if (!hasPrivilege(Privileges::UserNormal)) {
 			throw new Exception('You are banned.');
 		}
 		// Everything is ok, go on
@@ -781,25 +807,21 @@ function sessionCheck() {
  * Used for admin pages (like admin cp)
  * Call this function instead of sessionCheck();
 */
-function sessionCheckAdmin($e = 0) {
+function sessionCheckAdmin($privilege = -1, $e = 0) {
 	sessionCheck();
-	if (!checkAdmin($_SESSION['username'])) {
-		redirect('index.php?p=99&e='.$e);
+	try {
+		// Make sure the user can access RAP and is not banned/restricted
+		if (!hasPrivilege(Privileges::AdminAccessRAP) || !hasPrivilege(Privileges::UserPublic) || !hasPrivilege(Privileges::UserNormal)) {
+			throw new Exception;
+		}
 
-		return false;
-	} else {
+		if ($privilege > -1 && !hasPrivilege($privilege)) {
+			throw new Exception;
+		}
 		return true;
-	}
-}
-/*
- * checkAdmin
- * Checks if $u user is an admin
-*/
-function checkAdmin($u) {
-	if (getUserRank($u) < 3) {
+	} catch (Exception $meme) {
+		redirect('index.php?p=99&e='.$e);
 		return false;
-	} else {
-		return true;
 	}
 }
 /*
@@ -919,7 +941,8 @@ function checkLoggedIn() {
 		return false;
 	}
 	// Check if we aren't banned
-	if ($GLOBALS['db']->fetch('SELECT allowed FROM users WHERE username = ?', $_SESSION['username']) == 0) {
+	//if ($GLOBALS['db']->fetch('SELECT allowed FROM users WHERE username = ?', $_SESSION['username']) == 0) {
+	if (!hasPrivilege(Privileges::UserNormal)) {
 		$checkLoggedInCache = false;
 
 		return false;
@@ -930,23 +953,14 @@ function checkLoggedIn() {
 	return true;
 }
 /*
- * getUserAllowed
- * Gets the allowed status of the $u user
- *
- * @return (int) allowed (1: ok, 2: not active yet (own check thing), 0: banned)
-*/
-function getUserAllowed($u) {
-	return current($GLOBALS['db']->fetch('SELECT allowed FROM users WHERE username = ?', $u));
-}
-/*
  * getUserRank
  * Gets the rank of the $u user
  *
  * @return (int) rank
-*/
+
 function getUserRank($u) {
 	return current($GLOBALS['db']->fetch('SELECT rank FROM users WHERE username = ?', $u));
-}
+}*/
 function checkWebsiteMaintenance() {
 	if (current($GLOBALS['db']->fetch("SELECT value_int FROM system_settings WHERE name = 'website_maintenance'")) == 0) {
 		return false;
@@ -1018,7 +1032,7 @@ function getDocPageAndParse($docid) {
 			throw new Exception();
 		}
 		$doc = $GLOBALS['db']->fetch('SELECT doc_contents, public FROM docs WHERE id = ? AND is_rule = "0";', $docid);
-		if ($doc['public'] == '0' && !sessionCheckAdmin(1)) {
+		if ($doc['public'] == '0' && !sessionCheckAdmin(-1, 1)) {
 			return;
 		}
 		if ($doc == false) {
@@ -1352,7 +1366,7 @@ function getChangelogPage($p = 1) {
 	// Get only the commits we're interested in.
 	$data = array_slice($data, $initoffset, 50);
 	// check whether user is admin
-	$useradmin = getUserRank($_SESSION['username']) >= 3;
+	$useradmin = hasPrivilege(Privileges::AdminAccessRAP);
 	// Get each commit
 	foreach ($data as $commit) {
 		// Separate the various components of the commit
@@ -1844,6 +1858,20 @@ function redirect2FA() {
 	}
 }
 
+
+
+
+/* RIP Documentation and comments from now on.
+   Those functions are the last ones that we've added to old-frontend
+   Because new frontend is coming soonTM, so I don't want to waste time writing comments and docs.
+   You'll also find 20% more memes in these functions.
+
+   ...and fuck php
+   -- Nyo */
+
+
+
+
 function cleanExpiredConfirmationToken() {
 	$GLOBALS["db"]->execute("DELETE FROM 2fa_confirmation WHERE expire < ?", [time()]);
 }
@@ -1865,4 +1893,34 @@ function is2FAEnabled($userID, $force = false) {
 		return $_SESSION["2fa"];
 	$result = $GLOBALS["db"]->fetch("SELECT * FROM 2fa_telegram WHERE userid = ? LIMIT 1", [$userID]);
 	return $result ? true : false;
+}
+
+function getUserPrivileges($userID) {
+	global $cachedPrivileges;
+	if (isset($cachedPrivileges[$userID])) {
+		return $cachedPrivileges[$userID];
+	}
+
+	$result = $GLOBALS["db"]->fetch("SELECT privileges FROM users WHERE id = ? LIMIT 1", [$userID]);
+	if ($result) {
+		$cachedPrivileges[$userID] = current($result);
+	} else {
+		$cachedPrivileges[$userID] = 0;
+	}
+	return getUserPrivileges($userID);
+}
+
+function hasPrivilege($privilege, $userID = -1) {
+	if ($userID == -1)
+		$userID = $_SESSION["userid"];
+	$result = getUserPrivileges($userID) & $privilege;
+	return $result > 0 ? true : false;
+}
+
+function isRestricted($userID = -1) {
+	return (!hasPrivilege(Privileges::UserPublic, $userID) && hasPrivilege(Privileges::UserNormal, $userID));
+}
+
+function isBanned($userID = -1) {
+	return (!hasPrivilege(Privileges::UserPublic, $userID) && !hasPrivilege(Privileges::UserNormal, $userID));
 }

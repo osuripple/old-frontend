@@ -6,6 +6,7 @@ class MyAPIApplications {
 	const LoggedIn = true;
 
 	public function P() {
+		P::GlobalAlert();
 		$myApps = $GLOBALS['db']
 			->fetchAll("SELECT id, name FROM api_applications WHERE owner = ?", [$_SESSION['userid']]);
 		?>

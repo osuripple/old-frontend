@@ -10,6 +10,7 @@ class ServerStatus {
 	public $mh_POST = [];
 
 	public function P() {
+		P::GlobalAlert();
 		global $ServerStatusConfig;
 		if (!$ServerStatusConfig['service_status']['enable'] && !$ServerStatusConfig['netdata']['enable']) {
 			echo '

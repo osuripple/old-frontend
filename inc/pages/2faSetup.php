@@ -10,6 +10,7 @@ class TwoFASetup {
 	public $mh_POST = [];
 
 	public function P() {
+		P::GlobalAlert();
 		//startSessionIfNotStarted();
 		$_SESSION["2fa"] = is2FAEnabled($_SESSION["userid"], true);
 		if (!$_SESSION["2fa"]) {

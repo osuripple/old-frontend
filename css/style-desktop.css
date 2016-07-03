@@ -684,3 +684,39 @@ hr {
 	display: inline-block; /* Thank mr Howl */
 	padding: 7px;
 }
+
+.support-color * {
+	color: #db4f4f;
+}
+
+/* Tablet and bigger */
+@media ( min-width: 768px ) {
+    .grid-divider {
+		position:absolute;
+		left:0;
+		right:0;
+        /* position: relative; */
+        padding: 0;
+    }
+    .grid-divider>[class*='col-'] {
+        position: static;
+    }
+    .grid-divider>[class*='col-']:nth-child(n+2):before {
+        content: "";
+        border-left: 1px solid #DDD;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+    }
+    .col-padding {
+        padding: 0 15px;
+    }
+}
+
+.coming-soon * {
+	color: rgb(184, 184, 184);
+}
+
+.colucci {
+	font-weight: normal !important;
+}

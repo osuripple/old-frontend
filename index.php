@@ -99,6 +99,9 @@ if ($p == 27) {
     <!-- Bootstrap select CSS -->
     <link href="./css/bootstrap-select.min.css" rel="stylesheet">
 
+    <!-- Slider CSS -->
+    <link href="./css/slider.css" rel="stylesheet">
+
     <!-- Bootstrap Font Awesome Picker CSS -->
     <link href="./css/fontawesome-iconpicker.min.css" rel="stylesheet">
 
@@ -178,6 +181,9 @@ if ($p < 100) {
     <!-- Bootstrap Select JavaScript -->
     <script src="./js/bootstrap-select.min.js"></script>
 
+    <!-- Slider JavaScript -->
+    <script src="./js/bootstrap-slider.js"></script>
+
     <!-- Bootstrap Font Awesome Picker JavaScript -->
     <script src="./js/fontawesome-iconpicker.min.js"></script>
 
@@ -194,6 +200,7 @@ if ($p < 100) {
         $('.colorpicker').colorpicker({format:"hex"});
         $('.sceditor').sceditor({plugins: "bbcode", resizeEnabled: false, toolbarExclude: "font,table,code,quote,ltr,rtl" , style: "css/jquery.sceditor.default.css"});
         $(".spoiler-trigger").click(function() {$(this).parent().next().collapse('toggle');});
+		//$(".slider").slider()
 
         // Are you sure window
         function sure($redirect)
@@ -259,6 +266,40 @@ switch ($p) {
                         document.getElementsByName("se")[0].value = 0;
                         document.getElementsByName("sr")[0].value = "";
                     }
+
+					function updatePrivileges(meme = true) {
+						var result = 0;
+						$("input:checkbox[name=privilege]:checked").each(function(){
+							result = Number(result) + Number($(this).val());
+						});
+
+						// Remove donor if needed
+						var selectValue;
+						if (result != '. (Privileges::UserDonor | Privileges::UserNormal | Privileges::UserPublic).') {
+							selectValue = result & ~'.Privileges::UserDonor.'
+						} else {
+							selectValue = result;
+						}
+
+						$("#privileges-value").val(result);
+						$("#privileges-group").val(selectValue);
+						// bootstrap-select is a dank meme
+						$("#privileges-group").selectpicker("refresh");
+					}
+
+					function groupUpdated() {
+						var privileges = $("#privileges-group option:selected").val();
+						if (privileges > -1) {
+							$("input:checkbox[name=privilege]").each(function(){
+								if ( ($(this).val() & privileges) > 0) {
+									$(this).prop("checked", true);
+								} else {
+									$(this).prop("checked", false);
+								}
+							});
+						}
+						updatePrivileges();
+					}
                 </script>
                 ';
 	break;
@@ -299,6 +340,67 @@ switch ($p) {
 					// Update title when the page is loaded
 					window.onload = changeTitlePlaceholder;
 				</script>';
+	break;
+
+	// Supporter page
+	case 34:
+		echo '
+			<!-- <script src="./js/money.min.js"></script> -->
+			<script src="./js/bitcoinprices.js"></script>
+			<script type="text/javascript">
+				// Called when slider changes
+				function onSlide() {
+					updatePrice(slider.getValue());
+				};
+
+				// Updates price in EUR/USD/GBP, months number and paypal.me link
+				var updatePrice = function (months) {
+					try {
+						var priceEUR = Math.pow(months * 30 * 0.2, 0.70).toFixed(2);
+						var str = "<b>"+months+"</b> months = <b>"+priceEUR+"€</b>"+"<br>";
+						var priceUSD = bitcoinprices.convert(priceEUR, "EUR", "USD").toFixed(2);
+						var priceMBTC = (bitcoinprices.convert(priceEUR, "EUR", "BTC")*1000).toFixed(4);
+						str += "<i>("+priceUSD+"$ USD/"+priceMBTC+" mBTC)</i>"
+					} catch(err) {
+						var str = "<b>Move the slider above to show the price</b>";
+						var priceMBTC = "<i class=\'fa fa fa-circle-o-notch fa-spin fa-fw\'></i>";
+					}
+
+					$("#supporter-prices").html(str);
+					$("#supporter-btc-price").html(priceMBTC);
+					$("#paypal-supporter-period").val(months+" months");
+				};
+
+
+				// Slider
+				var slider = $(".slider").slider().on("slide", onSlide).data("slider");
+
+				// Load currencies
+				bitcoinprices.init({
+					url: "https://api.bitcoinaverage.com/ticker/all",
+					marketRateVariable: "24h_avg",
+					currencies: ["BTC", "USD", "EUR"],
+					defaultCurrency: "BTC",
+				});
+
+				// Initialize price for 1 month
+				updatePrice(1);
+			</script>
+		';
+	break;
+
+	case 119:
+	echo '
+		<script type="text/javascript">
+			function updatePrivileges() {
+				var result = 0;
+				$("input:checkbox[name=privileges]:checked").each(function(){
+					result = Number(result) + Number($(this).val());
+				});
+				$("#privileges-value").attr("value", result);
+			}
+		</script>
+	';
 	break;
 }
 

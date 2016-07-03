@@ -7,6 +7,8 @@ class Leaderboard {
 	const LoggedIn = true;
 
 	public function P() {
+		P::GlobalAlert();
+
 		global $ScoresConfig;
 
 		// Leaderboard names (to bold the selected mode)
@@ -30,19 +32,19 @@ class Leaderboard {
 		else
 			$scoringName = "Score";
 		echo '<a href="index.php?p=13&m=0">'.$modesText[0].'</a> | <a href="index.php?p=13&m=1">'.$modesText[1].'</a> | <a href="index.php?p=13&m=2">'.$modesText[2].'</a> | <a href="index.php?p=13&m=3">'.$modesText[3].'</a>';
-		
+
 		// paginate: generate db offset
 		$p = (isset($_GET["page"]) && is_numeric($_GET["page"]) ? (int)$_GET["page"] : 1);
 		if ($p < 1)
 			$p = 1;
 		$offset = ($p-1) * 100;
-		
+
 		// generate table name
 		$tb = 'leaderboard_'.$modeForDB;
 		// Get all user data and order them by score
 		$leaderboard = $GLOBALS['db']->fetchAll("
-SELECT 
-	$tb.*, 
+SELECT
+	$tb.*,
 	users_stats.username, users_stats.country, users_stats.show_country,
 	users_stats.ranked_score_" . $modeForDB . ", users_stats.pp_" . $modeForDB . ",
 	users_stats.avg_accuracy_" . $modeForDB . ", users_stats.playcount_" . $modeForDB . ",
@@ -50,7 +52,7 @@ SELECT
 FROM $tb
 INNER JOIN users ON users.id=$tb.user
 INNER JOIN users_stats ON users_stats.id=$tb.user
-WHERE users.allowed = '1'
+WHERE users.privileges & 1 > 0
 ORDER BY $tb.position
 LIMIT $offset, 100;");
 
@@ -59,8 +61,8 @@ LIMIT $offset, 100;");
 			echo '<br><br><a href="index.php?p=13&m='.$m.'&page='.($p-1).'"><i class="fa big-arrow fa-arrow-circle-left" aria-hidden="true"></i></a>';
 			return;
 		}
-		
-		echo '<br><br>' . ($p > 1 ? '<a href="index.php?p=13&m='.$m.'&page='.($p-1).'"><i class="fa big-arrow fa-arrow-circle-left" aria-hidden="true"></i></a>' : '') . '<a href="index.php?p=13&m='.$m.'&page='.($p+1).'"><i class="fa big-arrow fa-arrow-circle-right" aria-hidden="true"></i></a>';		
+
+		echo '<br><br>' . ($p > 1 ? '<a href="index.php?p=13&m='.$m.'&page='.($p-1).'"><i class="fa big-arrow fa-arrow-circle-left" aria-hidden="true"></i></a>' : '') . '<a href="index.php?p=13&m='.$m.'&page='.($p+1).'"><i class="fa big-arrow fa-arrow-circle-right" aria-hidden="true"></i></a>';
 
 		// Leaderboard
 		echo '<table class="table table-striped table-hover">
@@ -109,7 +111,7 @@ LIMIT $offset, 100;");
 		}
 		// Close table
 		echo '</tbody></table>';
-		echo '<br><br>' . ($p > 1 ? '<a href="index.php?p=13&m='.$m.'&page='.($p-1).'"><i class="fa big-arrow fa-arrow-circle-left" aria-hidden="true"></i></a>' : '') . '<a href="index.php?p=13&m='.$m.'&page='.($p+1).'"><i class="fa big-arrow fa-arrow-circle-right" aria-hidden="true"></i></a>';				
+		echo '<br><br>' . ($p > 1 ? '<a href="index.php?p=13&m='.$m.'&page='.($p-1).'"><i class="fa big-arrow fa-arrow-circle-left" aria-hidden="true"></i></a>' : '') . '<a href="index.php?p=13&m='.$m.'&page='.($p+1).'"><i class="fa big-arrow fa-arrow-circle-right" aria-hidden="true"></i></a>';
 	}
 
 	public static function GetUserRank($u, $mode) {
@@ -123,7 +125,9 @@ LIMIT $offset, 100;");
 		return $rank;
 	}
 
-	public static function BuildLeaderboard() {
+
+	// Used in potatoscores
+	/*public static function BuildLeaderboard() {
 		// Declare stuff that will be used later on.
 		$modes = ['std', 'taiko', 'ctb', 'mania'];
 		$data = ['std' => [], 'taiko' => [], 'ctb' => [], 'mania' => []];
@@ -156,7 +160,7 @@ LIMIT $offset, 100;");
 				$GLOBALS['db']->execute("INSERT INTO leaderboard_$mode (position, user, v) VALUES (?, ?, ?)", [$key + 1, $val['user'], $val['score']]);
 			}
 		}
-	}
+	}*/
 
 	public static function Update($userID, $newScore, $mode) {
 		// Who are we?

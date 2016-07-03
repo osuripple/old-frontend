@@ -53,13 +53,13 @@ class Login {
 			}
 			$us = $GLOBALS['db']->fetch('
 			SELECT
-				users.id, users.allowed, users.password_md5,
+				users.id, users.password_md5,
 				users.username, users_stats.country
 			FROM users
 			LEFT JOIN users_stats ON users_stats.id = users.id
 			WHERE users.username = ?', [$_POST['u']]);
 			// Ban check
-			if ($us['allowed'] === '0') {
+			if (!hasPrivilege(Privileges::UserNormal, $us["id"])) {
 				throw new Exception('You are banned.');
 			}
 			// Get username with right case

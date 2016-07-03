@@ -10,6 +10,7 @@ class RequestRankedBeatmap {
 	public $mh_POST = ["url"];
 
 	public function P() {
+		P::GlobalAlert();
 		startSessionIfNotStarted();
 		$hasSentRequest = $GLOBALS["db"]->fetch("SELECT * FROM rank_requests WHERE time > ? AND userid = ? LIMIT 1", [time()-(24*3600), $_SESSION["userid"]]);
 		$rankRequests = $GLOBALS["db"]->fetchAll("SELECT * FROM rank_requests WHERE time > ? LIMIT 10", [time()-(24*3600)]);

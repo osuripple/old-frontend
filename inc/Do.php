@@ -65,8 +65,8 @@ class D {
 			// Create password
 			$md5Password = password_hash(md5($_POST['p1']), PASSWORD_DEFAULT);
 			// Put some data into the db
-			$GLOBALS['db']->execute("INSERT INTO `users`(username, password_md5, salt, email, register_datetime, rank, allowed, password_version)
-			                                     VALUES (?,        ?,            '',    ?,     ?,                 1,   1,       2);", [$_POST['u'], $md5Password, $_POST['e'], time(true)]);
+			$GLOBALS['db']->execute("INSERT INTO `users`(username, password_md5, salt, email, register_datetime, password_version)
+			                                     VALUES (?,        ?,            '',   ?,     ?,                 2);", [$_POST['u'], $md5Password, $_POST['e'], time(true)]);
 			// Get user ID
 			$uid = $GLOBALS['db']->lastInsertId();
 			// Put some data into users_stats
@@ -138,12 +138,12 @@ class D {
 				throw new Exception(0);
 			}
 			$username = $_POST['username'];
-			$user = $GLOBALS['db']->fetch('SELECT username, email, allowed FROM users WHERE username = ?', [$username]);
+			$user = $GLOBALS['db']->fetch('SELECT id, username, email FROM users WHERE username = ?', [$username]);
 			// Check the user actually exists.
 			if (!$user) {
 				throw new Exception(1);
 			}
-			if ($user['allowed'] == '0') {
+			if (!hasPrivilege(Privileges::UserNormal, $user["id"])) {
 				throw new Exception(2);
 			}
 			$key = randomString(80);
@@ -428,42 +428,50 @@ class D {
 	public static function SaveEditUser() {
 		try {
 			// Check if everything is set (username color, username style, rank, allowed and notes can be empty)
-			if (!isset($_POST['id']) || !isset($_POST['u']) || !isset($_POST['e']) || !isset($_POST['up']) || !isset($_POST['aka']) || !isset($_POST['se']) || !isset($_POST['sr']) || empty($_POST['id']) || empty($_POST['u']) || empty($_POST['e'])) {
+			if (!isset($_POST['id']) || !isset($_POST['u']) || !isset($_POST['e']) || !isset($_POST['up']) || !isset($_POST['aka']) || empty($_POST['id']) || empty($_POST['u']) || empty($_POST['e'])) {
 				throw new Exception('Nice troll');
 			}
-			// Check if this user exists
-			$id = current($GLOBALS['db']->fetch('SELECT id FROM users WHERE id = ?', $_POST['id']));
-			if (!$id) {
+			// Check if this user exists and get old data
+			$oldData = $GLOBALS["db"]->fetch("SELECT * FROM users LEFT JOIN users_stats ON users.username = ?", [$_POST["u"]]);
+			if (!$oldData) {
 				throw new Exception("That user doesn\'t exist");
 			}
 			// Check if we can edit this user
-			if (getUserRank($_POST['u']) >= 3 && $_POST['u'] != $_SESSION['username']) {
+			if ( (($oldData["privileges"] & Privileges::AdminAccessRAP) > 0) && $_POST['u'] != $_SESSION['username']) {
 				throw new Exception("You don't have enough permissions to edit this user");
 			}
 			// Check if email is valid
 			if (!filter_var($_POST['e'], FILTER_VALIDATE_EMAIL)) {
 				throw new Exception("The email isn't valid");
 			}
-			// Get old data
-			$oldData = $GLOBALS["db"]->fetch("SELECT * FROM users LEFT JOIN users_stats ON users.username = ?", [$_POST["u"]]);
+
 
 			// Check if silence end has changed. if so, we have to kick the client
 			// in order to silence him
 			//$oldse = current($GLOBALS["db"]->fetch("SELECT silence_end FROM users WHERE username = ?", array($_POST["u"])));
+
 			// Save new data (email, silence end, silence reason and cm notes)
 			$GLOBALS['db']->execute('UPDATE users SET email = ?, silence_end = ?, silence_reason = ?, notes = ? WHERE id = ?', [$_POST['e'], $_POST['se'], $_POST['sr'], $_POST['ncm'], $_POST['id'] ]);
+			// Edit silence time if we can silence users
+			if (hasPrivilege(Privileges::AdminSilenceUsers)) {
+				$GLOBALS['db']->execute('UPDATE users SET silence_end = ?, silence_reason = ? WHERE id = ?', [$_POST['se'], $_POST['sr'], $_POST['id'] ]);
+			}
+			// Edit privileges if we can
+			if (hasPrivilege(Privileges::AdminManagePrivileges) && ($_POST["id"] != $_SESSION["userid"])) {
+				$GLOBALS['db']->execute('UPDATE users SET privileges = ? WHERE id = ?', [$_POST['priv'], $_POST['id']]);
+			}
 			// Save new userpage
 			$GLOBALS['db']->execute('UPDATE users_stats SET userpage_content = ? WHERE id = ?', [$_POST['up'], $_POST['id']]);
-			// Save new data if set (rank, allowed, UP and silence)
+			/* Save new data if set (rank, allowed, UP and silence)
 			if (isset($_POST['r']) && !empty($_POST['r']) && $oldData["rank"] != $_POST["r"]) {
 				$GLOBALS['db']->execute('UPDATE users SET rank = ? WHERE id = ?', [$_POST['r'], $_POST['id']]);
 				rapLog(sprintf("has changed %s's rank to %s", $_POST["u"], readableRank($_POST['r'])));
 			}
-			if (isset($_POST['a']) && $oldData["allowed"] != $_POST["a"]) {
+			if (isset($_POST['a'])) {
 				$banDateTime = $_POST['a'] == 0 ? time() : 0;
-				$GLOBALS['db']->execute('UPDATE users SET allowed = ?, ban_datetime = ? WHERE id = ?', [$_POST['a'], $banDateTime, $_POST['id']]);
-				rapLog(sprintf("has %s user %s", $_POST['a'] == 0 ? "banned" : "unbanned", $_POST["u"]));
-			}
+				$newPrivileges = $oldData["privileges"] ^ Privileges::UserBasic;
+				$GLOBALS['db']->execute('UPDATE users SET privileges = ?, ban_datetime = ? WHERE id = ?', [$newPrivileges, $banDateTime, $_POST['id']]);
+			}*/
 			// Get username style/color
 			if (isset($_POST['c']) && !empty($_POST['c'])) {
 				$c = $_POST['c'];
@@ -503,24 +511,32 @@ class D {
 			if (empty($_GET['id'])) {
 				throw new Exception('Nice troll.');
 			}
-			// Get user's username and allowed status
-			$user = $GLOBALS['db']->fetch('SELECT username, allowed FROM users WHERE id = ?', $_GET['id']);
+			// Get user's username
+			$userData = $GLOBALS['db']->fetch('SELECT username, privileges FROM users WHERE id = ?', $_GET['id']);
+			if (!$userData) {
+				throw new Exception("User doesn't exist");
+			}
 			// Check if we can ban this user
-			if (getUserRank($user["username"]) >= 3) {
+			if ( ($userData["privileges"] & Privileges::AdminAccessRAP) > 0) {
 				throw new Exception("You don't have enough permissions to ban this user");
 			}
 			// Get new allowed value
-			if ($user["allowed"] == 1) {
-				$newAllowed = 0;
+			if ( ($userData["privileges"] & Privileges::UserNormal) > 0) {
+				// Ban, reset UserNormal and UserPublic bits
 				$banDateTime = time();
+				$newPrivileges = $userData["privileges"] & ~Privileges::UserNormal;
+				$newPrivileges &= ~Privileges::UserPublic;
 			} else {
-				$newAllowed = 1;
+				// Unban, set UserNormal and UserPublic bits
 				$banDateTime = 0;
+				$newPrivileges = $userData["privileges"] | Privileges::UserNormal;
+				$newPrivileges |= Privileges::UserPublic;
 			}
-			// Change allowed value
-			$GLOBALS['db']->execute('UPDATE users SET allowed = ?, ban_datetime = ? WHERE id = ?', [$newAllowed, $banDateTime, $_GET['id']]);
+			//$newPrivileges = $userData["privileges"] ^ Privileges::UserBasic;
+			// Change privileges
+			$GLOBALS['db']->execute('UPDATE users SET privileges = ?, ban_datetime = ? WHERE id = ?', [$newPrivileges, $banDateTime, $_GET['id']]);
 			// Rap log
-			rapLog(sprintf("has %s user %s", $newAllowed == 0 ? "banned" : "unbanned", $user["username"]));
+			rapLog(sprintf("has %s user %s", ($newPrivileges & Privileges::UserNormal) > 0 ? "unbanned" : "banned", $userData["username"]));
 			// Done, redirect to success page
 			redirect('index.php?p=102&s=User banned/unbanned/activated!');
 		}
@@ -591,7 +607,12 @@ class D {
 				throw new Exception('Nice troll.');
 			}
 			// Check if we can edit this user
-			if (getUserRank($_POST['oldu']) >= 3 && $_POST['oldu'] != $_SESSION['username']) {
+			$privileges = $GLOBALS["db"]->fetch("SELECT privileges FROM users WHERE id = ?", [$_POST["id"]]);
+			if (!$privileges) {
+				throw new Exception("User doesn't exist");
+			}
+			$privileges = current($privileges);
+			if ( (($privileges & Privileges::AdminAccessRAP) > 0) && $_POST['oldu'] != $_SESSION['username']) {
 				throw new Exception("You don't have enough permissions to edit this user");
 			}
 			// Make sure the new username doesn't already exist
@@ -889,6 +910,10 @@ class D {
 		try {
 			// Check if we are logged in
 			sessionCheck();
+			// Restricted check
+			if (isRestricted()) {
+				throw new Exception(1);
+			}
 			// Check if everything is set
 			if (!isset($_POST['f']) || !isset($_POST['c']) || !isset($_POST['aka']) || !isset($_POST['st'])) {
 				throw new Exception(0);
@@ -932,6 +957,10 @@ class D {
 		try {
 			// Check if we are logged in
 			sessionCheck();
+			// Restricted check
+			if (isRestricted()) {
+				throw new Exception(2);
+			}
 			// Check if everything is set
 			if (!isset($_POST['c'])) {
 				throw new Exception(0);
@@ -962,6 +991,10 @@ class D {
 		try {
 			// Check if we are logged in
 			sessionCheck();
+			// Restricted check
+			if (isRestricted()) {
+				throw new Exception(5);
+			}
 			// Check if everything is set
 			if (!isset($_FILES['file'])) {
 				throw new Exception(0);
@@ -1002,11 +1035,18 @@ class D {
 	*/
 	public static function SendReport() {
 		try {
+			// NOTE: report/requests are disabled
+			die();
+
 			// Check if we are logged in
 			sessionCheck();
 			// Check if everything is set
 			if (!isset($_POST['t']) || !isset($_POST['n']) || !isset($_POST['c']) || empty($_POST['n']) || empty($_POST['c'])) {
 				throw new Exception(0);
+			}
+			// Restricted check
+			if (isRestricted()) {
+				throw new Exception(1);
 			}
 			// Add report
 			$GLOBALS['db']->execute('INSERT INTO reports (id, name, from_username, content, type, open_time, update_time, status, response) VALUES (NULL, ?, ?, ?, ?, ?, ?, 1, \'\')', [$_POST['n'], $_SESSION['username'], $_POST['c'], $_POST['t'], time(), time()]);
@@ -1293,6 +1333,88 @@ class D {
 		}
 		catch(Exception $e) {
 			redirect('index.php?p=117&e='.$e->getMessage());
+		}
+	}
+
+	public static function savePrivilegeGroup() {
+		try {
+			// Args check
+			if (!isset($_POST["id"]) || !isset($_POST["n"]) || !isset($_POST["priv"]) || !isset($_POST["c"]))
+				throw new Exception("DON'T YOU TRYYYY!!");
+
+			if ($_POST["id"] == 0) {
+				// New group
+				// Make sure name is unique
+				$other = $GLOBALS["db"]->fetch("SELECT id FROM privileges_groups WHERE name = ?", [$_POST["n"]]);
+				if ($other) {
+					throw new Exception("There's another group with the same name");
+				}
+
+				// Insert new group
+				$GLOBALS["db"]->execute("INSERT INTO privileges_groups (id, name, privileges, color) VALUES (NULL, ?, ?, ?)", [$_POST["n"], $_POST["priv"], $_POST["c"]]);
+			} else {
+				// Get old privileges and make sure group exists
+				$oldPriv = $GLOBALS["db"]->fetch("SELECT privileges FROM privileges_groups WHERE id = ?", [$_POST["id"]]);
+				if (!$oldPriv) {
+					throw new Exception("That privilege group doesn't exist");
+				}
+				$oldPriv = current($oldPriv);
+				// Update existing group
+				$GLOBALS["db"]->execute("UPDATE privileges_groups SET name = ?, privileges = ?, color = ? WHERE id = ?", [$_POST["n"], $_POST["priv"], $_POST["c"], $_POST["id"]]);
+				// Update privileges on users on that group
+				$GLOBALS["db"]->execute("UPDATE users SET privileges = ? WHERE privileges = ?", [$_POST["priv"], $oldPriv]);
+			}
+
+			// Fin.
+			redirect("index.php?p=118&s=Saved!");
+		} catch (Exception $e) {
+			// There's a memino divertentino
+			redirect("index.php?p=118&e=".$e->getMessage());
+		}
+	}
+
+
+	/*
+	 * RestrictUnrestrictUser
+	 * restricte/unrestrict user function (ADMIN CP)
+	*/
+	public static function RestrictUnrestrictUser() {
+		try {
+			// Check if everything is set
+			if (empty($_GET['id'])) {
+				throw new Exception('Nice troll.');
+			}
+			// Get user's username
+			$userData = $GLOBALS['db']->fetch('SELECT username, privileges FROM users WHERE id = ?', $_GET['id']);
+			if (!$userData) {
+				throw new Exception("User doesn't exist");
+			}
+			// Check if we can ban this user
+			if ( ($userData["privileges"] & Privileges::AdminAccessRAP) > 0) {
+				throw new Exception("You don't have enough permissions to ban this user");
+			}
+			// Get new allowed value
+			if (!isRestricted($_GET["id"])) {
+				// Restrict, set UserNormal and reset UserPublic
+				$banDateTime = time();
+				$newPrivileges = $userData["privileges"] | Privileges::UserNormal;
+				$newPrivileges &= ~Privileges::UserPublic;
+			} else {
+				// Remove restrictions, set both UserPublic and UserNormal
+				$banDateTime = 0;
+				$newPrivileges = $userData["privileges"] | Privileges::UserNormal;
+				$newPrivileges |= Privileges::UserPublic;
+			}
+			// Change privileges
+			$GLOBALS['db']->execute('UPDATE users SET privileges = ?, ban_datetime = ? WHERE id = ?', [$newPrivileges, $banDateTime, $_GET['id']]);
+			// Rap log
+			rapLog(sprintf("has %s user %s", ($newPrivileges & Privileges::UserPublic) > 0 ? "removed restrictions on" : "restricted", $userData["username"]));
+			// Done, redirect to success page
+			redirect('index.php?p=102&s=User restricted/unrestricted!');
+		}
+		catch(Exception $e) {
+			// Redirect to Exception page
+			redirect('index.php?p=102&e='.$e->getMessage());
 		}
 	}
 
