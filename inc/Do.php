@@ -56,9 +56,10 @@ class D {
 			if ($ip != "127.0.0.1") {
 				$multiUserID = $GLOBALS['db']->fetch("SELECT userid FROM ip_user WHERE ip = ?", [$ip]);
 				if ($multiUserID) {
-					$multiUsername = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [current($multiUserID)]);
+					$multiUserID = current($multiUserID);
+					$multiUsername = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$multiUserID]);
 					if ($multiUsername)
-						Schiavo::CM("User " . current($multiUsername) . " tried to create a multiaccount (" . $_POST['u'] . ") from IP " . $ip);
+						Schiavo::CM("User " . current($multiUsername) . " (https://ripple.moe/?u=$multiUserID) tried to create a multiaccount (" . $_POST['u'] . ") from IP " . $ip);
 					throw new Exception("It seems you have another account registered on Ripple. You can own only one account. If you think this is an error, please contact us at support@ripple.moe.");
 				}
 			}
