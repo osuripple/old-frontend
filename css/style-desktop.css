@@ -1,11 +1,18 @@
-/* Desktop CSS */
+/* Desktop CSS*/
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700,400italic);
+@import 'https://fonts.googleapis.com/css?family=Source+Sans+Pro';
 @import url(https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css);
+@import url(https://fonts.googleapis.com/css?family=Raleway:400,700);
 
 body {
 	padding-top: 70px;
 	text-align: left;
-	font-family: Open Sans;
+	font-family: Source Sans Pro;
+	font-size: 160%;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-family: Raleway;
 }
 
 ul.nav li:hover > ul.dropdown-menu {

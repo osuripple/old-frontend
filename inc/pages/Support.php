@@ -102,10 +102,7 @@ class Support {
 
 				<h2><i class="fa fa-credit-card"></i>	How do I became a donor?</h2>
 				<h4>Read carefully</h4>
-				You may donate through either <b>PayPal</b> (or credit/debit card linked to PayPal) or <b>Bitcoin</b>. Use the <b>slider</b> below to choose the amount of months you\'d like to have the donor benefits, and the cost will be instantly calculated. Remember that if, for instance, you choose to donate € 4 instead of € 3.51, you will only be given one donor month.
-				<b>Don\'t forget to write your Ripple username in donation\'s message!</b>
-				<hr>
-				<h3><i class="fa fa-money"></i>	Price calculator</h3>
+				You may donate through either <b>PayPal</b> (or credit/debit card linked to PayPal) or <b>Bitcoin</b>. Use the <b>slider</b> below to choose the amount of months you\'d like to have the donor benefits, and the cost will be instantly calculated. Remember that if, for instance, you choose to donate € 4 instead of € 3.51, you will only be given one donor month.<br><br>
 				<div class="slider" style="width: 100%;" data-slider-min="1" data-slider-max="24" data-slider-value="1" data-slider-tooltip="hide"></div><br>
 				<span id="supporter-prices"></span>
 				<hr>
@@ -207,16 +204,14 @@ class Support {
 
 				<hr>
 				<h3 style="display: inline;"><i class="fa fa-btc"></i>	Prefer Bitcoin?</h3><br><br>
-				<b>Send <span id="supporter-btc-price"></span> mBTC to this Bitcoin address:</b><br>
-				132HMmzADGG7fGfwuqUSP7gahTWVLkfZLR<br><br>
-				<b><span style="color:red; text-decoration: underline;">Don\'t forget to write your Ripple and Discord usernames in donation\'s message if you are donating with Bitcoins!</span></b><br>
+				<b id="supporter-btc" hidden>Send <span id="supporter-btc-price"></span> mBTC to this Bitcoin address:</b><br>
+				132HMmzADGG7fGfwuqUSP7gahTWVLkfZLR<br>
+				<b><span style="text-decoration: underline;">and write your Ripple and Discord usernames in donation\'s message!</span></b>
 				<br>
 				<hr>
 				<br><br>
 				<h2><i class="fa fa-question-circle"></i>	I\'ve donated, and now?</h2>
 				You\'ll have to wait until we verify and process your payment. It can take up to <b>12 hours</b>. If 12 hours have passed and you still haven\'t received your Donor tag, contact a <b>Dev/Community Manager</b> in our Discord server or send an email to <b>support@ripple.moe</b>.
-				<br><br><br><br><br><br>
-
 				<br><br><br><br><br><br>
 			</div>
 

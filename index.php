@@ -361,9 +361,10 @@ switch ($p) {
 						var priceUSD = bitcoinprices.convert(priceEUR, "EUR", "USD").toFixed(2);
 						var priceMBTC = (bitcoinprices.convert(priceEUR, "EUR", "BTC")*1000).toFixed(4);
 						str += "<i>("+priceUSD+"$ USD/"+priceMBTC+" mBTC)</i>"
+						$("#supporter-btc").show();
 					} catch(err) {
 						var str = "<b>Move the slider above to show the price</b>";
-						var priceMBTC = "<i class=\'fa fa fa-circle-o-notch fa-spin fa-fw\'></i>";
+						$("#supporter-btc").hide();
 					}
 
 					$("#supporter-prices").html(str);
