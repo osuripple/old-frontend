@@ -36,6 +36,7 @@ require_once $df.'/pages/MyAPIApplications.php';
 require_once $df.'/pages/EditApplication.php';
 require_once $df.'/pages/DeleteApplication.php';
 require_once $df.'/pages/Support.php';
+require_once $df.'/pages/Team.php';
 $pages = [
 	new Login(),
 	new Leaderboard(),
@@ -49,6 +50,7 @@ $pages = [
 	new EditApplication(),
 	new DeleteApplication(),
 	new Support(),
+	new Team(),
 ];
 // Set timezone to UTC
 date_default_timezone_set('Europe/Rome');
@@ -554,12 +556,13 @@ function printNavbar() {
 	// Logged in left elements
 	if (checkLoggedIn()) {
 		// Just an easter egg that you'll probably never notice, unless you do it on purpose.
-		$trollerino = mt_rand(1, 100) == 1;
+		//$trollerino = mt_rand(1, 100) == 1;
 		echo '<li><a href="index.php?p=13"><i class="fa fa-trophy"></i>	Leaderboard</a></li>';
 		echo '<li class="dropdown">
 					<a data-toggle="dropdown"><i class="fa fa-question-circle"></i>	Help & Info<span class="caret"></span></a>
 					<ul class="dropdown-menu">
 						<li class="dropdown-submenu"><a href="index.php?p=23"><i class="fa fa-gavel"></i> Rules</a></li>
+						<li class="dropdown-submenu"><a href="index.php?p=35"><i class="fa fa-star"></i> Ripple Team</a></li>
 						<li class="dropdown-submenu"><a href="index.php?p=14"><i class="fa fa-question-circle"></i>	Help</a></li>
 						'.(file_exists(dirname(__FILE__).'/../blog/anchor/config/db.php') ? '<li class="dropdown-submenu"><a href="blog/"><i class="fa fa-anchor"></i>	Blog</a></li>' : '').'
 						<li class="dropdown-submenu"><a href="index.php?p=31"><i class="fa fa-music"></i>	Request beatmap ranking</a></li>

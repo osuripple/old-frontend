@@ -60,3 +60,14 @@ $ScoresConfig = [
 	"useNewBeatmapsTable" => true		// 0: get beatmaps names from beatmaps_names (old php scores server)
 										// 1: get beatmaps names from beatmaps (LETS)
 ];
+
+// Team page config
+$teamConfig = [
+	999 => [
+		"name" => "Mark Fokawo",
+		"twitter" => "fokawooooo",
+		"email" => "fo@ka.wo",
+		"role" => "Master Bot"
+		"github" => "gitfoka"
+	]
+];

@@ -727,3 +727,18 @@ hr {
 .colucci {
 	font-weight: normal !important;
 }
+
+.img-center {
+	margin: 0 auto;
+}
+
+.teammate-name {
+	font-size: 24px;
+	font-family: Raleway;
+	border-bottom: 2px dashed #616161;
+}
+
+a.silent {
+	text-decoration: none;
+	color: inherit;
+}
