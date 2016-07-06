@@ -105,7 +105,7 @@ class RememberCookieHandler {
 	 */
 	private function Login() {
 		// ban check
-		if (current($GLOBALS['db']->fetch('SELECT allowed FROM users WHERE id = ?', $this->ID)) === '0') {
+		if ((current($GLOBALS['db']->fetch('SELECT privileges FROM users WHERE id = ?', $this->ID)) & 2) == 0) {
 			$this->UnsetCookies();
 			addError("You are banned.");
 			redirect('index.php?p=2');
