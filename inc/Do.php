@@ -433,7 +433,7 @@ class D {
 				throw new Exception('Nice troll');
 			}
 			// Check if this user exists and get old data
-			$oldData = $GLOBALS["db"]->fetch("SELECT * FROM users LEFT JOIN users_stats ON users.username = ?", [$_POST["u"]]);
+			$oldData = $GLOBALS["db"]->fetch("SELECT * FROM users LEFT JOIN users_stats ON users.username = ? WHERE users.id = ?", [$_POST["u"], $_POST["id"]]);
 			if (!$oldData) {
 				throw new Exception("That user doesn\'t exist");
 			}
