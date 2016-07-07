@@ -10,6 +10,7 @@ class Support {
 	public $mh_POST = [];
 
 	public function P() {
+		die();
 		startSessionIfNotStarted();
 		P::GlobalAlert();
 		$isSupporter = hasPrivilege(Privileges::UserDonor);
