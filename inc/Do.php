@@ -58,8 +58,10 @@ class D {
 				if ($multiUserID) {
 					$multiUserID = current($multiUserID);
 					$multiUsername = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$multiUserID]);
-					if ($multiUsername)
+					if ($multiUsername) {
 						Schiavo::CM("User " . current($multiUsername) . " (https://ripple.moe/?u=$multiUserID) tried to create a multiaccount (" . $_POST['u'] . ") from IP " . $ip);
+					}
+					$GLOBALS["db"]->execute("UPDATE users SET notes=CONCAT(notes,'\n-- Multiacc attempt (".$_POST["u"].") from IP ".$ip."')");
 					throw new Exception("It seems you have another account registered on Ripple. You can own only one account. If you think this is an error, please contact us at support@ripple.moe.");
 				}
 			}
