@@ -40,7 +40,7 @@ class Team {
 
 	public function printTeam($groupName) {
 		global $teamConfig;
-		$dudes = $GLOBALS["db"]->fetchAll("SELECT users.username, users.id, users.email FROM users LEFT JOIN privileges_groups ON users.privileges = privileges_groups.privileges WHERE privileges_groups.name = ? AND users.id > 999", [$groupName]);
+		$dudes = $GLOBALS["db"]->fetchAll("SELECT users.username, users.id, users.email FROM users LEFT JOIN privileges_groups ON (users.privileges = privileges_groups.privileges OR users.privileges = privileges_groups.privileges | ".Privileges::UserDonor.") WHERE privileges_groups.name = ? AND users.id > 999", [$groupName]);
 		foreach ($dudes as $i => $dude) {
 			echo '
 			<div class="col-lg-'.round(12/floor(count($dudes))).' col-sm-6 text-center">
