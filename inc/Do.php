@@ -451,8 +451,8 @@ class D {
 			// in order to silence him
 			//$oldse = current($GLOBALS["db"]->fetch("SELECT silence_end FROM users WHERE username = ?", array($_POST["u"])));
 
-			// Save new data (email, silence end, silence reason and cm notes)
-			$GLOBALS['db']->execute('UPDATE users SET email = ?, silence_end = ?, silence_reason = ?, notes = ? WHERE id = ?', [$_POST['e'], $_POST['se'], $_POST['sr'], $_POST['ncm'], $_POST['id'] ]);
+			// Save new data (email, and cm notes)
+			$GLOBALS['db']->execute('UPDATE users SET email = ?, notes = ? WHERE id = ?', [$_POST['e'], $_POST['ncm'], $_POST['id'] ]);
 			// Edit silence time if we can silence users
 			if (hasPrivilege(Privileges::AdminSilenceUsers)) {
 				$GLOBALS['db']->execute('UPDATE users SET silence_end = ?, silence_reason = ? WHERE id = ?', [$_POST['se'], $_POST['sr'], $_POST['id'] ]);
