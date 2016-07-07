@@ -44,7 +44,7 @@ class Team {
 		foreach ($dudes as $i => $dude) {
 			echo '
 			<div class="col-lg-'.round(12/floor(count($dudes))).' col-sm-6 text-center">
-				<img class="img-circle img-center" src="http://a.ripple.moe/'.$dude["id"].'"><br>
+				<img class="img-circle img-center" src="' . URL::Avatar() . '/'.$dude["id"].'"><br>
 				<span class="teammate-name"><a class="silent" href="index.php?u='.$dude["id"].'">'.$dude["username"].'</a></span><br>';
 				if (array_key_exists("name", $teamConfig[$dude["id"]])) {
 					echo '<h4 style="display: inline;">'.$teamConfig[$dude["id"]]["name"].'</h4><br>';
