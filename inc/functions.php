@@ -464,6 +464,12 @@ function printPage($p) {
 				P::AdminShowUsersInPrivilegeGroup();
 			break;
 
+			// Admin panel - Give donor to user
+			case 121:
+				sessionCheckAdmin(Privileges::AdminManageUsers);
+				P::AdminGiveDonor();
+			break;
+
 				// 404 page
 
 			default:

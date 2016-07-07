@@ -195,6 +195,14 @@ try {
 			sessionCheckAdmin(Privileges::AdminManagePrivileges);
 			D::savePrivilegeGroup();
 		break;
+		case 'giveDonor':
+			sessionCheckAdmin(Privileges::AdminManageUsers);
+			D::GiveDonor();
+		break;
+		case 'removeDonor':
+			sessionCheckAdmin(Privileges::AdminManageUsers);
+			D::RemoveDonor();
+		break;
 	}
 }
 catch(Exception $e) {

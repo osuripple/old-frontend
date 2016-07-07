@@ -10,7 +10,6 @@ class Support {
 	public $mh_POST = [];
 
 	public function P() {
-		die();
 		startSessionIfNotStarted();
 		P::GlobalAlert();
 		$isSupporter = hasPrivilege(Privileges::UserDonor);
@@ -18,6 +17,10 @@ class Support {
 			$expire = $GLOBALS["db"]->fetch("SELECT donor_expire FROM users WHERE id = ?", [$_SESSION["userid"]]);
 			if ($expire) {
 				$expire = current($expire);
+				if ($expire < time()) {
+					$GLOBALS["db"]->execute("UPDATE users SET privileges = privileges & ~".Privileges::UserDonor." WHERE id = ?", [$_SESSION["userid"]]);
+					$isSupporter = false;
+				}
 			} else {
 				$isSupporter = false;
 			}
@@ -31,15 +34,15 @@ class Support {
 				<hr>';
 
 				if ($isSupporter) {
-					/*echo '
+					echo '
 					<h2><i class="fa fa-smile-o"></i>	You are a donor!</h2>
 					<b>Your Donor tag expires in '.timeDifference(time(), $expire, false).'!</b><br>
 					Thank you for donating! :3
-					';*/
-					echo '
+					';
+					/*echo '
 					<h2><i class="fa fa-smile-o"></i>	You are a donor!</h2>
 					Thank you for donating! :3
-					';
+					';*/
 				} else {
 					echo '
 					<h2><i class="fa fa-frown-o"></i>	You are not a donor</h2>
