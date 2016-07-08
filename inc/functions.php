@@ -700,7 +700,7 @@ function getUserCountry() {
 
 	}
 	// otherwise, retrieve the contents from ip.zxq.co's API
-	$data = get_contents_http("http://ip.zxq.co/$ip/country");
+	$data = get_contents_http("http://ip.vanilla.rocks/$ip/country");
 	// And return the country. If it's set, that is.
 	return strlen($data) == 2 ? $data : 'XX';
 }
