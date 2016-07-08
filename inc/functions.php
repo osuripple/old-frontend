@@ -574,7 +574,7 @@ function printNavbar() {
 						<li class="dropdown-submenu"><a href="index.php?p=31"><i class="fa fa-music"></i>	Request beatmap ranking</a></li>
 						<li class="divider"></li>
 						<li class="dropdown-submenu"><a href="index.php?p=17"><i class="fa fa-code"></i> Changelog</a></li>
-						<li class="dropdown-submenu"><a href="http://getrektby.us:6996"><i class="fa fa-cogs"></i>	Server status</a></li>
+						<li class="dropdown-submenu"><a href="http://status.ripple.moe"><i class="fa fa-cogs"></i>	Server status</a></li>
 						<li class="dropdown-submenu"><a href="https://mu.nyodev.xyz/upd.php?id=18"><i class="fa fa-server"></i>	Server switcher</a></li>
 						<li class="divider"></li>';
 						//<li class="dropdown-submenu"><a href="index.php?p=22&type=0"><i class="fa fa-bug"></i> '.($trollerino ? 'Request' : 'Report').' a bug</a></li>
