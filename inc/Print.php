@@ -1644,7 +1644,7 @@ class P {
 			$userData = $GLOBALS['db']->fetch('
 SELECT
 	users_stats.*, users.privileges, users.latest_activity,
-	users.silence_end, users.silence_reason
+	users.silence_end, users.silence_reason, users.register_datetime
 FROM users_stats
 LEFT JOIN users ON users.id=users_stats.id
 WHERE users_stats.id = ?', [$u]);
@@ -1891,6 +1891,10 @@ WHERE users_stats.id = ?', [$u]);
 				<td id="stats-value"><b>'.timeDifference(time(), $latestActivity).'</b></td>
 			</tr>';
 			}
+			echo '<tr>
+				<td id="stats-name">Registered</td>
+				<td id="stats-value"><b>'.timeDifference(time(), $userData["register_datetime"]).'</b></td>
+			</tr>';
 			// Playstyle
 			if ($userData['play_style'] > 0) {
 				echo '<tr><td id="stats-name">Play style</td><td id="stats-value"><b>'.BwToString($userData['play_style'], $PlayStyleEnum).'</b></td></tr>';
