@@ -71,3 +71,8 @@ $teamConfig = [
 		"github" => "gitfoka"
 	]
 ];
+
+// Schiavo discord bot config
+$schiavoConfig = [
+	"url" => "http://zxq.co:31155/"
+];
