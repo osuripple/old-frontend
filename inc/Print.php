@@ -466,6 +466,13 @@ class P {
 				echo '</td>
 				</tr>';
 			}
+			if (hasPrivilege(Privileges::UserDonor,$userData["id"])) {
+				$donorExpire = timeDifference($userData["donor_expire"], time(), false);
+				echo '<tr>
+				<td>Donor expires in</td>
+				<td>'.$donorExpire.'</td>
+				</tr>';
+			}
 			echo '<tr>
 			<td>Username color<br><i>(HTML or HEX color)</i></td>
 			<td><p class="text-center"><input type="text" name="c" class="form-control" value="'.$userStatsData['user_color'].'" '.$readonly[1].'></td>
@@ -556,8 +563,13 @@ class P {
 							if (hasPrivilege(Privileges::AdminManageBadges)) {
 								echo '<a href="index.php?p=110&id='.$_GET['id'].'" class="btn btn-success">Edit badges</a>';
 							}
-							echo '	<a href="index.php?p=104&id='.$_GET['id'].'" class="btn btn-info">Change identity</a>
-							<a href="index.php?u='.$_GET['id'].'" class="btn btn-warning">View profile</a>
+							echo '	<a href="index.php?p=104&id='.$_GET['id'].'" class="btn btn-info">Change identity</a>';
+							if (!hasPrivilege(Privileges::UserDonor, $_GET["id"])) {
+								echo '	<a href="index.php?p=121&id='.$_GET['id'].'" class="btn btn-warning">Give donor</a>';
+							} else {
+								echo '	<a onclick="sure(\'submit.php?action=removeDonor&id='.$_GET['id'].'\');" class="btn btn-warning">Remove donor</a>';
+							}
+							echo '	<a href="index.php?u='.$_GET['id'].'" class="btn btn-primary">View profile</a>
 						</li>
 					</ul>';
 					if (hasPrivilege(Privileges::AdminBanUsers) || hasPrivilege(Privileges::AdminWipeUsers)) {
@@ -1632,7 +1644,7 @@ class P {
 			$userData = $GLOBALS['db']->fetch('
 SELECT
 	users_stats.*, users.privileges, users.latest_activity,
-	users.silence_end, users.silence_reason
+	users.silence_end, users.silence_reason, users.register_datetime
 FROM users_stats
 LEFT JOIN users ON users.id=users_stats.id
 WHERE users_stats.id = ?', [$u]);
@@ -1879,6 +1891,10 @@ WHERE users_stats.id = ?', [$u]);
 				<td id="stats-value"><b>'.timeDifference(time(), $latestActivity).'</b></td>
 			</tr>';
 			}
+			echo '<tr>
+				<td id="stats-name">Registered</td>
+				<td id="stats-value"><b>'.timeDifference(time(), $userData["register_datetime"]).'</b></td>
+			</tr>';
 			// Playstyle
 			if ($userData['play_style'] > 0) {
 				echo '<tr><td id="stats-name">Play style</td><td id="stats-value"><b>'.BwToString($userData['play_style'], $PlayStyleEnum).'</b></td></tr>';
@@ -2972,7 +2988,7 @@ WHERE users_stats.id = ?', [$u]);
 			if (!$groupData) {
 				throw new Exception("That group doesn't exist");
 			}
-			$users = $GLOBALS['db']->fetchAll('SELECT * FROM users WHERE privileges = ?', [$groupData["privileges"]]);
+			$users = $GLOBALS['db']->fetchAll('SELECT * FROM users WHERE privileges = ? OR privileges = ? | '.Privileges::UserDonor, [$groupData["privileges"], $groupData["privileges"]]);
 			// Print sidebar and template stuff
 			echo '<div id="wrapper">';
 			printAdminSidebar();
@@ -3015,6 +3031,62 @@ WHERE users_stats.id = ?', [$u]);
 			echo '<div class="alert alert-danger" role="alert">
 					<p align="center"><i class="fa fa-exclamation-triangle"></i><b>Your account is currently in restricted mode</b> due to inappropriate behavior or a violation of the <a href=\'index.php?p=23\'>rules</a>.<br>You can\'t interact with other users, you can perform limited actions and your user profile and scores are hidden.<br>Read the <a href=\'index.php?p=23\'>rules</a> again carefully, and if you think this is an error, send an email to <b>support@ripple.moe</b>.</p>
 				  </div>';
+		}
+	}
+
+	/*
+	 * AdminGiveDonor
+	 * Prints the admin give donor page
+	*/
+	public static function AdminGiveDonor() {
+		try {
+			// Check if id is set
+			if (!isset($_GET['id'])) {
+				throw new Exception('Invalid user id');
+			}
+			echo '<div id="wrapper">';
+			printAdminSidebar();
+			echo '<div id="page-content-wrapper">';
+			// Maintenance check
+			self::MaintenanceStuff();
+			echo '<p align="center"><font size=5><i class="fa fa-money"></i>	Give donor</font></p>';
+			$username = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$_GET["id"]]);
+			if (!$username) {
+				throw new Exception("Invalid user");
+			}
+			$username = current($username);
+			$isDonor = hasPrivilege(Privileges::UserDonor, $_GET["id"]);
+			if ($isDonor) {
+				echo '<p align="center"><br>'.$username.' is already a Donor<br><br>
+				<a class="btn btn-primary" href="submit.php?action=removeDonor&id='.$_GET["id"].'">Remove donor</a></p>';
+			} else {
+				echo '<table class="table table-striped table-hover table-50-center"><tbody>';
+				echo '<form id="edit-user-badges" action="submit.php" method="POST"><input name="action" value="giveDonor" hidden>';
+				echo '<tr>
+				<td>User ID</td>
+				<td><p class="text-center"><input type="text" name="id" class="form-control" value="'.$_GET["id"].'" readonly></td>
+				</tr>';
+				echo '<tr>
+				<td>Username</td>
+				<td><p class="text-center"><input type="text" class="form-control" value="'.$username.'" readonly></td>
+				</tr>';
+				echo '<tr>
+				<td>Period<br>(number of months)</td>
+				<td>
+				<input name="m" type="number" class="form-control" placeholder="Months" required></input>
+				</td>
+				</tr>';
+
+				echo '</tbody></form>';
+				echo '</table>';
+				echo '<div class="text-center"><button type="submit" form="edit-user-badges" class="btn btn-primary">Give donor</button></div>';
+			}
+			echo '</div>';
+
+		}
+		catch(Exception $e) {
+			// Redirect to exception page
+			redirect('index.php?p=108&e='.$e->getMessage());
 		}
 	}
 }

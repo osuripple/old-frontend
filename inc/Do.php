@@ -58,8 +58,10 @@ class D {
 				if ($multiUserID) {
 					$multiUserID = current($multiUserID);
 					$multiUsername = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$multiUserID]);
-					if ($multiUsername)
+					if ($multiUsername) {
 						Schiavo::CM("User " . current($multiUsername) . " (https://ripple.moe/?u=$multiUserID) tried to create a multiaccount (" . $_POST['u'] . ") from IP " . $ip);
+					}
+					$GLOBALS["db"]->execute("UPDATE users SET notes=CONCAT(notes,'\n-- Multiacc attempt (".$_POST["u"].") from IP ".$ip."') WHERE id = ?", [$multiUserID]);
 					throw new Exception("It seems you have another account registered on Ripple. You can own only one account. If you think this is an error, please contact us at support@ripple.moe.");
 				}
 			}
@@ -433,7 +435,7 @@ class D {
 				throw new Exception('Nice troll');
 			}
 			// Check if this user exists and get old data
-			$oldData = $GLOBALS["db"]->fetch("SELECT * FROM users LEFT JOIN users_stats ON users.username = ?", [$_POST["u"]]);
+			$oldData = $GLOBALS["db"]->fetch("SELECT * FROM users LEFT JOIN users_stats ON users.username = ? WHERE users.id = ?", [$_POST["u"], $_POST["id"]]);
 			if (!$oldData) {
 				throw new Exception("That user doesn\'t exist");
 			}
@@ -451,8 +453,8 @@ class D {
 			// in order to silence him
 			//$oldse = current($GLOBALS["db"]->fetch("SELECT silence_end FROM users WHERE username = ?", array($_POST["u"])));
 
-			// Save new data (email, silence end, silence reason and cm notes)
-			$GLOBALS['db']->execute('UPDATE users SET email = ?, silence_end = ?, silence_reason = ?, notes = ? WHERE id = ?', [$_POST['e'], $_POST['se'], $_POST['sr'], $_POST['ncm'], $_POST['id'] ]);
+			// Save new data (email, and cm notes)
+			$GLOBALS['db']->execute('UPDATE users SET email = ?, notes = ? WHERE id = ?', [$_POST['e'], $_POST['ncm'], $_POST['id'] ]);
 			// Edit silence time if we can silence users
 			if (hasPrivilege(Privileges::AdminSilenceUsers)) {
 				$GLOBALS['db']->execute('UPDATE users SET silence_end = ?, silence_reason = ? WHERE id = ?', [$_POST['se'], $_POST['sr'], $_POST['id'] ]);
@@ -1362,8 +1364,14 @@ class D {
 				$oldPriv = current($oldPriv);
 				// Update existing group
 				$GLOBALS["db"]->execute("UPDATE privileges_groups SET name = ?, privileges = ?, color = ? WHERE id = ?", [$_POST["n"], $_POST["priv"], $_POST["c"], $_POST["id"]]);
-				// Update privileges on users on that group
-				$GLOBALS["db"]->execute("UPDATE users SET privileges = ? WHERE privileges = ?", [$_POST["priv"], $oldPriv]);
+				// Get users in this group
+				$users = $GLOBALS["db"]->fetchAll("SELECT id FROM users WHERE privileges = ".$oldPriv." OR privileges = ".$oldPriv." | ".Privileges::UserDonor);
+				foreach ($users as $user) {
+					// Remove privileges from previous group
+					$GLOBALS["db"]->execute("UPDATE users SET privileges = privileges & ~".$oldPriv." WHERE id = ?", [$user["id"]]);
+					// Add privileges from new group
+					$GLOBALS["db"]->execute("UPDATE users SET privileges = privileges | ".$_POST["priv"]." WHERE id = ?", [$user["id"]]);
+				}
 			}
 
 			// Fin.
@@ -1419,4 +1427,76 @@ class D {
 		}
 	}
 
+	public static function GiveDonor() {
+		try {
+			if (!isset($_POST["id"]) || empty($_POST["id"]) || !isset($_POST["m"]) || empty($_POST["m"]))
+				throw new Exception("Invalid user");
+			$username = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$_POST["id"]]);
+			if (!$username) {
+				throw new Exception("That user doesn't exist");
+			}
+			$username = current($username);
+			$unixPeriod = time()+((30*86400)*$_POST["m"]);
+			$GLOBALS["db"]->execute("UPDATE users SET privileges = privileges | ".Privileges::UserDonor.", donor_expire = ? WHERE id = ?", [$unixPeriod, $_POST["id"]]);
+
+			// We do the log thing here because the badge part _might_ fail
+			rapLog(sprintf("has given donor for %s months to user %s", $_POST["m"], $username), $_SESSION["userid"]);
+
+			$badges = $GLOBALS["db"]->fetch("SELECT badges_shown FROM users_stats WHERE id = ?", [$_POST["id"]]);
+			if (!$badges) {
+				throw new Exception("Something went terribly wrong. Call nyo and tell him that there was a meme (no user_stats entry) for user ".$_POST["id"]);
+			}
+			$badges = explode(",", current($badges));
+			$meme = true;
+			foreach ($badges as $i => $badge) {
+				if ($badge == 0) {
+					$meme = false;
+					$badges[$i] = 14;	// 14 == donor badge id
+					break;
+				}
+			}
+			if ($meme) {
+				throw new Exception("That (boi) user has now donor privileges, but there are no unused badges on his profile. Please edit his badges manually and replace a badge with the donor one.");
+			}
+			$badges = implode(",", $badges);
+			$GLOBALS["db"]->execute("UPDATE users_stats SET badges_shown = ? WHERE id = ?", [$badges, $_POST["id"]]);
+			redirect("index.php?p=102&s=Donor status changed!");
+		}
+		catch(Exception $e) {
+			redirect('index.php?p=102&e='.$e->getMessage());
+		}
+	}
+
+	public static function RemoveDonor() {
+		try {
+			if (!isset($_GET["id"]) || empty($_GET["id"]))
+				throw new Exception("Invalid user");
+			$username = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$_GET["id"]]);
+			if (!$username) {
+				throw new Exception("That user doesn't exist");
+			}
+			$username = current($username);
+			$GLOBALS["db"]->execute("UPDATE users SET privileges = privileges & ~".Privileges::UserDonor.", donor_expire = 0 WHERE id = ?", [$_GET["id"]]);
+
+			// Remove donor badge
+			$badges = $GLOBALS["db"]->fetch("SELECT badges_shown FROM users_stats WHERE id = ?", [$_GET["id"]]);
+			if (!$badges) {
+				throw new Exception("Something went terribly wrong. Call nyo and tell him that there was a meme (no user_stats entry) for user ".$_POST["id"]);
+			}
+			$badges = explode(",", current($badges));
+			foreach ($badges as $i => $badge) {
+				if ($badge == 14) {	// 14 == donor badge id
+					$badges[$i] = 0;		// 0 == none
+				}
+			}
+			$badges = implode(",", $badges);
+			$GLOBALS["db"]->execute("UPDATE users_stats SET badges_shown = ? WHERE id = ?", [$badges, $_GET["id"]]);
+
+			rapLog(sprintf("has removed donor from user %s", $username), $_SESSION["userid"]);
+			redirect("index.php?p=102&s=Donor status changed!");
+		}
+		catch(Exception $e) {
+			redirect('index.php?p=102&e='.$e->getMessage());
+		}
+	}
 }

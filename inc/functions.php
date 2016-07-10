@@ -122,7 +122,7 @@ function generateKey() {
 	return $key;
 }
 function getIP() {
-	return getenv('REMOTE_ADDR'); // Add getenv('HTTP_FORWARDED_FOR')?: before getenv if you are using a dumb proxy. Meaning that if you try to get the user's IP with REMOTE_ADDR, it returns 127.0.0.1 or keeps saying the same IP, always.
+	return getenv('HTTP_X_FORWARDED_FOR'); // Add getenv('HTTP_FORWARDED_FOR')?: before getenv if you are using a dumb proxy. Meaning that if you try to get the user's IP with REMOTE_ADDR, it returns 127.0.0.1 or keeps saying the same IP, always.
 	// NEVER add getenv('HTTP_FORWARDED_FOR') if you're not behind a proxy.
 	// It can easily be spoofed.
 
@@ -464,6 +464,12 @@ function printPage($p) {
 				P::AdminShowUsersInPrivilegeGroup();
 			break;
 
+			// Admin panel - Give donor to user
+			case 121:
+				sessionCheckAdmin(Privileges::AdminManageUsers);
+				P::AdminGiveDonor();
+			break;
+
 				// 404 page
 
 			default:
@@ -568,7 +574,7 @@ function printNavbar() {
 						<li class="dropdown-submenu"><a href="index.php?p=31"><i class="fa fa-music"></i>	Request beatmap ranking</a></li>
 						<li class="divider"></li>
 						<li class="dropdown-submenu"><a href="index.php?p=17"><i class="fa fa-code"></i> Changelog</a></li>
-						<li class="dropdown-submenu"><a href="http://getrektby.us:6996"><i class="fa fa-cogs"></i>	Server status</a></li>
+						<li class="dropdown-submenu"><a href="http://status.ripple.moe"><i class="fa fa-cogs"></i>	Server status</a></li>
 						<li class="dropdown-submenu"><a href="https://mu.nyodev.xyz/upd.php?id=18"><i class="fa fa-server"></i>	Server switcher</a></li>
 						<li class="divider"></li>';
 						//<li class="dropdown-submenu"><a href="index.php?p=22&type=0"><i class="fa fa-bug"></i> '.($trollerino ? 'Request' : 'Report').' a bug</a></li>
@@ -694,7 +700,7 @@ function getUserCountry() {
 
 	}
 	// otherwise, retrieve the contents from ip.zxq.co's API
-	$data = get_contents_http("http://ip.zxq.co/$ip/country");
+	$data = get_contents_http("http://ip.vanilla.rocks/$ip/country");
 	// And return the country. If it's set, that is.
 	return strlen($data) == 2 ? $data : 'XX';
 }
