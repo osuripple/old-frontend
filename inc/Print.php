@@ -1619,7 +1619,19 @@ class P {
 		if (!empty($_GET['e']) && isset($error[$_GET['e']])) {
 			self::ExceptionMessage($error[$_GET['e']]);
 		}
-		echo '<p align="center"><br><image class="animated bounce" src="'.(mt_rand(0, 100) == 1 ? './images/connor.jpg' : './images/logo-256.png').'"></image><br></p><h1 class="animated bounceIn">Welcome to Ripple</h1>';
+		$color = "pink";
+		if (mt_rand(0,9) == 0) {
+			switch(mt_rand(0,3)) {
+				case 0: $color = "red"; break;
+				case 1: $color = "blue"; break;
+				case 2: $color = "green"; break;
+				case 3: $color = "orange"; break;
+			}
+		}
+		echo '<p align="center">
+		<object data="images/logos/logo-'.$color.'.svg" type="image/svg+xml" class="animated bounceIn"></object>
+		</p>
+		<h1>Welcome to Ripple</h1>';
 		// Home alert
 		self::HomeAlert();
 	}

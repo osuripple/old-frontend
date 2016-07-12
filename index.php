@@ -118,7 +118,13 @@ if ($p == 27) {
     <link href="./css/style-desktop.css" rel="stylesheet">
 
     <!-- Favicon -->
-    <link rel="icon" href="favicon.png"/>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=xQQWRwyGed">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png?v=xQQWRwyGed" sizes="32x32">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png?v=xQQWRwyGed" sizes="16x16">
+    <link rel="manifest" href="/manifest.json?v=xQQWRwyGed">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg?v=xQQWRwyGed" color="#5bbad5">
+    <link rel="shortcut icon" href="/favicon.ico?v=xQQWRwyGed">
+    <meta name="theme-color" content="#ffffff">
 
     <meta name=viewport content="width=device-width, initial-scale=1">
 </head>

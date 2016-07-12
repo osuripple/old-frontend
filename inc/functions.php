@@ -537,7 +537,7 @@ function printNavbar() {
 							<span class="icon-bar"></span>
 							<span class="icon-bar"></span>
 						</button>
-						<a class="navbar-brand" href="index.php">Ripple</a>
+						<a class="navbar-brand" href="index.php"><img src="images/logos/text.png"></a>
 					</div>
 					<div class="navbar-collapse collapse">';
 	// Left elements
