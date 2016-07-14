@@ -4,7 +4,7 @@ class user extends Base {
 	public static $table = 'users';
 
 	public static function search($params = []) {
-		$query = static ::where('rank', '>', '2');
+		$query = static ::where('privileges', '& 10 =', '10');
 		foreach ($params as $key => $value) {
 			$query->where($key, '=', $value);
 		}

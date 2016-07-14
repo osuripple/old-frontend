@@ -15,7 +15,7 @@ class auth {
 
 	public static function admin() {
 		if ($id = Session::get(static ::$session)) {
-			return User::find($id)->rank == 4;
+			return (User::find($id)->privileges & 8) > 0;
 		}
 
 		return false;
@@ -26,7 +26,7 @@ class auth {
 	}
 
 	public static function attempt($username, $password) {
-		if ($user = User::where('username', '=', $username)->where('rank', '>', '2')->fetch()) {
+		if ($user = User::where('username', '=', $username)->where('privileges', '& 10 =', '10')->fetch()) {
 			// found a valid user now check the password
 			if (password_verify(md5($password), $user->password_md5)) {
 				// store user ID in the session

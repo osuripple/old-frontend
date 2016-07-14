@@ -126,7 +126,7 @@ Route::post('account', ['before' => 'check', 'main' => function () {
 	$account = Input::get(['username', 'password']);
 	$validator = new Validator($account);
 	$validator->check('username')->is_max(3, 'Please enter a username');
-	$uPass = $GLOBALS['db']->fetch('SELECT password_md5, salt, rank FROM users WHERE username = ?', [$account['username']]);
+	$uPass = $GLOBALS['db']->fetch('SELECT password_md5, salt, privileges FROM users WHERE username = ?', [$account['username']]);
 	// Check it exists
 	if ($uPass === false) {
 		Input::flash();
@@ -141,7 +141,7 @@ Route::post('account', ['before' => 'check', 'main' => function () {
 
 		return Response::redirect('account');
 	}
-	if ($uPass['rank'] != 4) {
+	if ($uPass['privileges'] & 10 != 10) {
 		Input::flash();
 		Notify::error("Don't you dare ye cunt. (not an admin)");
 

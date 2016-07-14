@@ -41,11 +41,6 @@ class comment extends Base {
 				<p><a href="'.$uri.'">'.__('comments.view_comment').'</a></p>
 			</body>
 		</html>';
-		// notify administrators
-		foreach (User::where('rank', '=', '4')->get() as $user) {
-			$to = $user->username.' <'.$user->email.'>';
-			mail($to, __('comments.notify_subject'), $message, $headers);
-		}
 	}
 
 	public static function paginate($page = 1, $perpage = 10) {
@@ -82,4 +77,5 @@ class comment extends Base {
 
 		return false;
 	}
+}
 }

@@ -48,5 +48,5 @@ function readable_size($size) {
 	return round($size / pow(1024, ($i = floor(log($size, 1024)))), 2).' '.$unit[$i];
 }
 function rank_to_str($rank) {
-	return [1 => 'user', 2 => 'supporter', 3 => 'moderator', 4 => 'admin'][$rank];
+	return "idk";
 }
