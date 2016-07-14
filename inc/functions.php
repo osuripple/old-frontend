@@ -37,6 +37,7 @@ require_once $df.'/pages/EditApplication.php';
 require_once $df.'/pages/DeleteApplication.php';
 require_once $df.'/pages/Support.php';
 require_once $df.'/pages/Team.php';
+require_once $df.'/pages/IRC.php';
 $pages = [
 	new Login(),
 	new Leaderboard(),
@@ -51,6 +52,7 @@ $pages = [
 	new DeleteApplication(),
 	new Support(),
 	new Team(),
+	new IRC(),
 ];
 // Set timezone to UTC
 date_default_timezone_set('Europe/Rome');
@@ -609,7 +611,8 @@ function printNavbar() {
 						<li class="dropdown-submenu"><a href="index.php?p=6"><i class="fa fa-cog"></i>	User settings</a></li>
 						<li class="dropdown-submenu"><a href="index.php?p=30"><i class="fa fa-ticket"></i>	Two-Factor Auth	';
 						if (is2FAEnabled($_SESSION["userid"], false)) echo '<span class="label label-warning">!</span>';
-						echo '</a></li>';
+						echo '</a></li>
+						<li class="dropdown-submenu"><a href="index.php?p=36"><i class="fa fa-link"></i>	IRC Token';
 						//<li class="dropdown-submenu"><a href="index.php?p=24"><i class="fa fa-paper-plane"></i>	My reports</a></li>
 						echo '<li class="dropdown-submenu"><a href="submit.php?action=forgetEveryCookie"><i class="fa fa-chain-broken"></i>	Delete all login tokens</a></li>
 						<li class="divider"></li>
