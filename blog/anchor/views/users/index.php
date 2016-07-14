@@ -13,7 +13,7 @@
 			<a href="#">
 				<strong><?php echo $user->username; ?></strong>
 
-				<em class="highlight"><?php echo rank_to_str($user->rank); ?></em>
+				<em class="highlight"><?php echo rank_to_str($user->privileges); ?></em>
 			</a>
 		</li>
 		<?php

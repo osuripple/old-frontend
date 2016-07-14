@@ -22,7 +22,7 @@ function user_authed_email() {
 }
 function user_authed_role() {
 	if ($user = Auth::user()) {
-		return $user->rank;
+		return $user->privileges;
 	}
 }
 function user_authed_real_name() {
