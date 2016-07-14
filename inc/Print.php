@@ -1814,7 +1814,7 @@ WHERE users_stats.id = ?', [$u]);
 				echo '<a href="index.php?p=103&id='.$u.'">Edit user</a> | <a href="index.php?p=110&id='.$u.'">Edit badges</a>';
 			}
 			if (hasPrivilege(Privileges::AdminBanUsers)) {
-				echo ' | <a onclick="sure(\'submit.php?action=banUnbanUser&id='.$u.'\')";>Ban user</a>';
+				echo ' | <a onclick="sure(\'submit.php?action=banUnbanUser&id='.$u.'\')";>Ban user</a> | <a onclick="sure(\'submit.php?action=restrictUnrestrictUser&id='.$u.'\')";>Restrict user</a>';
 			}
 			echo "</p>";
 
