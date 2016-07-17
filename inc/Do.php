@@ -61,7 +61,7 @@ class D {
 					if ($multiUsername) {
 						Schiavo::CM("User " . current($multiUsername) . " (https://ripple.moe/?u=$multiUserID) tried to create a multiaccount (" . $_POST['u'] . ") from IP " . $ip);
 					}
-					$GLOBALS["db"]->execute("UPDATE users SET notes=CONCAT(notes,'\n-- Multiacc attempt (".$_POST["u"].") from IP ".$ip."') WHERE id = ?", [$multiUserID]);
+					$GLOBALS["db"]->execute("UPDATE users SET notes=CONCAT(COALESCE(notes, ''),'\n-- Multiacc attempt (".$_POST["u"].") from IP ".$ip."') WHERE id = ?", [$multiUserID]);
 					throw new Exception("It seems you have another account registered on Ripple. You can own only one account. If you think this is an error, please contact us at support@ripple.moe.");
 				}
 			}
@@ -80,7 +80,7 @@ class D {
 			}
 			// Invalidate beta key
 			$GLOBALS['db']->execute('UPDATE beta_keys SET allowed = 0 WHERE key_md5 = ?', md5($_POST['k']));
-			Schiavo::Bunk("User ($_POST[u] | $_POST[e]) registered (successfully) from " . $ip);
+			Schiavo::CM("User ($_POST[u] | $_POST[e]) registered (successfully) from " . $ip);
 			// botnet-track IP
 			botnet($uid);
 
