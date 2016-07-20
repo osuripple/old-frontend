@@ -241,21 +241,10 @@ function addCommas(nStr) {
 function getRank(gameMode, mods, acc, c300, c100, c50, cmiss) {
 	var total = c300+c100+c50+cmiss;
 
-	var ss = function() {
-		if (((mods & Hidden) > 0) || ((mods & Flashlight) > 0)) {
-			return "sshd";
-		} else {
-			return "ss";
-		}
-	}
+	var hdfl = (mods & (Hidden | Flashlight | FadeIn)) > 0;
 
-	var s = function() {
-		if (((mods & Hidden) > 0) || ((mods & Flashlight) > 0)) {
-			return "shd";
-		} else {
-			return "s";
-		}
-	}
+	var ss = hdfl ? "sshd" : "ss";
+	var s = hdfl ? "shd" : "s";
 
 	switch(gameMode) {
 		case 0:
@@ -263,29 +252,29 @@ function getRank(gameMode, mods, acc, c300, c100, c50, cmiss) {
 			var ratio300 = c300 / total;
 			var ratio50 = c50 / total;
 
-			if (acc == 100)
-				return ss();
+			if (ratio300 == 1)
+				return ss;
 
-			if (ratio300 > 0.90 && ratio50 < 0.1 && cmiss == 0)
-				return s();
+			if (ratio300 > 0.9 && ratio50 <= 0.01 && cmiss == 0)
+				return s;
 
-			if ( (ratio300 > 0.80 && cmiss == 0) || (ratio300 > 0.90) )
+			if ((ratio300 > 0.8 && cmiss == 0) || (ratio300 > 0.9))
 				return "a";
 
-			if ( (ratio300 > 0.70 && cmiss == 0) || (ratio300 > 0.80) )
+			if ((ratio300 > 0.7 && cmiss == 0) || (ratio300 > 0.8))
 				return "b";
 
-			if (ratio300 > 0.60)
+			if (ratio300 > 0.6)
 				return "c";
 
 			return "d";
 
 		case 2:
 			if (acc == 100)
-				return ss();
+				return ss;
 
 			if (acc > 98)
-				return s();
+				return s;
 
 			if (acc > 94)
 				return "a";
@@ -300,10 +289,10 @@ function getRank(gameMode, mods, acc, c300, c100, c50, cmiss) {
 
 		case 3:
 			if (acc == 100)
-				return ss();
+				return ss;
 
 			if (acc > 95)
-				return s();
+				return s;
 
 			if (acc > 90)
 				return "a";
