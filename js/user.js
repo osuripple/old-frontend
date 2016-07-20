@@ -39,7 +39,7 @@ function getScores(type) {
 						</p></td>';
 			u += '<td class="' + sw + '"><p class="text-right"><b>';
 			var small = "";
-			if (Mode == 0) {
+			if (Mode == 0 || Mode == 3) {
 				u += "<span title='Score: " + addCommas(v.score) + "'>" + addCommas(v.pp.toFixed(2)) + "pp</span>";
 				if (type == "best") {
 					var perc = Math.pow(0.95, bestIndex);

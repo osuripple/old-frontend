@@ -1819,7 +1819,7 @@ WHERE users_stats.id = ?', [$u]);
 			echo "</p>";
 
 			echo '<div id="rank"><font size=5><b> '.$rankSymbol.$rank.'</b></font><br>';
-			if ($ScoresConfig["enablePP"] && $m == 0) echo '<b>' . number_format($pp) . ' pp</b>';
+			if ($ScoresConfig["enablePP"] && ($m == 0 || $m == 3)) echo '<b>' . number_format($pp) . ' pp</b>';
 			echo '</div><br>';
 			echo $friendButton;
 			echo '</div>';
@@ -1912,7 +1912,7 @@ WHERE users_stats.id = ?', [$u]);
 				echo '<tr><td id="stats-name">Play style</td><td id="stats-value"><b>'.BwToString($userData['play_style'], $PlayStyleEnum).'</b></td></tr>';
 			}
 
-			if ($ScoresConfig["enablePP"] && $m == 0)
+			if ($ScoresConfig["enablePP"] && ($m == 0 || $m == 3))
 				$scoringName = "PP";
 			else
 				$scoringName = "Score";
