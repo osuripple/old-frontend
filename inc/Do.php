@@ -62,7 +62,7 @@ class D {
 						Schiavo::CM("User " . current($multiUsername) . " (https://ripple.moe/?u=$multiUserID) tried to create a multiaccount (" . $_POST['u'] . ") from IP " . $ip);
 					}
 					$GLOBALS["db"]->execute("UPDATE users SET notes=CONCAT(COALESCE(notes, ''),'\n-- Multiacc attempt (".$_POST["u"].") from IP ".$ip."') WHERE id = ?", [$multiUserID]);
-					throw new Exception("It seems you have another account registered on Ripple. You can own only one account. If you think this is an error, please contact us at support@ripple.moe.");
+					throw new Exception("It seems you have another account registered on Ripple. You can own only one account. If you think this is an error, please contact us at support@ripple.moe. <b>Please contact us there and even if you legitimately need an account for another person do not create an account using a VPN!</b> Creating another account using a VPN, for whatever reason, is not allowed and goes against the rules.");
 				}
 			}
 			// Create password
