@@ -80,7 +80,7 @@ class D {
 			}
 			// Invalidate beta key
 			$GLOBALS['db']->execute('UPDATE beta_keys SET allowed = 0 WHERE key_md5 = ?', md5($_POST['k']));
-			Schiavo::CM("User **($_POST[u] | $_POST[e])** registered (successfully) from **" . $ip . "**");
+			Schiavo::CM("User (**$_POST[u]** | $_POST[e]) registered (successfully) from **" . $ip . "**");
 			// botnet-track IP
 			botnet($uid);
 
