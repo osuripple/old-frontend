@@ -13,7 +13,7 @@ class RequestRankedBeatmap {
 		P::GlobalAlert();
 		startSessionIfNotStarted();
 		$hasSentRequest = $GLOBALS["db"]->fetch("SELECT * FROM rank_requests WHERE time > ? AND userid = ? LIMIT 1", [time()-(24*3600), $_SESSION["userid"]]);
-		$rankRequests = $GLOBALS["db"]->fetchAll("SELECT * FROM rank_requests WHERE time > ? LIMIT 10", [time()-(24*3600)]);
+		$rankRequests = $GLOBALS["db"]->fetchAll("SELECT * FROM rank_requests WHERE time > ? ORDER BY time ASC LIMIT 10", [time()-(24*3600)]);
 		echo '
 		<div id="content">
 			<div align="center">
@@ -26,6 +26,8 @@ class RequestRankedBeatmap {
 				}
 				if (count($rankRequests) >= 10) {
 					echo '<div class="alert alert-warning" role="alert"><i class="fa fa-warning"></i>	A maximum of <b>10 rank requests</b> can be sent every <b>24 hours</b>. No more requests can be submitted for now. <b>Please come back later.</b></div>';
+					echo '<hr><h4 style="display: inline;">Estimated time until next request:</h4><br>
+					<h3 style="display: inline;">'.timeDifference(time(), $rankRequests[0]["time"]+24*3600, false, "Less than a minute").'</h3>';
 					return;
 				}
 				echo '<hr>

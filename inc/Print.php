@@ -7,9 +7,15 @@ class P {
 	*/
 	public static function AdminDashboard() {
 		// Get admin dashboard data
-		$totalScores = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM scores'));
-		$betaKeysLeft = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM beta_keys WHERE allowed = 1'));
-		$reports = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM reports WHERE status = 1'));
+		$totalScores = number_format(current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM scores LIMIT 1')));
+		$betaKeysLeft = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM beta_keys WHERE allowed = 1 AND public = 1 LIMIT 1'));
+		$totalPPQuery = $GLOBALS['db']->fetch("SELECT SUM(pp) FROM scores WHERE completed = 3");
+		$totalPP = 0;
+		foreach ($totalPPQuery as $pp) {
+			$totalPP += $pp;
+		}
+		$totalPP = number_format($totalPP);
+		//$reports = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM reports WHERE status = 1'));
 		$recentPlays = $GLOBALS['db']->fetchAll('
 		SELECT
 			beatmaps.song_name, scores.beatmap_md5, users.username,
@@ -48,7 +54,7 @@ class P {
 		printAdminPanel('primary', 'fa fa-gamepad fa-5x', $totalScores, 'Total scores');
 		printAdminPanel('green', 'fa fa-user fa-5x', $onlineUsers, 'Online users');
 		printAdminPanel('red', 'fa fa-gift fa-5x', $betaKeysLeft, 'Beta keys left');
-		printAdminPanel('yellow', 'fa fa-paper-plane fa-5x', $reports, 'Opened reports');
+		printAdminPanel('yellow', 'fa fa-dot-circle-o fa-5x', $totalPP, 'Total PP');
 		echo '</div>';
 		// Recent plays table
 		echo '<table class="table table-striped table-hover">
@@ -659,8 +665,7 @@ class P {
 	*/
 	public static function AdminBetaKeys() {
 		// Get data
-		$betaKeysLeft = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM beta_keys WHERE allowed = 1'));
-		$betaKeys = $GLOBALS['db']->fetchAll('SELECT * FROM beta_keys ORDER BY allowed DESC');
+		$betaKeysLeft = $GLOBALS['db']->fetch('SELECT COUNT(*) as count FROM beta_keys WHERE allowed = 1 AND public = 1 LIMIT 1');
 		// Print beta keys stuff
 		echo '<div id="wrapper">';
 		printAdminSidebar();
@@ -675,9 +680,9 @@ class P {
 		if (isset($_GET['e']) && !empty($_GET['e'])) {
 			self::ExceptionMessage($_GET['e']);
 		}
-		echo '<p align="center"><font size=5><i class="fa fa-gift"></i>	Beta keys</font></p>';
-		echo '<p align="center">There are <b>'.$betaKeysLeft.'</b> Beta Keys left<br></p>';
-		// Beta keys table
+		echo '<h3><i class="fa fa-gift"></i>	Beta keys</h3>';
+		echo 'There are <b>'.$betaKeysLeft["count"].'</b> public Beta Keys left<br><br>';
+		/* Beta keys table
 		echo '<table class="table table-striped table-hover table-75-center">
 		<thead>
 		<tr><th class="text-left"><i class="fa fa-gift"></i>	ID</th><th class="text-center">MD5</th><th class="text-center">Description</th><th class="text-center">Allowed</th><th class="text-center">Public</th><th class="text-center">Action</th></tr>
@@ -725,7 +730,7 @@ class P {
 			echo '</div></td>';
 			echo '</tr>';
 		}
-		echo '</tbody></table>';
+		echo '</tbody></table>'; */
 		// Add beta key button
 		echo '<p align="center"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addBetaKeyModal">Add beta keys</button></p>';
 		echo '</div>';
