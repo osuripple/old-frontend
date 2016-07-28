@@ -210,6 +210,7 @@ hr {
     width: 100%;
     position: absolute;
     padding: 15px;
+	text-align: center;
 }
 
 #wrapper.toggled #page-content-wrapper {

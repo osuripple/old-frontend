@@ -659,8 +659,7 @@ class P {
 	*/
 	public static function AdminBetaKeys() {
 		// Get data
-		$betaKeysLeft = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM beta_keys WHERE allowed = 1'));
-		$betaKeys = $GLOBALS['db']->fetchAll('SELECT * FROM beta_keys ORDER BY allowed DESC');
+		$betaKeysLeft = $GLOBALS['db']->fetch('SELECT COUNT(*) as count FROM beta_keys WHERE allowed = 1 AND public = 1 LIMIT 1');
 		// Print beta keys stuff
 		echo '<div id="wrapper">';
 		printAdminSidebar();
@@ -675,9 +674,9 @@ class P {
 		if (isset($_GET['e']) && !empty($_GET['e'])) {
 			self::ExceptionMessage($_GET['e']);
 		}
-		echo '<p align="center"><font size=5><i class="fa fa-gift"></i>	Beta keys</font></p>';
-		echo '<p align="center">There are <b>'.$betaKeysLeft.'</b> Beta Keys left<br></p>';
-		// Beta keys table
+		echo '<h3><i class="fa fa-gift"></i>	Beta keys</h3>';
+		echo 'There are <b>'.$betaKeysLeft["count"].'</b> public Beta Keys left<br><br>';
+		/* Beta keys table
 		echo '<table class="table table-striped table-hover table-75-center">
 		<thead>
 		<tr><th class="text-left"><i class="fa fa-gift"></i>	ID</th><th class="text-center">MD5</th><th class="text-center">Description</th><th class="text-center">Allowed</th><th class="text-center">Public</th><th class="text-center">Action</th></tr>
@@ -725,7 +724,7 @@ class P {
 			echo '</div></td>';
 			echo '</tr>';
 		}
-		echo '</tbody></table>';
+		echo '</tbody></table>'; */
 		// Add beta key button
 		echo '<p align="center"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addBetaKeyModal">Add beta keys</button></p>';
 		echo '</div>';
