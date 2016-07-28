@@ -33,7 +33,6 @@ ul.nav li:hover > ul.dropdown-menu {
 	text-align: left;
 	width: 100%;
 	height: 120px;
-	position: relative;
 }
 
 #userpage-header p {
@@ -46,36 +45,26 @@ ul.nav li:hover > ul.dropdown-menu {
 }
 
 #rank {
-	display: block;
-	float: right;
+	position: relative;
+	display: inline-block;
 	text-align: right;
-	padding-top: 20px;
-	position: inherit;
-	white-space: nowrap;
+	float: right;
+	top: 20px;
+	line-height: 100%;
 }
 
-#friend-add {
-	margin-top: 60px;
-	margin-left: 85%;
-	position: absolute;
+#friend-button {
+	padding-top: 10px;
 }
-
-#friend {
-	margin-top: 60px;
-	margin-left: 90%;
-	position: absolute;
-}
-
-#friend-mutual {
-	margin-top: 60px;
-	margin-left: 84%;
-	position: absolute;
-}
-
 
 #user-avatar {
 	float: left;
 	margin-right: 20px;
+}
+
+.nopadding {
+	margin: 0 !important;
+	padding: 0 !important;
 }
 
 #userpage-content {
@@ -741,4 +730,315 @@ hr {
 a.silent {
 	text-decoration: none;
 	color: inherit;
+}
+
+
+
+
+
+
+
+
+
+
+
+.card {
+    padding-top: 20px;
+    margin: 10px 0 20px 0;
+    background-color: rgba(214, 224, 226, 0.2);
+    border-top-width: 0;
+    border-bottom-width: 2px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+	box-shadow: 5px 5px 5px lightgrey;
+}
+
+.card .card-heading {
+    padding: 0 20px;
+    margin: 0;
+}
+
+.card .card-heading.simple {
+    font-size: 20px;
+    font-weight: 300;
+    color: #777;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.card .card-heading.image img {
+    display: inline-block;
+    width: 46px;
+    height: 46px;
+    margin-right: 15px;
+    vertical-align: top;
+    border: 0;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    border-radius: 50%;
+}
+
+.card .card-heading.image .card-heading-header {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.card .card-heading.image .card-heading-header h3 {
+    margin: 0;
+    font-size: 14px;
+    line-height: 16px;
+    color: #262626;
+}
+
+.card .card-heading.image .card-heading-header span {
+    font-size: 12px;
+    color: #999999;
+}
+
+.card .card-body {
+    padding: 0 20px;
+    margin-top: 20px;
+}
+
+.card .card-media {
+    padding: 0 20px;
+    margin: 0 -14px;
+}
+
+.card .card-media img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.card .card-actions {
+    min-height: 30px;
+    padding: 0 20px 20px 20px;
+    margin: 20px 0 0 0;
+}
+
+.card .card-comments {
+    padding: 20px;
+    margin: 0;
+    background-color: #f8f8f8;
+}
+
+.card .card-comments .comments-collapse-toggle {
+    padding: 0;
+    margin: 0 20px 12px 20px;
+}
+
+.card .card-comments .comments-collapse-toggle a,
+.card .card-comments .comments-collapse-toggle span {
+    padding-right: 5px;
+    overflow: hidden;
+    font-size: 12px;
+    color: #999;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.card-comments .media-heading {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.card.people {
+    position: relative;
+    display: inline-block;
+    width: 170px;
+    height: 300px;
+    padding-top: 0;
+    margin-left: 20px;
+    overflow: hidden;
+    vertical-align: top;
+}
+
+.card.people:first-child {
+    margin-left: 0;
+}
+
+.card.people .card-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: inline-block;
+    width: 170px;
+    height: 150px;
+    background-color: #ffffff;
+}
+
+.card.people .card-top.green {
+    background-color: #53a93f;
+}
+
+.card.people .card-top.blue {
+    background-color: #427fed;
+}
+
+.card.people .card-info {
+    position: absolute;
+    top: 150px;
+    display: inline-block;
+    width: 100%;
+    height: 101px;
+    overflow: hidden;
+    background: #ffffff;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.card.people .card-info .title {
+    display: block;
+    margin: 8px 14px 0 14px;
+    overflow: hidden;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 18px;
+    color: #404040;
+}
+
+.card.people .card-info .desc {
+    display: block;
+    margin: 8px 14px 0 14px;
+    overflow: hidden;
+    font-size: 12px;
+    line-height: 16px;
+    color: #737373;
+    text-overflow: ellipsis;
+}
+
+.card.people .card-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    display: inline-block;
+    width: 100%;
+    padding: 10px 20px;
+    line-height: 29px;
+    text-align: left;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.card.hovercard {
+    position: relative;
+    padding-top: 0;
+    overflow: hidden;
+    text-align: left;
+    background-color: rgba(214, 224, 226, 0.2);
+}
+
+.card.hovercard .cardheader {
+    background-size: cover !important;
+    height: 135px;
+}
+
+.card.hovercard .avatar {
+    position: relative;
+    top: -50px;
+    margin-bottom: -50px;
+}
+
+.card.hovercard .avatar img {
+    width: 100px;
+    height: 100px;
+    max-width: 100px;
+    max-height: 100px;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    border-radius: 50%;
+    border: 5px solid rgba(255,255,255,0.5);
+}
+
+.card.hovercard .info {
+    padding: 15px 8px 10px;
+}
+
+.card.hovercard .info .title {
+	width: 75%;
+    margin-bottom: 4px;
+	font-size: 20px;
+    line-height: 1;
+    color: #262626;
+    vertical-align: middle;
+	display: inline;
+}
+
+.play-download {
+	width: 25%;
+	float: right;
+	text-align: right;
+}
+
+.card.hovercard .info .desc {
+    overflow: hidden;
+    font-size: 12px;
+    line-height: 20px;
+    color: #737373;
+    text-overflow: ellipsis;
+}
+
+.card.hovercard .bottom {
+    padding: 0 20px;
+    margin-bottom: 17px;
+}
+
+.btn-circle {
+	border-radius: 50%;
+	width:32px;
+	height:32px;
+	line-height:18px;
+}
+
+.btn-pink {
+	background-color: #E84F91;
+	color: #FFFFFF;
+}
+
+.btn-pink:hover {
+	background-color: #E73385;
+	color: #FFFFFF;
+}
+
+.btn-orange {
+	background-color: #FFA22D;
+	color: #FFFFFF;
+}
+
+.btn-orange:hover {
+	background-color: #FC912B;
+	color: #FFFFFF;
+}
+
+
+/* The ribbons */
+
+.corner-ribbon{
+  width: 200px;
+  background: #E73385;
+  position: absolute;
+  top: 25px;
+  left: -50px;
+  text-align: center;
+  line-height: 25px;
+  letter-spacing: 1px;
+  color: #FFFFFF;
+  transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+  font-size: 11px;
+  box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.52);
+}
+
+.popover {
+	font-size: 12px;
 }

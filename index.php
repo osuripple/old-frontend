@@ -127,6 +127,7 @@ if ($p == 27) {
     <meta name="theme-color" content="#ffffff">
 
     <meta name=viewport content="width=device-width, initial-scale=1">
+	<script src='https://www.google.com/recaptcha/api.js'></script>
 </head>
 
 <body>
@@ -206,6 +207,7 @@ if ($p < 100) {
         $('.colorpicker').colorpicker({format:"hex"});
         $('.sceditor').sceditor({plugins: "bbcode", resizeEnabled: false, toolbarExclude: "font,table,code,quote,ltr,rtl" , style: "css/jquery.sceditor.default.css"});
         $(".spoiler-trigger").click(function() {$(this).parent().next().collapse('toggle');});
+		$("[data-toggle=popover]").popover();
 		//$(".slider").slider()
 
         // Are you sure window
@@ -222,6 +224,25 @@ if ($p < 100) {
                 r = confirm("Are you REALLY sure?");
                 if (r == true)
                     window.location.replace($redirect);
+        }
+
+		function play(id) {
+			var audio = $('#audio_'+id)[0];
+			if (audio.currentTime <= 0) {
+				$.each($('audio'), function () {
+					this.pause();
+					this.currentTime = 0;
+				});
+				$.each($("i[id^=icon_]"), function () {
+					this.className = "fa fa-play";
+				});
+				audio.play();
+				$('#icon_'+id)[0].className = "fa fa-stop";
+			} else {
+				audio.pause();
+				audio.currentTime = 0;
+				$('#icon_'+id)[0].className = "fa fa-play";
+			}
         }
     </script>
 
@@ -408,6 +429,55 @@ switch ($p) {
 			}
 		</script>
 	';
+	break;
+
+	case 37:
+	echo '<script type="text/javascript">
+		$(document).ready (function() {
+			setInterval(function() {
+				$("*").not(".container").not("head").not("body").not("#content").each(function() {
+					var animations = [
+						"bounce",
+						"flash",
+						"pulse",
+						"rubberBand",
+						"shake",
+						"swing",
+						"tada",
+						"wobble",
+						"jello",
+						"hinge",
+					];
+					var meme = animations[Math.floor(Math.random() * animations.length)];
+					$(this).addClass("animated infinite "+meme);
+					$(".carroponte").each(function() {
+						$(this).show();
+					});
+				});
+			},5500);
+		});
+	</script>';
+	break;
+
+	case 38:
+	echo '
+		<script type="text/javascript">';
+
+			if (isset($_GET["u"]) && !empty($_GET["u"])) {
+				echo 'setInterval(function() {
+					var ajaxResponse = $.ajax({
+						url: "http://c.vinococc.co/api/v1/verifiedStatus?u='.$_GET["u"].'",
+						dataType: "jsonp",
+					}).done(function(data) {
+						console.log(data["result"]);
+						if (data["result"] == 1 || data["result"] == 0) {
+							window.location.replace("index.php?p=39&u='.$_GET["u"].'");
+						}
+					});
+				}, 5000);';
+			}
+
+			echo '</script>';
 	break;
 }
 

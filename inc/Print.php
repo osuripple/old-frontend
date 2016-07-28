@@ -1730,13 +1730,13 @@ WHERE users_stats.id = ?', [$u]);
 				$friendship = getFriendship($_SESSION['username'], $username);
 				switch ($friendship) {
 					case 1:
-						$friendButton = '<div id="friend"><a href="submit.php?action=addRemoveFriend&u='.$u.'" type="button" class="btn btn-success"><span class="glyphicon glyphicon-star"></span>	Friend</a></div>';
+						$friendButton = '<div id="friend-button"><a href="submit.php?action=addRemoveFriend&u='.$u.'" type="button" class="btn btn-success"><span class="glyphicon glyphicon-star"></span>	Friend</a></div>';
 					break;
 					case 2:
-						$friendButton = '<div id="friend-mutual"><a href="submit.php?action=addRemoveFriend&u='.$u.'" type="button" class="btn btn-danger"><span class="glyphicon glyphicon-heart"></span>	Mutual Friend</a></div>';
+						$friendButton = '<div id="friend-button"><a href="submit.php?action=addRemoveFriend&u='.$u.'" type="button" class="btn btn-danger"><span class="glyphicon glyphicon-heart"></span>	Mutual Friend</a></div>';
 					break;
 					default:
-						$friendButton = '<div id="friend-add"><a href="submit.php?action=addRemoveFriend&u='.$u.'" type="button" class="btn btn-primary"><span class="glyphicon glyphicon-plus"></span>	Add as Friend</a></div>';
+						$friendButton = '<div id="friend-button"><a href="submit.php?action=addRemoveFriend&u='.$u.'" type="button" class="btn btn-primary"><span class="glyphicon glyphicon-plus"></span>	Add as Friend</a></div>';
 					break;
 				}
 			}
@@ -1820,8 +1820,8 @@ WHERE users_stats.id = ?', [$u]);
 
 			echo '<div id="rank"><font size=5><b> '.$rankSymbol.$rank.'</b></font><br>';
 			if ($ScoresConfig["enablePP"] && ($m == 0 || $m == 3)) echo '<b>' . number_format($pp) . ' pp</b>';
-			echo '</div><br>';
 			echo $friendButton;
+			echo '</div>';
 			echo '</div>';
 			echo '<div id="userpage-content">
 			<div class="col-md-3">';
@@ -1858,7 +1858,7 @@ WHERE users_stats.id = ?', [$u]);
 			} else {
 				$percBar = $percText;
 			} // Progressbar percentage, minimum 10 or it's glitched
-			echo '</div><div class="col-md-6">
+			echo '</div><div class="col-md-6 nopadding">
 			<!-- Stats -->
 			<b>Level '.$level.'</b>
 			<div class="progress">
@@ -2165,12 +2165,25 @@ WHERE users_stats.id = ?', [$u]);
 			die();
 		}
 		echo '<br><div id="narrow-content"><h1><i class="fa fa-plus-circle"></i>	Sign up</h1>';
-		// Print default warning message if we have no exception/success
-		if (!self::Messages()) {
-			echo '<p>Please fill every field in order to sign up.<br>
-		<div class="alert alert-danger animated shake" role="alert"><b><i class="fa fa-gavel"></i>	Please read the <a href="index.php?p=23" target="_blank">rules</a> before creating an account.</b></div>
-		<a href="index.php?p=16&id=1" target="_blank">Need some help?</a></p>';
+
+		$ip = getIp();
+
+		// Multiacc warning checks
+		// Exact IP
+		$multiIP = multiaccCheckIP($ip);
+		// "y" cookie
+		$multiToken = multiaccCheckToken();
+
+		// Show multiacc warning if ip or token match
+		$errors = self::Messages();
+		if ($multiIP !== FALSE || $multiToken !== FALSE) {
+			echo '<div class="alert alert-warning"><b>It seems you have another account registered on Ripple. Having more than one account is against the rules.</b> If this is an error and you don\'t have other accounts registered on Ripple, fill out the form. <b>Registering more than one account from the same computer is considered multiaccount.</b></div>';
+		} else if (!$errors) {
+			// Print default warning message if we have no exception/success/multiacc warn
+			echo '<p>Please fill every field in order to sign up.<br>';
 		}
+		echo '<div class="alert alert-danger animated shake" role="alert"><b><i class="fa fa-gavel"></i>	Please read the <a href="index.php?p=23" target="_blank">rules</a> before creating an account.</b></div>
+		<a href="index.php?p=16&id=1" target="_blank">Need some help?</a></p>';
 		// Print register form
 		echo '	<form action="submit.php" method="POST">
 		<input name="action" value="register" hidden>
@@ -2179,8 +2192,11 @@ WHERE users_stats.id = ?', [$u]);
 		<div class="input-group"><span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-lock" max-width="25%"></span></span><input type="password" name="p2" required class="form-control" placeholder="Repeat Password" aria-describedby="basic-addon1"></div><p style="line-height: 15px"></p>
 		<div class="input-group"><span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-envelope" max-width="25%"></span></span><input type="text" name="e" required class="form-control" placeholder="Email" aria-describedby="basic-addon1"></div><p style="line-height: 15px"></p>
 		<div class="input-group"><span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-gift" max-width="25%"></span></span><input type="text" name="k" required class="form-control" placeholder="Beta Key" aria-describedby="basic-addon1"></div><p style="line-height: 15px"></p>
+		<br>
+		<div class="g-recaptcha" style="padding-left:25%;" data-sitekey="6LdGziUTAAAAAKz2wTjAmKkgYsj329N8ohb_A4Qt"></div>
+		<hr>
 		<button type="submit" class="btn btn-primary">Sign up!</button>
-		</form></div>
+		</form>
 		';
 	}
 

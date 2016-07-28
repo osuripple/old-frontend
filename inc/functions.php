@@ -38,6 +38,9 @@ require_once $df.'/pages/DeleteApplication.php';
 require_once $df.'/pages/Support.php';
 require_once $df.'/pages/Team.php';
 require_once $df.'/pages/IRC.php';
+require_once $df.'/pages/Beatmaps.php';
+require_once $df.'/pages/Verify.php';
+require_once $df.'/pages/Welcome.php';
 $pages = [
 	new Login(),
 	new Leaderboard(),
@@ -53,6 +56,9 @@ $pages = [
 	new Support(),
 	new Team(),
 	new IRC(),
+	new Beatmaps(),
+	new Verify(),
+	new Welcome(),
 ];
 // Set timezone to UTC
 date_default_timezone_set('Europe/Rome');
@@ -124,7 +130,8 @@ function generateKey() {
 	return $key;
 }
 function getIP() {
-	return getenv('HTTP_X_FORWARDED_FOR'); // Add getenv('HTTP_FORWARDED_FOR')?: before getenv if you are using a dumb proxy. Meaning that if you try to get the user's IP with REMOTE_ADDR, it returns 127.0.0.1 or keeps saying the same IP, always.
+	global $ipEnv;
+	return getenv($ipEnv); // Add getenv('HTTP_FORWARDED_FOR')?: before getenv if you are using a dumb proxy. Meaning that if you try to get the user's IP with REMOTE_ADDR, it returns 127.0.0.1 or keeps saying the same IP, always.
 	// NEVER add getenv('HTTP_FORWARDED_FOR') if you're not behind a proxy.
 	// It can easily be spoofed.
 
@@ -864,14 +871,14 @@ function updateSafeTitle() {
  * @param (bool) ($ago) Output "ago" after time difference
  * @return (string) A string in "x minutes/hours/days (ago)" format
 */
-function timeDifference($t1, $t2, $ago = true) {
+function timeDifference($t1, $t2, $ago = true, $leastText = "Right Now") {
 	// Calculate difference in seconds
 	// abs and +1 should fix memes
 	$d = abs($t1 - $t2 + 1);
 	switch ($d) {
 		// Right now
 		default:
-			return 'Right now';
+			return $leastText;
 		break;
 
 		// 1 year or more
@@ -1776,6 +1783,23 @@ function getJsonCurl($url, $timeout = 1) {
 	}
 }
 
+function postJsonCurl($url, $data, $timeout = 1) {
+	try {
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+		$result=curl_exec($ch);
+		curl_close($ch);
+		return json_decode($result, true);
+	} catch (Exception $e) {
+		return false;
+	}
+}
+
 /*
  * bloodcatDirectString()
  * Return a osu!direct-like string for a specific song
@@ -1935,4 +1959,62 @@ function isRestricted($userID = -1) {
 
 function isBanned($userID = -1) {
 	return (!hasPrivilege(Privileges::UserPublic, $userID) && !hasPrivilege(Privileges::UserNormal, $userID));
+}
+
+function multiaccCheckIP($ip) {
+	$multiUserID = $GLOBALS['db']->fetch("SELECT userid FROM ip_user WHERE ip = ?", [$ip]);
+	if (!$multiUserID)
+		return false;
+	return current($multiUserID);
+	/*$multiUsername = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$multiUserID]);
+
+	if ($multiUsername) {
+		Schiavo::CM("User **" . current($multiUsername) . "** (https://ripple.moe/?u=$multiUserID) tried to create a multiaccount (**" . $_POST['u'] . "**) from IP **" . $ip . "**");
+	}
+	$GLOBALS["db"]->execute("UPDATE users SET notes=CONCAT(COALESCE(notes, ''),'\n-- Multiacc attempt (".$_POST["u"].") from IP ".$ip."') WHERE id = ?", [$multiUserID]); */
+}
+
+function getUserFromMultiaccToken($token) {
+	$multiToken = $GLOBALS["db"]->fetch("SELECT userid FROM identity_tokens WHERE token = ? LIMIT 1", [$token]);
+	if (!$multiToken)
+		return false;
+	return current($multiToken);
+}
+
+function multiaccCheckToken() {
+	if (!isset($_COOKIE["y"]))
+		return false;
+
+	// y cookie is set, we expect to found a token in db
+	$multiToken = getUserFromMultiaccToken($_COOKIE["y"]);
+	if ($multiToken === FALSE) {
+		// Token not found in db, user has edited cookie manually.
+		// Akerino, keep showing multiacc warning
+		$multiToken = false;
+	}
+	return $multiToken;
+}
+
+function getIdentityToken($userID, $generate = True) {
+	$identityToken = $GLOBALS["db"]->fetch("SELECT token FROM identity_tokens WHERE userid = ? LIMIT 1", [$userID]);
+	if (!$identityToken && $generate) {
+		// If not, generate a new one
+		do {
+			$identityToken = hash("sha256", randomString(32));
+			$collision = $GLOBALS["db"]->fetch("SELECT id FROM identity_tokens WHERE token = ? LIMIT 1", $identityToken);
+		} while ($collision);
+
+		// And save it in db
+		$GLOBALS["db"]->execute("INSERT INTO identity_tokens (id, userid, token) VALUES (NULL, ?, ?)", [$userID, $identityToken]);
+	} else if ($identityToken) {
+		$identityToken = current($identityToken);
+	} else {
+		$identityToken = false;
+	}
+	return $identityToken;
+}
+
+function setYCookie($userID) {
+	$identityToken = getIdentityToken($userID);
+	setcookie("y", $identityToken, time()+60*60*24*30*6, "/");	// y of yee
 }

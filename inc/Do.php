@@ -7,6 +7,7 @@ class D {
 	 * Register function
 	*/
 	public static function Register() {
+		global $reCaptchaConfig;
 		try {
 			// Check if everything is set
 			if (empty($_POST['u']) || empty($_POST['p1']) || empty($_POST['p2']) || empty($_POST['e']) || empty($_POST['k'])) {
@@ -51,19 +52,36 @@ class D {
 			if (!$GLOBALS['db']->fetch('SELECT id FROM beta_keys WHERE key_md5 = ? AND allowed = 1', md5($_POST['k']))) {
 				throw new Exception('Invalid beta key.');
 			}
-			// Make sure there are no users that used this ip before
-			// Multiaccs are allowed locally for testing purposes
-			if ($ip != "127.0.0.1") {
-				$multiUserID = $GLOBALS['db']->fetch("SELECT userid FROM ip_user WHERE ip = ?", [$ip]);
-				if ($multiUserID) {
-					$multiUserID = current($multiUserID);
-					$multiUsername = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$multiUserID]);
-					if ($multiUsername) {
-						Schiavo::CM("User **" . current($multiUsername) . "** (https://ripple.moe/?u=$multiUserID) tried to create a multiaccount (**" . $_POST['u'] . "**) from IP **" . $ip . "**");
-					}
-					$GLOBALS["db"]->execute("UPDATE users SET notes=CONCAT(COALESCE(notes, ''),'\n-- Multiacc attempt (".$_POST["u"].") from IP ".$ip."') WHERE id = ?", [$multiUserID]);
-					throw new Exception("It seems you have another account registered on Ripple. You can own only one account. If you think this is an error, please contact us at support@ripple.moe. <b>Please contact us there and even if you legitimately need an account for another person do not create an account using a VPN!</b> Creating another account using a VPN, for whatever reason, is not allowed and goes against the rules.");
+			// Check captcha
+			if (!isset($_POST["g-recaptcha-response"])) {
+				throw new Exception("Invalid captcha");
+			}
+			$data = [
+				"secret" => $reCaptchaConfig["secret_key"],
+				"response" => $_POST["g-recaptcha-response"]
+ 			];
+			if ($reCaptchaConfig["ip"]) {
+				$data[] = [
+					"ip" => $ip
+				];
+			}
+			$reCaptchaResponse = postJsonCurl("https://www.google.com/recaptcha/api/siteverify", $data, $timeout = 10);
+			if (!$reCaptchaResponse["success"]) {
+				throw new Exception("Invalid captcha");
+			}
+			// Multiacc notice if needed
+			$multiIP = multiaccCheckIP($ip);
+			$multiToken = multiaccCheckToken();
+			if ($multiIP !== FALSE || $multiToken !== FALSE) {
+				if ($multiIP !== FALSE) {
+					$multiUserID = $multiIP;
+					$criteria = "IP **($ip)**";
+				} else {
+					$multiUserID = $multiToken;
+					$criteria = "Multiaccount token (IP is **$ip**)";
 				}
+				$multiUsername = getUserUsername($multiUserID);
+				Schiavo::CM("User **$_POST[u]** registered from same $criteria as **$multiUsername** (https://ripple.moe/?u=$multiUserID). **POSSIBLE MULTIACCOUNT!!!**. Waiting for ingame verification...");
 			}
 			// Create password
 			$md5Password = password_hash(md5($_POST['p1']), PASSWORD_DEFAULT);
@@ -73,6 +91,7 @@ class D {
 			// Get user ID
 			$uid = $GLOBALS['db']->lastInsertId();
 			// Put some data into users_stats
+			// TODO: Move this query above to avoid mysql thread conflict memes
 			$GLOBALS['db']->execute("INSERT INTO `users_stats`(id, username, user_color, user_style, ranked_score_std, playcount_std, total_score_std, ranked_score_taiko, playcount_taiko, total_score_taiko, ranked_score_ctb, playcount_ctb, total_score_ctb, ranked_score_mania, playcount_mania, total_score_mania) VALUES (?, ?, 'black', '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);", [$uid, $_POST['u']]);
 			// Update leaderboard (insert new user) for each mode.
 			foreach (['std', 'taiko', 'ctb', 'mania'] as $m) {
@@ -81,12 +100,13 @@ class D {
 			// Invalidate beta key
 			$GLOBALS['db']->execute('UPDATE beta_keys SET allowed = 0 WHERE key_md5 = ?', md5($_POST['k']));
 			Schiavo::CM("User (**$_POST[u]** | $_POST[e]) registered (successfully) from **" . $ip . "**");
+			// Generate and set identity token ("y" cookie)
+			setYCookie($uid);
 			// botnet-track IP
 			botnet($uid);
-
-			addSuccess("You should now be signed up! Try to <a href='index.php?p=2'>login</a>.");
+			//addSuccess("You should now be signed up! Try to <a href='index.php?p=2'>login</a>.");
 			// All fine, done
-			redirect('index.php?p=3');
+			redirect('index.php?p=38&u='.$uid);
 		} catch(Exception $e) {
 			// Redirect to Exception page
 			addError($e->getMessage());

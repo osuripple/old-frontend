@@ -58,12 +58,19 @@ class Login {
 			FROM users
 			LEFT JOIN users_stats ON users_stats.id = users.id
 			WHERE users.username = ?', [$_POST['u']]);
+			// Set multiacc botnet token
+			setYCookie($us["id"]);
+			// Make sure the user has been verified
+			if (hasPrivilege(Privileges::UserPendingVerification, $us["id"])) {
+				redirect("index.php?p=38&u=".$us["id"]);
+			}
 			// Ban check
 			if (!hasPrivilege(Privileges::UserNormal, $us["id"])) {
 				throw new Exception('You are banned.');
 			}
 			// Get username with right case
 			$username = $us['username'];
+
 			// Everything ok, create session and do login stuff
 			session_start();
 			$_SESSION['username'] = $username;

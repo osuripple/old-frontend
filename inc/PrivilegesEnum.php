@@ -22,4 +22,5 @@ class Privileges {
 	const AdminSendAlerts		= 2 << 16;
 	const AdminChatMod			= 2 << 17;
 	const AdminKickUsers		= 2 << 18;
+	const UserPendingVerification = 2 << 19;
 }

@@ -76,3 +76,13 @@ $teamConfig = [
 $schiavoConfig = [
 	"url" => "http://zxq.co:31155/"
 ];
+
+// ip env (ip fix with caddy)
+$ipEnv = 'REMOTE_ADDR';	// HTTP_X_FORWARDED_FOR
+
+// Google recaptcha config
+$reCaptchaConfig = [
+	"site_key" => "",
+	"secret_key" => "",
+	"ip" => false
+]
