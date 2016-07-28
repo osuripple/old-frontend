@@ -7,9 +7,15 @@ class P {
 	*/
 	public static function AdminDashboard() {
 		// Get admin dashboard data
-		$totalScores = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM scores'));
-		$betaKeysLeft = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM beta_keys WHERE allowed = 1'));
-		$reports = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM reports WHERE status = 1'));
+		$totalScores = number_format(current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM scores LIMIT 1')));
+		$betaKeysLeft = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM beta_keys WHERE allowed = 1 AND public = 1 LIMIT 1'));
+		$totalPPQuery = $GLOBALS['db']->fetch("SELECT SUM(pp) FROM scores WHERE completed = 3");
+		$totalPP = 0;
+		foreach ($totalPPQuery as $pp) {
+			$totalPP += $pp;
+		}
+		$totalPP = number_format($totalPP);
+		//$reports = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM reports WHERE status = 1'));
 		$recentPlays = $GLOBALS['db']->fetchAll('
 		SELECT
 			beatmaps.song_name, scores.beatmap_md5, users.username,
@@ -48,7 +54,7 @@ class P {
 		printAdminPanel('primary', 'fa fa-gamepad fa-5x', $totalScores, 'Total scores');
 		printAdminPanel('green', 'fa fa-user fa-5x', $onlineUsers, 'Online users');
 		printAdminPanel('red', 'fa fa-gift fa-5x', $betaKeysLeft, 'Beta keys left');
-		printAdminPanel('yellow', 'fa fa-paper-plane fa-5x', $reports, 'Opened reports');
+		printAdminPanel('yellow', 'fa fa-dot-circle-o fa-5x', $totalPP, 'Total PP');
 		echo '</div>';
 		// Recent plays table
 		echo '<table class="table table-striped table-hover">
