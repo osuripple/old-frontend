@@ -809,6 +809,8 @@ function sessionCheck() {
 		if (!hasPrivilege(Privileges::UserNormal)) {
 			throw new Exception('You are banned.');
 		}
+		// Set Y cookie
+		setYCookie($_SESSION["userid"]);
 		// Everything is ok, go on
 
 	}
