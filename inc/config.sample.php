@@ -7,8 +7,11 @@ define('DATABASE_NAME', 'allora');		// Database name
 define('DATABASE_WHAT', 'host');		// "host" or unix socket path
 
 // Server urls, no slash
-$URL['avatar'] = 'https://a.ripple.moe';
-$URL['server'] = 'https://ripple.moe';
+$URL = [
+	'avatar' => 'https://a.ripple.moe',
+	'server' => 'https://ripple.moe',
+	'bancho' => 'http://c.ripple.moe',
+];
 
 // Changelog config
 $ChangelogConfig = [

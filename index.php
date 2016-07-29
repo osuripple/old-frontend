@@ -466,7 +466,7 @@ switch ($p) {
 			if (isset($_GET["u"]) && !empty($_GET["u"])) {
 				echo 'setInterval(function() {
 					var ajaxResponse = $.ajax({
-						url: "http://c.vinococc.co/api/v1/verifiedStatus?u='.$_GET["u"].'",
+						url: "'.URL::Bancho().'/api/v1/verifiedStatus?u='.$_GET["u"].'",
 						dataType: "jsonp",
 					}).done(function(data) {
 						console.log(data["result"]);

@@ -12,4 +12,10 @@ class URL {
 
 		return isset($URL['server']) ? $URL['server'] : 'https://ripple.moe';
 	}
+	
+	public static function Bancho() {
+		global $URL;
+
+		return isset($URL['bancho']) ? $URL['bancho'] : 'http://c.ripple.moe';
+	}
 }
