@@ -230,8 +230,8 @@ class Support {
 			addError($d['error']);
 			redirect("index.php?p=29");
 		} else {
-			// No errors, run botnet to add the new IP address
-			botnet($_SESSION["userid"]);
+			// No errors, log new IP address
+			logIP($_SESSION["userid"]);
 			redirect("index.php?p=1");
 		}
 	}
