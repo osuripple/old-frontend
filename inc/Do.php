@@ -102,8 +102,8 @@ class D {
 			Schiavo::CM("User (**$_POST[u]** | $_POST[e]) registered (successfully) from **" . $ip . "**");
 			// Generate and set identity token ("y" cookie)
 			setYCookie($uid);
-			// botnet-track IP
-			botnet($uid);
+			// log user ip
+			IPLog($uid);
 			//addSuccess("You should now be signed up! Try to <a href='index.php?p=2'>login</a>.");
 			// All fine, done
 			redirect('index.php?p=38&u='.$uid);
