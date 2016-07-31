@@ -1762,8 +1762,8 @@ function addSuccess($s) {
 		$_SESSION['successes'] = array();
 	$_SESSION['successes'][] = $s;
 }
-// botnet adds the user to ip_user if they're not in it, and increases occurencies if they are
-function botnet($uid) {
+// logIP adds the user to ip_user if they're not in it, and increases occurencies if they are
+function logIP($uid) {
 	// botnet-track IP
 	$GLOBALS['db']->execute("INSERT INTO ip_user (userid, ip, occurencies) VALUES (?, ?, '1')
 							ON DUPLICATE KEY UPDATE occurencies = occurencies + 1",

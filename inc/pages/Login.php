@@ -58,7 +58,7 @@ class Login {
 			FROM users
 			LEFT JOIN users_stats ON users_stats.id = users.id
 			WHERE users.username = ?', [$_POST['u']]);
-			// Set multiacc botnet token
+			// Set multiacc identity token
 			setYCookie($us["id"]);
 			// Make sure the user has been verified
 			if (hasPrivilege(Privileges::UserPendingVerification, $us["id"])) {
@@ -83,10 +83,10 @@ class Login {
 				$m = new RememberCookieHandler();
 				$m->IssueNew($_SESSION['username']);
 			}
-			// update the botnet only if we don't have 2FA enabled or this ip is allowed
-			// if 2FA is enabled, botnet will be run when this IP has been allowed
+			// update ip logs only if we don't have 2FA enabled or this ip is allowed
+			// if 2FA is enabled, logIP will be run when this IP has been allowed
 			if (!check2FA($us['id']))
-				botnet($us['id']);
+				logIP($us['id']);
 			// Get safe title
 			updateSafeTitle();
 			// Save latest activity
