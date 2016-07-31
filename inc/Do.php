@@ -103,7 +103,7 @@ class D {
 			// Generate and set identity token ("y" cookie)
 			setYCookie($uid);
 			// log user ip
-			IPLog($uid);
+			logIP($uid);
 			//addSuccess("You should now be signed up! Try to <a href='index.php?p=2'>login</a>.");
 			// All fine, done
 			redirect('index.php?p=38&u='.$uid);
