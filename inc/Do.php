@@ -86,8 +86,8 @@ class D {
 			// Create password
 			$md5Password = password_hash(md5($_POST['p1']), PASSWORD_DEFAULT);
 			// Put some data into the db
-			$GLOBALS['db']->execute("INSERT INTO `users`(username, password_md5, salt, email, register_datetime, password_version)
-			                                     VALUES (?,        ?,            '',   ?,     ?,                 2);", [$_POST['u'], $md5Password, $_POST['e'], time(true)]);
+			$GLOBALS['db']->execute("INSERT INTO `users`(username, password_md5, salt, email, register_datetime, privileges, password_version)
+			                                     VALUES (?,        ?,            '',   ?,     ?,                 ?, 2);", [$_POST['u'], $md5Password, $_POST['e'], time(true), Privileges::UserPendingVerification]);
 			// Get user ID
 			$uid = $GLOBALS['db']->lastInsertId();
 			// Put some data into users_stats
