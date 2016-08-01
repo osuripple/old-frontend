@@ -2782,7 +2782,7 @@ WHERE users_stats.id = ?', [$u]);
 		// Print sidebar and template stuff
 		echo '<div id="wrapper">';
 		printAdminSidebar();
-		echo '<div id="page-content-wrapper" align="center">';
+		echo '<div id="page-content-wrapper">';
 		// Maintenance check
 		self::MaintenanceStuff();
 		// Print Success if set
@@ -2797,11 +2797,11 @@ WHERE users_stats.id = ?', [$u]);
 		echo '<span align="center"><h2><i class="fa fa-music"></i>	Beatmap rank requests</h2></span>';
 		// Main page content here
 		echo '<div class="page-content-wrapper">';
-		echo '<div style="width: 50%" class="alert alert-info" role="alert"><i class="fa fa-info-circle"></i>	Only the requests made in the past 24 hours are shown. <b>Remember to load ingame the leaderboard (that shows Latest pending version or whatever) every difficulty from a set <u>before</u> ranking it!!</b><br><i>(We\'ll add a system that does it automatically soonTM)</i></div>';
+		echo '<div style="width: 50%; margin-left: 25%;" class="alert alert-info" role="alert"><i class="fa fa-info-circle"></i>	Only the requests made in the past 24 hours are shown. <b>Remember to load ingame the leaderboard (that shows Latest pending version or whatever) every difficulty from a set <u>before</u> ranking it!!</b><br><i>(We\'ll add a system that does it automatically soonTM)</i></div>';
 		echo '<hr>
 		<h2 style="display: inline;">'.count($rankRequestsToday).'</h2><h3 style="display: inline;">/10</h3><br><h4>requests submitted today</h4>
 		<hr>';
-		echo '<table class="table table-striped table-hover" style="width: 75%">
+		echo '<table class="table table-striped table-hover" style="width: 75%; margin-left: 15%;">
 		<thead>
 		<tr><th><i class="fa fa-music"></i>	ID</th><th>Artist & song</th><th>User</th></th><th>When</th><th class="text-center">Actions</th></tr>
 		</thead>';
