@@ -583,7 +583,8 @@ class P {
 						<li class="list-group-item list-group-item-danger">Dangerous Zone</li>
 						<li class="list-group-item">';
 						if (hasPrivilege(Privileges::AdminWipeUsers)) {
-							echo '<a onclick="reallysure(\'submit.php?action=wipeAccount&id='.$_GET['id'].'\')" class="btn btn-danger">Wipe account</a>';
+							echo '	<a onclick="reallysure(\'submit.php?action=wipeAccount&id='.$_GET['id'].'\')" class="btn btn-danger">Wipe account</a>';
+							echo '	<a href="index.php?p=122&id='.$_GET["id"].'" class="btn btn-danger">Rollback account</a>';
 						}
 						if (hasPrivilege(Privileges::AdminBanUsers)) {
 							echo '	<a onclick="sure(\'submit.php?action=banUnbanUser&id='.$_GET['id'].'\')" class="btn btn-danger">(Un)ban user</a>';
@@ -3115,7 +3116,63 @@ WHERE users_stats.id = ?', [$u]);
 				echo '<div class="text-center"><button type="submit" form="edit-user-badges" class="btn btn-primary">Give donor</button></div>';
 			}
 			echo '</div>';
+		}
+		catch(Exception $e) {
+			// Redirect to exception page
+			redirect('index.php?p=108&e='.$e->getMessage());
+		}
+	}
 
+
+	/*
+	 * AdminRollback
+	 * Prints the admin rollback page
+	*/
+	public static function AdminRollback() {
+		try {
+			// Check if id is set
+			if (!isset($_GET['id'])) {
+				throw new Exception('Invalid user id');
+			}
+			echo '<div id="wrapper">';
+			printAdminSidebar();
+			echo '<div id="page-content-wrapper">';
+			// Maintenance check
+			self::MaintenanceStuff();
+			echo '<p align="center"><font size=5><i class="fa fa-fast-backward"></i>	Rollback</font></p>';
+			$username = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$_GET["id"]]);
+			if (!$username) {
+				throw new Exception("Invalid user");
+			}
+			$username = current($username);
+			echo '<table class="table table-striped table-hover table-50-center"><tbody>';
+			echo '<form id="user-rollback" action="submit.php" method="POST"><input name="action" value="rollback" hidden>';
+			echo '<tr>
+			<td>User ID</td>
+			<td><p class="text-center"><input type="text" name="id" class="form-control" value="'.$_GET["id"].'" readonly></td>
+			</tr>';
+			echo '<tr>
+			<td>Username</td>
+			<td><p class="text-center"><input type="text" class="form-control" value="'.$username.'" readonly></td>
+			</tr>';
+			echo '<tr>
+			<td>Period</td>
+			<td>
+			<input type="number" name="length" class="form-control" style="width: 40%; display: inline;">
+			<div style="width: 5%; display: inline-block;"></div>
+			<select name="period" class="selectpicker" data-width="53%">
+				<option value="d">Days</option>
+				<option value="w">Weeks</option>
+				<option value="m">Months</option>
+				<option value="y">Years</option>
+			</select>
+			</td>
+			</tr>';
+
+			echo '</tbody></form>';
+			echo '</table>';
+			echo '<div class="text-center"><button type="submit" form="user-rollback" class="btn btn-primary">Rollback</button></div>';
+			echo '</div>';
 		}
 		catch(Exception $e) {
 			// Redirect to exception page

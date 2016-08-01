@@ -203,6 +203,10 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageUsers);
 			D::RemoveDonor();
 		break;
+		case 'rollback':
+			sessionCheckAdmin(Privileges::AdminWipeUsers);
+			D::Rollback();
+		break;
 	}
 }
 catch(Exception $e) {

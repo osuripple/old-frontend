@@ -1519,4 +1519,36 @@ class D {
 			redirect('index.php?p=102&e='.$e->getMessage());
 		}
 	}
+
+	public static function Rollback() {
+		try {
+			if (!isset($_POST["id"]) || empty($_POST["id"]))
+				throw new Exception("Invalid user");
+			$username = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$_POST["id"]]);
+			if (!$username) {
+				throw new Exception("That user doesn't exist");
+			}
+			$username = current($username);
+
+			switch ($_POST["period"]) {
+				case "d": $periodSeconds = 86400; $periodName = "Day"; break;
+				case "w": $periodSeconds = 86400*7; $periodName = "Week"; break;
+				case "m": $periodSeconds = 86400*30; $periodName = "Month"; break;
+				case "y": $periodSeconds = 86400*365; $periodName = "Year"; break;
+			}
+
+			$removeAfterOsuTime = UNIXTimestampToOsuDate(time()-($_POST["length"]*$periodSeconds));
+			$rollbackString = $_POST["length"]." ".$periodName;
+			if ($_POST["length"] > 1) {
+				$rollbackString .= "s";
+			}
+
+			$GLOBALS["db"]->execute("DELETE FROM scores WHERE userid = ? AND time >= ?", [$_POST["id"], $removeAfterOsuTime]);
+
+			rapLog(sprintf("has rolled back %s %s's account", $rollbackString, $username), $_SESSION["userid"]);
+			redirect("index.php?p=102&s=User account has been rolled back!");
+		} catch(Exception $e) {
+			redirect('index.php?p=102&e='.$e->getMessage());
+		}
+	}
 }

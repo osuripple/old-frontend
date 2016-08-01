@@ -479,6 +479,12 @@ function printPage($p) {
 				P::AdminGiveDonor();
 			break;
 
+			// Admin panel - Rollback User
+			case 122:
+				sessionCheckAdmin(Privileges::AdminWipeUsers);
+				P::AdminRollback();
+			break;
+
 				// 404 page
 
 			default:
@@ -2019,4 +2025,8 @@ function getIdentityToken($userID, $generate = True) {
 function setYCookie($userID) {
 	$identityToken = getIdentityToken($userID);
 	setcookie("y", $identityToken, time()+60*60*24*30*6, "/");	// y of yee
+}
+
+function UNIXTimestampToOsuDate($unix) {
+	return date("ymdHis", $unix);
 }
