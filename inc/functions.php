@@ -168,7 +168,7 @@ function setTitle($p) {
 			23 => 'Rules',
 			24 => 'My report',
 			25 => 'Report',
-			26 => 'Friendlist',
+			26 => 'Friends',
 			'u' => 'Userpage',
 		];
 		$namesRAP = [
@@ -179,19 +179,19 @@ function setTitle($p) {
 			103 => 'Edit user',
 			104 => 'Change identity',
 			105 => 'Beta Keys',
-			106 => 'Docs Pages',
-			107 => 'Edit doc page',
+			106 => 'Documentation Pages',
+			107 => 'Edit documentation page',
 			108 => 'Badges',
 			109 => 'Edit Badge',
 			110 => 'Edit user badges',
 			111 => 'Bancho settings',
-			112 => 'Chatlog',
+			112 => 'Chat log',
 			113 => 'Reports',
 			114 => 'Read report',
 			115 => 'IP Logs',
 			116 => 'Admin Logs',
 			117 => 'Rank requests',
-			118 => 'Privileges Groups',
+			118 => 'Privilege Groups',
 			119 => 'Edit privilege group',
 			120 => 'View users in privilege group',
 			121 => 'Give Donor',
@@ -625,7 +625,7 @@ function printNavbar() {
 					<a data-toggle="dropdown"><img src="'.URL::Avatar().'/'.getUserID($_SESSION['username']).'" height="22" width="22" />	<b>'.$_SESSION['username'].'</b><span class="caret"></span></a>
 					<ul class="dropdown-menu">
 						<li class="dropdown-submenu"><a href="index.php?u='.getUserID($_SESSION['username']).'"><i class="fa fa-user"></i> My profile</a></li>
-						<li class="dropdown-submenu"><a href="index.php?p=26"><i class="fa fa-star"></i>	Friendlist</a></li>
+						<li class="dropdown-submenu"><a href="index.php?p=26"><i class="fa fa-star"></i>	Friends</a></li>
 						<li class="divider"></li>
 						<li class="dropdown-submenu"><a href="index.php?p=5"><i class="fa fa-picture-o"></i> Change avatar</a></li>
 						<li class="dropdown-submenu"><a href="index.php?p=7"><i class="fa fa-lock"></i>	Change password</a></li>
@@ -668,7 +668,7 @@ function printAdminSidebar() {
 						}
 
 						if (hasPrivilege(Privileges::AdminManagePrivileges)) {
-							echo '<li><a href="index.php?p=118"><i class="fa fa-group"></i>	Privileges Groups</a></li>';
+							echo '<li><a href="index.php?p=118"><i class="fa fa-group"></i>	Privilege Groups</a></li>';
 						}
 
 						if (hasPrivilege(Privileges::AdminManageBadges))
@@ -1359,9 +1359,9 @@ function getLevel($s) {
 function getChangelog() {
 	sessionCheck();
 	echo '<p align="center"><h1><i class="fa fa-code"></i>	Changelog</h1>';
-	echo 'Welcome to the changelog page.<br>Here changes are posted real-time as they are pushed to the website.<br>Hover a change to know when it was done.<br><br>';
+	echo 'Welcome to the changelog page.<br>As soon as a change is made, it will be posted here.<br>Hover a change to know when it was done.<br><br>';
 	if (!file_exists(dirname(__FILE__).'/../../ci-system/ci-system/changelog.txt')) {
-		echo '<b>Unfortunately, no changelog for this Ripple instance is available. Slap the sysadmin off telling him to configure it.</b>';
+		echo '<b>Unfortunately, no changelog for this Ripple instance is available. Slap the sysadmin and tell him to configure it.</b>';
 	} else {
 		$_GET['page'] = (isset($_GET['page']) && $_GET['page'] > 0 ? intval($_GET['page']) : 1);
 		$data = getChangelogPage($_GET['page']);
