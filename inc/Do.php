@@ -1138,9 +1138,14 @@ class D {
 			if (!isset($_POST['id']) || empty($_POST['id'])) {
 				throw new Exception('Invalid request');
 			}
-
-			if (!checkUserExists($_POST['id'], true)) {
+			$userData = $GLOBALS["db"]->fetch("SELECT username, privileges FROM users WHERE id = ?", [$_POST["id"]]);
+			if (!$userData) {
 				throw new Exception('User doesn\'t exist.');
+			}
+			$username = $userData["username"];
+			// Check if we can wipe this user
+			if ( ($userData["privileges"] & Privileges::AdminAccessRAP) > 0) {
+				throw new Exception("You don't have enough permissions to wipe this account");
 			}
 
 			if ($_POST["gm"] == -1) {
@@ -1167,7 +1172,7 @@ class D {
 			}
 
 			// RAP log
-			rapLog(sprintf("has wiped %s's account", getUserUsername($_POST['id'])));
+			rapLog(sprintf("has wiped %s's account", $username));
 
 			// Done
 			redirect('index.php?p=102&s=User scores and stats have been wiped!');
@@ -1539,12 +1544,15 @@ class D {
 		try {
 			if (!isset($_POST["id"]) || empty($_POST["id"]))
 				throw new Exception("Invalid user");
-			$username = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$_POST["id"]]);
-			if (!$username) {
+			$userData = $GLOBALS["db"]->fetch("SELECT username, privileges FROM users WHERE id = ?", [$_POST["id"]]);
+			if (!$userData) {
 				throw new Exception("That user doesn't exist");
 			}
-			$username = current($username);
-
+			$username = $userData["username"];
+			// Check if we can rollback this user
+			if ( ($userData["privileges"] & Privileges::AdminAccessRAP) > 0) {
+				throw new Exception("You don't have enough permissions to rollback this account");
+			}
 			switch ($_POST["period"]) {
 				case "d": $periodSeconds = 86400; $periodName = "Day"; break;
 				case "w": $periodSeconds = 86400*7; $periodName = "Week"; break;
