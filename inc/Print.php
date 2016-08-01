@@ -1804,11 +1804,11 @@ WHERE users_stats.id = ?', [$u]);
 			echo '<div id="userpage-header">
 			<!-- Avatar, username and rank -->
 			<p><img id="user-avatar" src="'.URL::Avatar().'/'.$u.'" height="100" width="100" /></p>
-			<p id="username"><font size=5><b>';
+			<p id="username"><div size=5 color="'.$userData['user_color'].'" style="display: inline;'.$userStyle.'"><b>';
 			if ($country != 'XX' && $showCountry == 1) {
 				echo '<img src="./images/flags/'.strtolower($country).'.png">	';
 			}
-			echo '<div color="'.$userData['user_color'].'" style="display: inline;'.$userStyle.'">'.$username.'</div></b></font>	';
+			echo $username.'</b></div>	';
 			if ($usernameAka != '') {
 				echo '<small><i>A.K.A '.htmlspecialchars($usernameAka).'</i></small>';
 			}
