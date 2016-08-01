@@ -220,8 +220,8 @@ function __maketitle($b1, $b2) {
 */
 function printPage($p) {
 	$exceptions = ['pls goshuujin-sama do not hackerino &gt;////&lt;', 'Only administrators are allowed to see that documentation file.', "<div style='font-size: 40pt;'>ATTEMPTED USER ACCOUNT VIOLATION DETECTED</div>
-			<p>We detected an attempt to violate an user account. If you did not this on purpose, you can ignore this message and login into your account normally. However if you changed your cookies on purpose and you were trying to access another user's account, don't do that.</p>
-			<p>By the way, the attacked user is aware that you tried to get access to their account, and we removed all permanent logins hashes. We wish you good luck in even finding what's the new 's' cookie for that user.</p>
+			<p>We detected an attempt to violate an user account. If you didn't do this on purpose, you can ignore this message and login into your account normally. However if you changed your cookies on purpose and you were trying to access another user's account, don't do that.</p>
+			<p>By the way, the attacked user is aware that you tried to get access to their account, and we removed all permanent login hashes. We wish you good luck in even finding the new 's' cookie for that user.</p>
 			<p>Don't even try.</p>", 9001 => "don't even try"];
 	if (!isset($_GET['u']) || empty($_GET['u'])) {
 		// Standard page
