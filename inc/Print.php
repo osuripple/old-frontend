@@ -522,11 +522,11 @@ class P {
 				echo '</tr>';
 				$ro = $userData["id"] == $_SESSION["userid"] ? "readonly" : "";
 				echo '<tr>
-				<td>Privileges number</td>
+				<td>Privilege number</td>
 				<td><input class="form-control" id="privileges-value" name="priv" value="'.$userData["privileges"].'" '.$ro.'></td>
 				</tr>';
 				echo '<tr>
-				<td>Privileges group<br><i>(This is basically a preset<br>and will replace every<br>existing privilege)</i></td>
+				<td>Privilege group<br><i>(This is basically a preset<br>and will replace every<br>existing privilege)</i></td>
 				<td>
 					<select id="privileges-group" name="privgroup" class="selectpicker" data-width="100%" onchange="groupUpdated();" '.$gd.'>';
 					$groups = $GLOBALS["db"]->fetchAll("SELECT * FROM privileges_groups");
@@ -618,7 +618,7 @@ class P {
 			}
 			// Check if we are trying to edit our account or a higher rank account
 			if ($userData['username'] != $_SESSION['username'] && (($userData['privileges'] & Privileges::AdminAccessRAP) > 0)) {
-				throw new Exception("You don't have enough permissions to edit this user.");
+				throw new Exception("You don't have enough permission to edit this user.");
 			}
 			// Print edit user stuff
 			echo '<div id="wrapper">';
@@ -993,7 +993,7 @@ class P {
 		</td>
 		</tr>';
 		echo '<tr>
-		<td>Maintenance mode<br>(in-game)</td>
+		<td>Maintenance mode (in-game)</td>
 		<td>
 		<select name="gm" class="selectpicker" data-width="100%">
 		<option value="1" '.$selected[1][1].'>On</option>
@@ -1002,7 +1002,7 @@ class P {
 		</td>
 		</tr>';
 		echo '<tr>
-		<td>Registrations</td>
+		<td>Registration</td>
 		<td>
 		<select name="r" class="selectpicker" data-width="100%">
 		<option value="1" '.$selected[2][1].'>On</option>
@@ -1015,7 +1015,7 @@ class P {
 		<td><textarea type="text" name="ga" class="form-control" maxlength="512" style="overflow:auto;resize:vertical;height:100px">'.$ga.'</textarea></td>
 		</tr>';
 		echo '<tr>
-		<td>Home alert<br>(visible only in homepage)</td>
+		<td>Homepage alert<br>(visible only on the home page)</td>
 		<td><textarea type="text" name="ha" class="form-control" maxlength="512" style="overflow:auto;resize:vertical;height:100px">'.$ha.'</textarea></td>
 		</tr>';
 		echo '<tr class="success"><td colspan=2><p align="center">Click <a href="index.php?p=111">here</a> for bancho settings</p></td></tr>';
@@ -1023,7 +1023,6 @@ class P {
 		echo '</table>';
 		echo '<div class="text-center"><div class="btn-group" role="group">
 		<button type="submit" form="system-settings-form" class="btn btn-primary">Save settings</button>
-		<a title="Run cron.php script to refresh some stuff on the server" href="submit.php?action=runCron" type="button" class="btn btn-warning">Run cron.php</a>
 		</div></div>';
 		echo '</div>';
 	}
@@ -1083,7 +1082,7 @@ class P {
 		echo '</tbody>';
 		echo '</table>';
 		echo '<div class="text-center"><div class="btn-group" role="group">
-		<a href="index.php?p=107&id=0" type="button" class="btn btn-primary">Add docs page</a>
+		<a href="index.php?p=107&id=0" type="button" class="btn btn-primary">Add documentation page</a>
 		</div></div>';
 		echo '</div>';
 	}
@@ -1180,7 +1179,7 @@ class P {
 			}
 			// Check if this doc page exists
 			if (!$docData) {
-				throw new Exception("That documentation page doesn't exists");
+				throw new Exception("That documentation page doesn't exist");
 			}
 			// Print edit user stuff
 			echo '<div id="wrapper">';
@@ -1246,7 +1245,7 @@ class P {
 			}
 			// Check if this doc page exists
 			if (!$badgeData) {
-				throw new Exception("That badge doesn't exists");
+				throw new Exception("That badge doesn't exist");
 			}
 			// Print edit user stuff
 			echo '<div id="wrapper">';
@@ -1408,7 +1407,7 @@ class P {
 		echo '<table class="table table-striped table-hover table-50-center">';
 		echo '<tbody><form id="system-settings-form" action="submit.php" method="POST"><input name="action" value="saveBanchoSettings" hidden>';
 		echo '<tr>
-		<td>Maintenance mode<br>(bancho)</td>
+		<td>Maintenance mode (bancho)</td>
 		<td>
 		<select name="bm" class="selectpicker" data-width="100%">
 		<option value="1" '.$selected[0][1].'>On</option>
@@ -1958,8 +1957,8 @@ WHERE users_stats.id = ?', [$u]);
 		self::GlobalAlert();
 		// Title and alerts
 		echo '<p align="center"><h1><i class="fa fa-key"></i>	Beta Keys</h1>';
-		// Actual User CP
-		echo 'Here you can find some Beta keys.<br>You can\'t find a valid beta key? Don\'t worry, we add new ones periodically.<br></p>';
+		// Actual Beta Keys page
+		echo 'You can find Beta Keys here.<br>There\'s no valid keys? Don\'t worry, we add new ones periodically.<br></p>';
 		$betaKeys = $GLOBALS['db']->fetchAll('SELECT description,allowed FROM beta_keys WHERE public = 1 AND allowed = 1 ORDER BY allowed DESC');
 		if ($betaKeys) {
 			// Print table header
@@ -2167,7 +2166,7 @@ WHERE users_stats.id = ?', [$u]);
 		// Registration enabled check
 		if (!checkRegistrationsEnabled()) {
 			// Registrations are disabled
-			self::ExceptionMessage('<b>Registrations are currently disabled.</b>');
+			self::ExceptionMessage('<b>Registration is currently disabled.</b>');
 			die();
 		}
 		echo '<br><div id="narrow-content"><h1><i class="fa fa-plus-circle"></i>	Sign up</h1>';
@@ -2183,7 +2182,7 @@ WHERE users_stats.id = ?', [$u]);
 		// Show multiacc warning if ip or token match
 		$errors = self::Messages();
 		if ($multiIP !== FALSE || $multiToken !== FALSE) {
-			echo '<div class="alert alert-warning"><b>It seems you have another account registered on Ripple. Having more than one account is against the rules.</b> If this is an error and you don\'t have other accounts registered on Ripple, fill out the form. <b>Registering more than one account from the same computer is considered multiaccount.</b></div>';
+			echo '<div class="alert alert-warning"><b>It seems you have another account registered on Ripple. Having more than one account is against the rules.</b> If this is an error and you don\'t have other accounts registered on Ripple, continue with your registration. <b>Registering more than one account from the same computer is considered multiaccounting and will not be tolerated.</b></div>';
 		} else if (!$errors) {
 			// Print default warning message if we have no exception/success/multiacc warn
 			echo '<p>Please fill every field in order to sign up.<br>';
@@ -2220,7 +2219,7 @@ WHERE users_stats.id = ?', [$u]);
 		self::Messages();
 		// Print default message if we have no exception/success
 		if (!isset($_GET['e']) && !isset($_GET['s'])) {
-			echo '<p>Fill every field with the correct informations in order to change your password.</p>';
+			echo '<p>Fill the form with your existing and new desired password.</p>';
 		}
 		// Print change password form
 		echo '<form action="submit.php" method="POST">
@@ -2258,7 +2257,7 @@ WHERE users_stats.id = ?', [$u]);
 		}
 		// Print default message if we have no exception/success
 		if (!isset($_GET['e']) && !isset($_GET['s'])) {
-			echo '<p>Here you can edit your account settings</p>';
+			echo '<p>You can edit your account settings here.</p>';
 		}
 		// Default select stuff
 		$selected[0] = [0 => '', 1 => ''];
@@ -2314,7 +2313,7 @@ WHERE users_stats.id = ?', [$u]);
 		</div>
 		<p style="line-height: 15px"></p>
 		<div class="input-group" style="width:100%">
-			<span class="input-group-addon" id="basic-addon2" style="width:40%">Username color</span>
+			<span class="input-group-addon" id="basic-addon2" style="width:40%">Username colour</span>
 			<input type="text" name="c" class="form-control colorpicker" value="'.$data['user_color'].'" placeholder="HEX/Html color" aria-describedby="basic-addon2" spellcheck="false">
 		</div>
 		<p style="line-height: 15px"></p>
@@ -2439,7 +2438,7 @@ WHERE users_stats.id = ?', [$u]);
 			echo 'What are you doing here? You\'re already logged in, you moron!<br>';
 			echo 'If you really want to fake that you\'ve lost your password, you should at the very least log out of Ripple, you know.';
 		} else {
-			echo '<p>Let\'s get some things straight. We can only help you if you DID put your actual email address when you signed up. If you didn\'t, you\'re fucked. Hope to know the admins well enough to tell them to change the password for you, otherwise your account is now dead.</p><br>
+			echo '<p>Let\'s get some things straight. We can only help you if you DID put your actual email address when you signed up. If you didn\'t, you\'re screwed. Hope to know the admins well enough to tell them to change the password for you, otherwise your account is now dead.</p><br>
 			<form action="submit.php" method="POST">
 			<input name="action" value="recoverPassword" hidden>
 			<div class="input-group"><span class="input-group-addon" id="basic-addon1"><span class="fa fa-user" max-width="25%"></span></span><input type="text" name="username" required class="form-control" placeholder="Type your username." aria-describedby="basic-addon1"></div><p style="line-height: 15px"></p>
@@ -2485,7 +2484,7 @@ WHERE users_stats.id = ?', [$u]);
 				throw new Exception();
 			}
 			// Mod/admin, show alert and continue
-			echo '<div class="alert alert-warning" role="alert"><p align="center"><i class="fa fa-cog fa-spin"></i>	Ripple\'s website is in <b>maintenance mode</b>. Only mods and admins have access to the full website.</p></div>';
+			echo '<div class="alert alert-warning" role="alert"><p align="center"><i class="fa fa-cog fa-spin"></i>	Ripple\'s website is in <b>maintenance mode</b>. Only moderators and administrators have access to the full website.</p></div>';
 		}
 		catch(Exception $e) {
 			// Normal user, show alert and die
@@ -2509,7 +2508,7 @@ WHERE users_stats.id = ?', [$u]);
 				throw new Exception();
 			}
 			// Mod/admin, show alert and continue
-			echo '<div class="alert alert-danger" role="alert"><p align="center"><i class="fa fa-cog fa-spin"></i>	Ripple\'s score system is in <b>maintenance mode</b>. <u>Your scores won\'t be saved until maintenance ends.</u><br><b>Make sure to disable game maintenance mode from admin cp as soon as possible!</b></p></div>';
+			echo '<div class="alert alert-danger" role="alert"><p align="center"><i class="fa fa-cog fa-spin"></i>	Ripple\'s score system is in <b>maintenance mode</b>. <u>Your scores won\'t be saved until maintenance ends.</u><br><b>Make sure to disable game maintenance mode from the admin control panel as soon as possible!</b></p></div>';
 		}
 		catch(Exception $e) {
 			// Normal user, show alert and die
@@ -2532,11 +2531,11 @@ WHERE users_stats.id = ?', [$u]);
 				throw new Exception();
 			}
 			// Mod/admin, show alert and continue
-			echo '<div class="alert alert-danger" role="alert"><p align="center"><i class="fa fa-server"></i>	Ripple\'s Bancho server is in maintenance mode. You can\'t play Ripple right now. Try again later.<br><b>Make sure to disable game maintenance mode from admin cp as soon as possible!</b></p></div>';
+			echo '<div class="alert alert-danger" role="alert"><p align="center"><i class="fa fa-server"></i>	Ripple\'s Bancho server is in maintenance mode. You can\'t play on Ripple right now. Try again later.<br><b>Make sure to disable game maintenance mode from the admin control panel as soon as possible!</b></p></div>';
 		}
 		catch(Exception $e) {
 			// Normal user, show alert and die
-			echo '<div class="alert alert-danger" role="alert"><p align="center"><i class="fa fa-server"></i>	Ripple\'s Bancho server is in maintenance mode. You can\'t play Ripple right now. Try again later.</p></div>';
+			echo '<div class="alert alert-danger" role="alert"><p align="center"><i class="fa fa-server"></i>	Ripple\'s Bancho server is in maintenance mode. You can\'t play on Ripple right now. Try again later.</p></div>';
 		}
 	}
 
@@ -2751,9 +2750,9 @@ WHERE users_stats.id = ?', [$u]);
 		LEFT JOIN users ON users_relationships.user2 = users.id
 		WHERE user1 = ? AND users.privileges & 1 > 0', [$ourID]);
 		// Title and header message
-		echo '<h1><i class="fa fa-star"></i>	Friendlist</h1>';
+		echo '<h1><i class="fa fa-star"></i>	Friends</h1>';
 		if (count($friends) == 0) {
-			echo '<b>You don\'t have any friends.</b> You can add someone to your friendlist<br>by clicking the <b>"Add as friend"</b> on someones\'s profile.<br>You can add friends from the game client too.';
+			echo '<b>You don\'t have any friends.</b> You can add someone to your friends list<br>by clicking the <b>"Add as friend"</b> button on someones\'s profile.<br>You can add friends from the game client too.';
 		} else {
 			// Friendlist
 			echo '<table class="table table-striped table-hover table-50-center">
@@ -2797,7 +2796,7 @@ WHERE users_stats.id = ?', [$u]);
 		echo '<span align="center"><h2><i class="fa fa-music"></i>	Beatmap rank requests</h2></span>';
 		// Main page content here
 		echo '<div class="page-content-wrapper">';
-		echo '<div style="width: 50%; margin-left: 25%;" class="alert alert-info" role="alert"><i class="fa fa-info-circle"></i>	Only the requests made in the past 24 hours are shown. <b>Remember to load ingame the leaderboard (that shows Latest pending version or whatever) every difficulty from a set <u>before</u> ranking it!!</b><br><i>(We\'ll add a system that does it automatically soonTM)</i></div>';
+		echo '<div style="width: 50%; margin-left: 25%;" class="alert alert-info" role="alert"><i class="fa fa-info-circle"></i>	Only the requests made in the past 24 hours are shown. <b>Make sure to load every difficulty in-game before ranking a map.</b><br><i>(We\'ll add a system that does it automatically soonTM)</i></div>';
 		echo '<hr>
 		<h2 style="display: inline;">'.count($rankRequestsToday).'</h2><h3 style="display: inline;">/10</h3><br><h4>requests submitted today</h4>
 		<hr>';
@@ -2885,7 +2884,7 @@ WHERE users_stats.id = ?', [$u]);
 			self::ExceptionMessage($_GET['e']);
 		}
 		// Header
-		echo '<span align="center"><h2><i class="fa fa-group"></i>	Privileges Groups</h2></span>';
+		echo '<span align="center"><h2><i class="fa fa-group"></i>	Privilege Groups</h2></span>';
 		// Main page content here
 		echo '<div align="center">';
 		echo '<table class="table table-striped table-hover table-75-center">
@@ -2944,7 +2943,7 @@ WHERE users_stats.id = ?', [$u]);
 			echo '<div id="page-content-wrapper">';
 			// Maintenance check
 			self::MaintenanceStuff();
-			echo '<p align="center"><font size=5><i class="fa fa-group"></i>	Privileges Group</font></p>';
+			echo '<p align="center"><font size=5><i class="fa fa-group"></i>	Privilege Group</font></p>';
 			echo '<table class="table table-striped table-hover table-50-center">';
 			echo '<tbody><form id="edit-badge-form" action="submit.php" method="POST"><input name="action" value="savePrivilegeGroup" hidden>';
 			echo '<tr>
