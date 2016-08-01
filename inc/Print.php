@@ -1571,7 +1571,7 @@ class P {
 		// Print sidebar and template stuff
 		echo '<div id="wrapper">';
 		printAdminSidebar();
-		echo '<div id="page-content-wrapper">';
+		echo '<div id="page-content-wrapper" style="text-align: left;">';
 		// Maintenance check
 		self::MaintenanceStuff();
 		// Print Success if set
