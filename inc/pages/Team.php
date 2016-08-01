@@ -22,13 +22,13 @@ class Team {
 				Community Managers deal with bans, silences, name changes and pretty much everything that has to do with the community.<br>
 				They are take care of our Discord server and reply to email sent to support@ripple.moe too. Community managers have a red name in game chat.<br><br>';
 				self::printTeam("community manager");
-				echo '<div style="margin-bottom: 25%;"></div>';
+				//echo '<div style="margin-bottom: 25%;"></div>';
 
 				echo '<hr><h3><i class="fa fa-code"></i>	Developers</h3>
 				Developers add new features to the server, squash bugs, keep the server up and running and take care of its maintenance.<br>
 				They don\'t do anything related to the community. You can distringuish them because they have a blue name in game chat.<br><br>';
 				self::printTeam("developer");
-				echo '<div style="margin-bottom: 25%;"></div>';
+				//echo '<div style="margin-bottom: 25%;"></div>';
 
 				echo '<hr><h3><i class="fa fa-reply"></i>	How to contact the team</h3>
 				You can find every member of the team in our Discord server. If you want to speak privately with us, you can send an email to support@ripple.moe and a Community Manager will reply as soon as possible. If you want to contact a specific member of the team, you can click on the envelope button under their name in this page to send him an email. Remember that Developers cannot help you with bans, silences and such. Developers are able to help you only if you have technical questions or issues.<br>
@@ -41,6 +41,7 @@ class Team {
 	public function printTeam($groupName) {
 		global $teamConfig;
 		$dudes = $GLOBALS["db"]->fetchAll("SELECT users.username, users.id, users.email FROM users LEFT JOIN privileges_groups ON (users.privileges = privileges_groups.privileges OR users.privileges = privileges_groups.privileges | ".Privileges::UserDonor.") WHERE privileges_groups.name = ? AND users.id > 999", [$groupName]);
+		echo '<div class="row">';
 		foreach ($dudes as $i => $dude) {
 			echo '
 			<div class="col-lg-'.round(12/floor(count($dudes))).' col-sm-6 text-center">
@@ -81,5 +82,6 @@ class Team {
 
 			echo '</div>';
 		}
+		echo '</div>';
 	}
 }
