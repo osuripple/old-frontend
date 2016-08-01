@@ -1808,7 +1808,7 @@ WHERE users_stats.id = ?', [$u]);
 			if ($country != 'XX' && $showCountry == 1) {
 				echo '<img src="./images/flags/'.strtolower($country).'.png">	';
 			}
-			echo '<font color="'.$userData['user_color'].'" style="'.$userStyle.'">'.$username.'</font></b></font>	';
+			echo '<div color="'.$userData['user_color'].'" style="'.$userStyle.'">'.$username.'</div></b></font>	';
 			if ($usernameAka != '') {
 				echo '<small><i>A.K.A '.htmlspecialchars($usernameAka).'</i></small>';
 			}
