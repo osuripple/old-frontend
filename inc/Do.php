@@ -1135,24 +1135,39 @@ class D {
 	*/
 	public static function WipeAccount() {
 		try {
-			if (!isset($_GET['id']) || empty($_GET['id'])) {
+			if (!isset($_POST['id']) || empty($_POST['id'])) {
 				throw new Exception('Invalid request');
 			}
 
-			if (!checkUserExists($_GET['id'], true)) {
+			if (!checkUserExists($_POST['id'], true)) {
 				throw new Exception('User doesn\'t exist.');
 			}
 
+			if ($_POST["gm"] == -1) {
+				// All modes
+				$modes = ['std', 'taiko', 'ctb', 'mania'];
+			} else {
+				// 1 mode
+				if ($_POST["gm"] == 0) {
+					$modes = ['std'];
+				} else if ($_POST["gm"] == 1) {
+					$modes = ['taiko'];
+				} else if ($_POST["gm"] == 2) {
+					$modes = ['ctb'];
+				} else if ($_POST["gm"] == 3) {
+					$modes = ['mania'];
+				}
+			}
+
 			// Delete all scores
-			$GLOBALS['db']->execute('DELETE FROM scores WHERE userid = ?', [$_GET['id']]);
+			$GLOBALS['db']->execute('DELETE FROM scores WHERE userid = ?', [$_POST['id']]);
 			// Reset mode stats
-			$modes = ['std', 'taiko', 'ctb', 'mania'];
 			foreach ($modes as $k) {
-				$GLOBALS['db']->execute('UPDATE users_stats SET ranked_score_'.$k.' = 0, total_score_'.$k.' = 0, replays_watched_'.$k.' = 0, playcount_'.$k.' = 0, avg_accuracy_'.$k.' = 0.0, total_hits_'.$k.' = 0, level_'.$k.' = 0, pp_'.$k.' = 0 WHERE id = ?', [$_GET['id']]);
+				$GLOBALS['db']->execute('UPDATE users_stats SET ranked_score_'.$k.' = 0, total_score_'.$k.' = 0, replays_watched_'.$k.' = 0, playcount_'.$k.' = 0, avg_accuracy_'.$k.' = 0.0, total_hits_'.$k.' = 0, level_'.$k.' = 0, pp_'.$k.' = 0 WHERE id = ?', [$_POST['id']]);
 			}
 
 			// RAP log
-			rapLog(sprintf("has wiped %s's account", getUserUsername($_GET['id'])));
+			rapLog(sprintf("has wiped %s's account", getUserUsername($_POST['id'])));
 
 			// Done
 			redirect('index.php?p=102&s=User scores and stats have been wiped!');

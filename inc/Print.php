@@ -583,7 +583,7 @@ class P {
 						<li class="list-group-item list-group-item-danger">Dangerous Zone</li>
 						<li class="list-group-item">';
 						if (hasPrivilege(Privileges::AdminWipeUsers)) {
-							echo '	<a onclick="reallysure(\'submit.php?action=wipeAccount&id='.$_GET['id'].'\')" class="btn btn-danger">Wipe account</a>';
+							echo '	<a href="index.php?p=123&id='.$_GET["id"].'" class="btn btn-danger">Wipe account</a>';
 							echo '	<a href="index.php?p=122&id='.$_GET["id"].'" class="btn btn-danger">Rollback account</a>';
 						}
 						if (hasPrivilege(Privileges::AdminBanUsers)) {
@@ -3139,7 +3139,7 @@ WHERE users_stats.id = ?', [$u]);
 			echo '<div id="page-content-wrapper">';
 			// Maintenance check
 			self::MaintenanceStuff();
-			echo '<p align="center"><font size=5><i class="fa fa-fast-backward"></i>	Rollback</font></p>';
+			echo '<p align="center"><font size=5><i class="fa fa-fast-backward"></i>	Rollback account</font></p>';
 			$username = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$_GET["id"]]);
 			if (!$username) {
 				throw new Exception("Invalid user");
@@ -3171,7 +3171,64 @@ WHERE users_stats.id = ?', [$u]);
 
 			echo '</tbody></form>';
 			echo '</table>';
-			echo '<div class="text-center"><button type="submit" form="user-rollback" class="btn btn-primary">Rollback</button></div>';
+			echo '<div class="text-center"><button type="submit" form="user-rollback" class="btn btn-primary">Rollback account</button></div>';
+			echo '</div>';
+		}
+		catch(Exception $e) {
+			// Redirect to exception page
+			redirect('index.php?p=108&e='.$e->getMessage());
+		}
+	}
+
+
+
+	/*
+	 * AdminWipe
+	 * Prints the admin wipe page
+	*/
+	public static function AdminWipe() {
+		try {
+			// Check if id is set
+			if (!isset($_GET['id'])) {
+				throw new Exception('Invalid user id');
+			}
+			echo '<div id="wrapper">';
+			printAdminSidebar();
+			echo '<div id="page-content-wrapper">';
+			// Maintenance check
+			self::MaintenanceStuff();
+			echo '<p align="center"><font size=5><i class="fa fa-eraser"></i>	Wipe account</font></p>';
+			$username = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$_GET["id"]]);
+			if (!$username) {
+				throw new Exception("Invalid user");
+			}
+			$username = current($username);
+			echo '<table class="table table-striped table-hover table-50-center"><tbody>';
+			echo '<form id="user-wipe" action="submit.php" method="POST"><input name="action" value="wipeAccount" hidden>';
+			echo '<tr>
+			<td>User ID</td>
+			<td><p class="text-center"><input type="text" name="id" class="form-control" value="'.$_GET["id"].'" readonly></td>
+			</tr>';
+			echo '<tr>
+			<td>Username</td>
+			<td><p class="text-center"><input type="text" class="form-control" value="'.$username.'" readonly></td>
+			</tr>';
+			echo '<tr>
+			<td>Gamemode</td>
+			<td>
+			<select name="gm" class="selectpicker" data-width="100%">
+				<option value="-1">All</option>
+				<option value="0">Standard</option>
+				<option value="1">Taiko</option>
+				<option value="2">Catch the beat</option>
+				<option value="3">Mania</option>
+			</select>
+			</td>
+			</tr>';
+
+			echo '</tbody></form>';
+			echo '</table>';
+			echo '<div class="text-center"><button type="submit" form="user-wipe" class="btn btn-primary">Wipe account</button></div>';
 			echo '</div>';
 		}
 		catch(Exception $e) {

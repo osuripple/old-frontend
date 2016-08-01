@@ -194,6 +194,9 @@ function setTitle($p) {
 			118 => 'Privileges Groups',
 			119 => 'Edit privilege group',
 			120 => 'View users in privilege group',
+			121 => 'Give Donor',
+			122 => 'Rollback user',
+			123 => 'Wipe user',
 		];
 		if (isset($namesRipple[$p])) {
 			return __maketitle('Ripple', $namesRipple[$p]);
@@ -483,6 +486,12 @@ function printPage($p) {
 			case 122:
 				sessionCheckAdmin(Privileges::AdminWipeUsers);
 				P::AdminRollback();
+			break;
+
+			// Admin panel - Wipe User
+			case 123:
+				sessionCheckAdmin(Privileges::AdminWipeUsers);
+				P::AdminWipe();
 			break;
 
 				// 404 page
