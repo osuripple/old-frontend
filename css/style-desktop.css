@@ -49,7 +49,7 @@ ul.nav li:hover > ul.dropdown-menu {
 	display: inline-block;
 	text-align: right;
 	float: right;
-	top: 20px;
+	top: -55px;
 	line-height: 100%;
 }
 
