@@ -1347,6 +1347,17 @@ class D {
 			} else {
 				// Rank the map set and freeze status rank
 				$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 2, ranked_status_freezed = 1 WHERE beatmapset_id = ?", [$bsid]);
+
+				// send a message to #announce
+				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
+
+				$msg = "[http://m.zxq.co/" . $bsid . ".osz " . $bm["song_name"] . "] is now ranked!";
+				$to = "#announce";
+				$resp = getJsonCurl(urlencode($URL["server"] . "/api/v1/fokabotMessage?k=" . $ScoresConfig["api_key"] . "&to=" . $to . "&msg=" . $msg));
+
+				if ($resp["message"] != "ok") {
+					rapLog("Failed to send FokaBot message :(");
+				}
 			}
 
 			// RAP log
