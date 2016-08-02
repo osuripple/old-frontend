@@ -1353,7 +1353,7 @@ class D {
 
 				$msg = "[http://m.zxq.co/" . $bsid . ".osz " . $bm["song_name"] . "] is now ranked!";
 				$to = "#announce";
-				$requesturl = urlencode($URL["server"] . "/api/v1/fokabotMessage?k=" . $ScoresConfig["api_key"] . "&to=" . $to . "&msg=" . $msg)
+				$requesturl = urlencode($URL["server"] . "/api/v1/fokabotMessage?k=" . $ScoresConfig["api_key"] . "&to=" . $to . "&msg=" . $msg);
 				$resp = getJsonCurl($requesturl);
 
 				if ($resp["message"] != "ok") {
