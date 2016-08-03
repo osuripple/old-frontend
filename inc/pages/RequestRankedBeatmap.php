@@ -12,8 +12,8 @@ class RequestRankedBeatmap {
 	public function P() {
 		P::GlobalAlert();
 		startSessionIfNotStarted();
-		$hasSentRequest = $GLOBALS["db"]->fetch("SELECT * FROM rank_requests WHERE time > ? AND userid = ? LIMIT 1", [time()-(24*3600), $_SESSION["userid"]]);
-		$rankRequests = $GLOBALS["db"]->fetchAll("SELECT * FROM rank_requests WHERE time > ? ORDER BY time ASC LIMIT 10", [time()-(24*3600)]);
+		$hasSentRequest = $GLOBALS["db"]->fetch("SELECT * FROM rank_requests WHERE time > ? AND userid = ? LIMIT 2", [time()-(24*3600), $_SESSION["userid"]]);
+		$rankRequests = $GLOBALS["db"]->fetchAll("SELECT * FROM rank_requests WHERE time > ? ORDER BY time ASC LIMIT 20", [time()-(24*3600)]);
 		echo '
 		<div id="content">
 			<div align="center">
@@ -24,16 +24,16 @@ class RequestRankedBeatmap {
 						echo '<div class="alert alert-warning" role="alert"><i class="fa fa-warning"></i>	You can send only <b>1 rank request</b> every 24 hours. <b>Please come back tomorrow.</b></div>';
 					return;
 				}
-				if (count($rankRequests) >= 10) {
-					echo '<div class="alert alert-warning" role="alert"><i class="fa fa-warning"></i>	A maximum of <b>10 rank requests</b> can be sent every <b>24 hours</b>. No more requests can be submitted for now. <b>Please come back later.</b></div>';
+				if (count($rankRequests) >= 20) {
+					echo '<div class="alert alert-warning" role="alert"><i class="fa fa-warning"></i>	A maximum of <b>20 rank requests</b> can be sent every <b>24 hours</b>. No more requests can be submitted for now. <b>Please come back later.</b></div>';
 					echo '<hr><h4 style="display: inline;">Estimated time until next request:</h4><br>
 					<h3 style="display: inline;">'.timeDifference(time(), $rankRequests[0]["time"]+24*3600, false, "Less than a minute").'</h3>';
 					return;
 				}
 				echo '<hr>
-				<h2 style="display: inline;">'.count($rankRequests).'</h2><h3 style="display: inline;">/10</h3><br><h4>requests submitted</h4><h6>in the past 24 hours</h6>
+				<h2 style="display: inline;">'.count($rankRequests).'</h2><h3 style="display: inline;">/20</h3><br><h4>requests submitted</h4><h6>in the past 24 hours</h6>
 				<hr>
-				<div class="alert alert-warning" role="alert"><i class="fa fa-warning"></i>	Every user can send <b>1 rank request every 24 hours</b>, and a maximum of <b>10 beatmaps</b> can be requested <b>every 24 hours</b> by all users. <b>Remember that troll or invalid maps will still count as valid rank requests, so request only beatmaps that you <u>really</u> want to see ranked, since the number of daily rank requests is limited.</b></div>
+				<div class="alert alert-warning" role="alert"><i class="fa fa-warning"></i>	Every user can send <b>2 rank requests every 24 hours</b>, and a maximum of <b>20 beatmaps</b> can be requested <b>every 24 hours</b> by all users. <b>Remember that troll or invalid maps will still count as valid rank requests, so request only beatmaps that you <u>really</u> want to see ranked, since the number of daily rank requests is limited.</b></div>
 				<b>Beatmap/Beatmap set link</b><br>
 				<form action="submit.php" method="POST">
 					<input name="action" value="RequestRankedBeatmap" hidden>
@@ -63,16 +63,16 @@ class RequestRankedBeatmap {
 
 	public function DoGetData() {
 		try {
-			// Make sure the user has not submitted another beatmap
-			$hasSentRequest = $GLOBALS["db"]->fetch("SELECT * FROM rank_requests WHERE time > ? AND userid = ? LIMIT 1", [time()-(24*3600), $_SESSION["userid"]]);
+			// Make sure the user hasn't requested too many maps
+			$hasSentRequest = $GLOBALS["db"]->fetch("SELECT * FROM rank_requests WHERE time > ? AND userid = ? LIMIT 2", [time()-(24*3600), $_SESSION["userid"]]);
 			if ($hasSentRequest) {
-				throw new Exception("You've already sent a rank request in the past 24 hours.");
+				throw new Exception("You can have only 2 requests every 24 hours.");
 			}
 
 			// Make sure < 10 rank requests have been submitted in the past 24 hours
-			$rankRequests = $GLOBALS["db"]->fetchAll("SELECT * FROM rank_requests WHERE time > ? LIMIT 10", [time()-(24*3600)]);
-			if (count($rankRequests) >= 10) {
-				throw new Exception("A maximum of <b>10 rank requests</b> can be sent every <b>24 hours</b>. No more requests can be submitted for now.");
+			$rankRequests = $GLOBALS["db"]->fetchAll("SELECT * FROM rank_requests WHERE time > ? LIMIT 20", [time()-(24*3600)]);
+			if (count($rankRequests) >= 20) {
+				throw new Exception("A maximum of <b>20 rank requests</b> can be sent every <b>24 hours</b>. No more requests can be submitted for now.");
 			}
 
 			// Make sure the URL is valid

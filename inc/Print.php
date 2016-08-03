@@ -2776,8 +2776,8 @@ WHERE users_stats.id = ?', [$u]);
 	*/
 	public static function AdminRankRequests() {
 		// Get data
-		$rankRequestsToday = $GLOBALS["db"]->fetchAll("SELECT * FROM rank_requests WHERE time > ? LIMIT 10", [time()-(24*3600)]);
-		$rankRequests = $GLOBALS["db"]->fetchAll("SELECT rank_requests.*, users.username FROM rank_requests LEFT JOIN users ON rank_requests.userid = users.id WHERE time > ? ORDER BY id DESC LIMIT 10", [time()-(24*3600)]);
+		$rankRequestsToday = $GLOBALS["db"]->fetchAll("SELECT * FROM rank_requests WHERE time > ? LIMIT 20", [time()-(24*3600)]);
+		$rankRequests = $GLOBALS["db"]->fetchAll("SELECT rank_requests.*, users.username FROM rank_requests LEFT JOIN users ON rank_requests.userid = users.id WHERE time > ? ORDER BY id DESC LIMIT 20", [time()-(24*3600)]);
 		// Print sidebar and template stuff
 		echo '<div id="wrapper">';
 		printAdminSidebar();
@@ -2798,7 +2798,7 @@ WHERE users_stats.id = ?', [$u]);
 		echo '<div class="page-content-wrapper">';
 		echo '<div style="width: 50%; margin-left: 25%;" class="alert alert-info" role="alert"><i class="fa fa-info-circle"></i>	Only the requests made in the past 24 hours are shown. <b>Make sure to load every difficulty in-game before ranking a map.</b><br><i>(We\'ll add a system that does it automatically soonTM)</i></div>';
 		echo '<hr>
-		<h2 style="display: inline;">'.count($rankRequestsToday).'</h2><h3 style="display: inline;">/10</h3><br><h4>requests submitted today</h4>
+		<h2 style="display: inline;">'.count($rankRequestsToday).'</h2><h3 style="display: inline;">/20</h3><br><h4>requests submitted today</h4>
 		<hr>';
 		echo '<table class="table table-striped table-hover" style="width: 75%; margin-left: 15%;">
 		<thead>
