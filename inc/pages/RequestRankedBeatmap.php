@@ -88,9 +88,9 @@ class RequestRankedBeatmap {
 				throw new Exception("That beatmap is already ranked.");
 			}
 
-			// Make sure the beatmap was not already requested
+			// Make sure the beatmap was not already requested in the past 24 hours
 			// Exact match
-			if ($GLOBALS["db"]->fetch("SELECT * FROM rank_requests WHERE bid = ? AND type = ?", [$matches[2], $matches[1]])) {
+			if ($GLOBALS["db"]->fetch("SELECT * FROM rank_requests WHERE bid = ? AND type = ? AND time > ?", [$matches[2], $matches[1], time()-(24*3600)])) {
 				throw new Exception("That beatmap was already requested.");
 			}
 
