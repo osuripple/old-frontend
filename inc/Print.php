@@ -2196,7 +2196,7 @@ WHERE users_stats.id = ?', [$u]);
 		<div class="input-group"><span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-lock" max-width="25%"></span></span><input type="password" name="p1" required class="form-control" placeholder="Password" aria-describedby="basic-addon1"></div><p style="line-height: 15px"></p>
 		<div class="input-group"><span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-lock" max-width="25%"></span></span><input type="password" name="p2" required class="form-control" placeholder="Repeat Password" aria-describedby="basic-addon1"></div><p style="line-height: 15px"></p>
 		<div class="input-group"><span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-envelope" max-width="25%"></span></span><input type="text" name="e" required class="form-control" placeholder="Email" aria-describedby="basic-addon1"></div><p style="line-height: 15px"></p>
-		<div class="input-group"><span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-gift" max-width="25%"></span></span><input type="text" name="k" required class="form-control" placeholder="Beta Key" aria-describedby="basic-addon1"></div><p style="line-height: 15px"></p>
+		<!--div class="input-group"><span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-gift" max-width="25%"></span></span><input type="text" name="k" required class="form-control" placeholder="Beta Key" aria-describedby="basic-addon1"></div><p style="line-height: 15px"></p>-->
 		<br>
 		<div class="g-recaptcha" style="padding-left:25%;" data-sitekey="6LdGziUTAAAAAKz2wTjAmKkgYsj329N8ohb_A4Qt"></div>
 		<hr>

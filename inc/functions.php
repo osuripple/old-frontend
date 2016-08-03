@@ -312,9 +312,9 @@ function printPage($p) {
 			break;
 				// Beta keys page
 
-			case 20:
+			/*case 20:
 				P::BetaKeys();
-			break;
+			break;*/
 				// About page
 
 			case 21:
@@ -570,7 +570,7 @@ function printNavbar() {
 	if (!checkLoggedIn()) {
 		echo '<li><a href="index.php?p=2"><i class="fa fa-sign-in"></i>	Login</a></li>';
 		echo '<li><a href="index.php?p=3"><i class="fa fa-plus-circle"></i>	Sign up</a></li>';
-		echo '<li><a href="index.php?p=20"><i class="fa fa-key"></i>	Beta keys</a></li>';
+		//echo '<li><a href="index.php?p=20"><i class="fa fa-key"></i>	Beta keys</a></li>';
 		echo '<li class="dropdown">
 					<a data-toggle="dropdown"><i class="fa fa-question-circle"></i>	Help & Info<span class="caret"></span></a>
 					<ul class="dropdown-menu">
@@ -674,8 +674,8 @@ function printAdminSidebar() {
 						if (hasPrivilege(Privileges::AdminManageBadges))
 							echo '<li><a href="index.php?p=108"><i class="fa fa-certificate"></i>	Badges</a></li>';
 
-						if (hasPrivilege(Privileges::AdminManageBetaKeys))
-							echo '<li><a href="index.php?p=105"><i class="fa fa-gift"></i>	Beta keys</a></li>';
+						/*if (hasPrivilege(Privileges::AdminManageBetaKeys))
+							echo '<li><a href="index.php?p=105"><i class="fa fa-gift"></i>	Beta keys</a></li>';*/
 
 						if (hasPrivilege(Privileges::AdminManageDocs))
 							echo '<li><a href="index.php?p=106"><i class="fa fa-question-circle"></i>	Documentation</a></li>';

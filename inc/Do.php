@@ -10,7 +10,7 @@ class D {
 		global $reCaptchaConfig;
 		try {
 			// Check if everything is set
-			if (empty($_POST['u']) || empty($_POST['p1']) || empty($_POST['p2']) || empty($_POST['e']) || empty($_POST['k'])) {
+			if (empty($_POST['u']) || empty($_POST['p1']) || empty($_POST['p2']) || empty($_POST['e']) /*|| empty($_POST['k'])*/) {
 				throw new Exception('Nope.');
 			}
 			// Get user IP
@@ -49,9 +49,9 @@ class D {
 				throw new Exception('An user with that email already exists!');
 			}
 			// Check if beta key is valid
-			if (!$GLOBALS['db']->fetch('SELECT id FROM beta_keys WHERE key_md5 = ? AND allowed = 1', md5($_POST['k']))) {
+			/*if (!$GLOBALS['db']->fetch('SELECT id FROM beta_keys WHERE key_md5 = ? AND allowed = 1', md5($_POST['k']))) {
 				throw new Exception('Invalid beta key.');
-			}
+			}*/
 			// Check captcha
 			if (!isset($_POST["g-recaptcha-response"])) {
 				throw new Exception("Invalid captcha");
@@ -98,7 +98,7 @@ class D {
 				Leaderboard::Update($uid, 0, $m);
 			}
 			// Invalidate beta key
-			$GLOBALS['db']->execute('UPDATE beta_keys SET allowed = 0 WHERE key_md5 = ?', md5($_POST['k']));
+			//$GLOBALS['db']->execute('UPDATE beta_keys SET allowed = 0 WHERE key_md5 = ?', md5($_POST['k']));
 			Schiavo::CM("User (**$_POST[u]** | $_POST[e]) registered (successfully) from **" . $ip . "**");
 			// Generate and set identity token ("y" cookie)
 			setYCookie($uid);
