@@ -20,7 +20,7 @@ class RequestRankedBeatmap {
 				<h1><i class="fa fa-music"></i> Request beatmap ranking</h1>
 				<h4>Here you can send a request to rank an unranked beatmap on ripple.</h4>';
 				if ($hasSentRequest >= 2) {
-					if (!isset($_GET["s"])	echo '<div class="alert alert-warning" role="alert"><i class="fa fa-warning"></i>	You can send only <b>2 rank requests</b> every 24 hours. <b>Please come back tomorrow.</b></div>';
+					echo '<div class="alert alert-warning" role="alert"><i class="fa fa-warning"></i>	You can send only <b>2 rank requests</b> every 24 hours. <b>Please come back tomorrow.</b></div>';
 				}
 				if (count($rankRequests) >= 20) {
 					echo '<div class="alert alert-warning" role="alert"><i class="fa fa-warning"></i>	A maximum of <b>20 rank requests</b> can be sent every <b>24 hours</b>. No more requests can be submitted for now. <b>Please come back later.</b></div>';
