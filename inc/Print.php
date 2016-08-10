@@ -1804,7 +1804,7 @@ WHERE users_stats.id = ?', [$u]);
 			echo '<div id="userpage-header">
 			<!-- Avatar, username and rank -->
 			<p><img id="user-avatar" src="'.URL::Avatar().'/'.$u.'" height="100" width="100" /></p>
-			<p id="username"><div color="'.$userData['user_color'].'" style="display: inline; font-size: 150%; '.$userStyle.'"><b>';
+			<p id="username"><div style="display: inline; ' . (!empty($userData["user_color"]) ? "color: $userData[user_color];" : "") . ' font-size: 150%; '.$userStyle.'"><b>';
 			if ($country != 'XX' && $showCountry == 1) {
 				echo '<img src="./images/flags/'.strtolower($country).'.png">	';
 			}
