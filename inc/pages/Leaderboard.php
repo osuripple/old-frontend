@@ -14,7 +14,7 @@ class Leaderboard {
 		// Leaderboard names (to bold the selected mode)
 		$modesText = [0 => 'osu!standard', 1 => 'Taiko', 2 => 'Catch the Beat', 3 => 'osu!mania'];
 		// Set $m value to 0 if not set
-		if (!isset($_GET['m']) || empty($_GET['m'])) {
+		if (!isset($_GET['m']) || empty($_GET['m']) || !is_numeric($_GET['m'])) {
 			$m = 0;
 		} else {
 			$m = $_GET['m'];
