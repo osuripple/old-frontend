@@ -64,6 +64,9 @@ $pages = [
 date_default_timezone_set('Europe/Rome');
 // Connect to MySQL Database
 $GLOBALS['db'] = new DBPDO();
+// Birthday
+global $isBday;
+$isBday = date("dm") == "1208";
 /****************************************
  **			GENERAL FUNCTIONS 		   **
  ****************************************/
@@ -560,9 +563,10 @@ function printNavbar() {
 							<span class="icon-bar"></span>
 							<span class="icon-bar"></span>
 							<span class="icon-bar"></span>
-						</button>
-						<a class="navbar-brand" href="index.php"><img src="images/logos/text.png"></a>
-					</div>
+						</button>';
+						global $isBday;
+						echo $isBday ? '<a class="navbar-brand" href="index.php"><i class="fa fa-birthday-cake"></i><img src="images/logos/text.png" style="display: inline; padding-left: 10px;"></a>' : '<a class="navbar-brand" href="index.php"><img src="images/logos/text.png"></a>';
+					echo '</div>
 					<div class="navbar-collapse collapse">';
 	// Left elements
 	echo '<ul class="nav navbar-nav navbar-left">';
@@ -570,7 +574,7 @@ function printNavbar() {
 	if (!checkLoggedIn()) {
 		echo '<li><a href="index.php?p=2"><i class="fa fa-sign-in"></i>	Login</a></li>';
 		echo '<li><a href="index.php?p=3"><i class="fa fa-plus-circle"></i>	Sign up</a></li>';
-		//echo '<li><a href="index.php?p=20"><i class="fa fa-key"></i>	Beta keys</a></li>';
+		if ($isBday) echo '<li><a href="/blog"><b><i class="fa fa-birthday-cake" ></i>	Happy birthday!</a></b></li>';
 		echo '<li class="dropdown">
 					<a data-toggle="dropdown"><i class="fa fa-question-circle"></i>	Help & Info<span class="caret"></span></a>
 					<ul class="dropdown-menu">
@@ -611,6 +615,7 @@ function printNavbar() {
 					</ul>
 				</li>';
 		//echo '<li><a class="support-color" href="index.php?p=34"><b><i class="fa fa-heart" ></i>	Support us</a></b></li>';
+		if ($isBday) echo '<li><a href="/blog"><b><i class="fa fa-birthday-cake" ></i>	Happy birthday!</a></b></li>';
 		if (hasPrivilege(Privileges::AdminAccessRAP)) {
 			echo '<li><a href="index.php?p=100"><i class="fa fa-cog"></i>	<b>Admin Panel</b></a></li>';
 		}

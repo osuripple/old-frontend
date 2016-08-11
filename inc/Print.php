@@ -1635,8 +1635,13 @@ class P {
 		}
 		echo '<p align="center">
 		<object data="images/logos/logo-'.$color.'.svg" type="image/svg+xml" class="animated bounceIn"></object>
-		</p>
-		<h1>Welcome to Ripple</h1>';
+		</p>';
+		global $isBday;
+		if ($isBday) {
+			echo '<h1>Happy birthday Ripple!</h1>';
+		} else {
+			echo '<h1>Welcome to Ripple</h1>';
+		}
 		// Home alert
 		self::HomeAlert();
 	}

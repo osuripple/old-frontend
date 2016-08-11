@@ -128,6 +128,15 @@ if ($p == 27) {
 
     <meta name=viewport content="width=device-width, initial-scale=1">
 	<script src='https://www.google.com/recaptcha/api.js'></script>
+	<?php 
+		if ($isBday && $p == 1) {
+			echo '
+				<script src="palloncini/palloncini.js"></script>
+				<script type="text/javascript">
+					particlesJS.load("palloncini", "palloncini/palloncini.conf");
+				</script>';
+	   	}
+   	?>
 </head>
 
 <body>
@@ -145,8 +154,9 @@ if ($p < 100) {
 	echo '
         <div class="container">
             <div class="row">
-                <div class="col-lg-12 text-center">
-                    <div id="content">';
+                <div class="col-lg-12 text-center">';
+                	
+                    echo '<div id="content">';
 	if ($model === 'old') {
 		printPage($p);
 	} else {
@@ -159,6 +169,7 @@ if ($p < 100) {
                 </div>
             </div>
         </div>';
+       if ($isBday && $p == 1) echo '<div id="palloncini"></div>';
 } else {
 	// Admin cp page, print admin cp layout
 	if ($model === 'old') {
@@ -486,6 +497,7 @@ if (isset($_GET["u"]) && !isset($_GET["p"])) {
 	echo '<script src="/js/user.js"></script>';
 }
 ?>
+
 </body>
 
 </html>
