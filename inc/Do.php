@@ -460,8 +460,8 @@ class D {
 				throw new Exception("That user doesn\'t exist");
 			}
 			// Check if we can edit this user
-			if ( (($oldData["privileges"] & Privileges::AdminAccessRAP) > 0) && $_POST['u'] != $_SESSION['username']) {
-				throw new Exception("You don't have enough permissions to edit this user");
+			if ( (($oldData["privileges"] & Privileges::AdminManageUsers) > 0) && $_POST['u'] != $_SESSION['username']) {
+				throw new Exception("You don't have enough  to edit this user");
 			}
 			// Check if email is valid
 			if (!filter_var($_POST['e'], FILTER_VALIDATE_EMAIL)) {
@@ -540,7 +540,7 @@ class D {
 				throw new Exception("User doesn't exist");
 			}
 			// Check if we can ban this user
-			if ( ($userData["privileges"] & Privileges::AdminAccessRAP) > 0) {
+			if ( ($userData["privileges"] & Privileges::AdminManageUsers) > 0) {
 				throw new Exception("You don't have enough permissions to ban this user");
 			}
 			// Get new allowed value
@@ -635,7 +635,7 @@ class D {
 				throw new Exception("User doesn't exist");
 			}
 			$privileges = current($privileges);
-			if ( (($privileges & Privileges::AdminAccessRAP) > 0) && $_POST['oldu'] != $_SESSION['username']) {
+			if ( (($privileges & Privileges::AdminManageUsers) > 0) && $_POST['oldu'] != $_SESSION['username']) {
 				throw new Exception("You don't have enough permissions to edit this user");
 			}
 			// Make sure the new username doesn't already exist
@@ -1144,7 +1144,7 @@ class D {
 			}
 			$username = $userData["username"];
 			// Check if we can wipe this user
-			if ( ($userData["privileges"] & Privileges::AdminAccessRAP) > 0) {
+			if ( ($userData["privileges"] & Privileges::AdminManageUsers) > 0) {
 				throw new Exception("You don't have enough permissions to wipe this account");
 			}
 
@@ -1453,7 +1453,7 @@ class D {
 				throw new Exception("User doesn't exist");
 			}
 			// Check if we can ban this user
-			if ( ($userData["privileges"] & Privileges::AdminAccessRAP) > 0) {
+			if ( ($userData["privileges"] & Privileges::AdminManageUsers) > 0) {
 				throw new Exception("You don't have enough permissions to ban this user");
 			}
 			// Get new allowed value
@@ -1564,7 +1564,7 @@ class D {
 			}
 			$username = $userData["username"];
 			// Check if we can rollback this user
-			if ( ($userData["privileges"] & Privileges::AdminAccessRAP) > 0) {
+			if ( ($userData["privileges"] & Privileges::AdminManageUsers) > 0) {
 				throw new Exception("You don't have enough permissions to rollback this account");
 			}
 			switch ($_POST["period"]) {
