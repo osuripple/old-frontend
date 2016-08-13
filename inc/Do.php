@@ -166,7 +166,7 @@ class D {
 			if (!$user) {
 				throw new Exception(1);
 			}
-			if (!hasPrivilege(Privileges::UserNormal, $user["id"])) {
+			if (!hasPrivilege(Privileges::UserNormal, $user["id"]) && !hasPrivilege(Privileges::UserPendingVerification, $user["id"])) {
 				throw new Exception(2);
 			}
 			$key = randomString(80);

@@ -1670,19 +1670,28 @@ SELECT
 FROM users_stats
 LEFT JOIN users ON users.id=users_stats.id
 WHERE users_stats.id = ?', [$u]);
-			// Check if users exists
-			if (!$userData) {
-				throw new Exception('User not found');
-			}
 
-			// Throw exception if user is banned/not activated
-			// print message if we are admin
-			if (($userData["privileges"] & Privileges::UserPublic) == 0 && $userData["id"] != $_SESSION["userid"]) {
-				if (!hasPrivilege(Privileges::AdminManageUsers)) {
-					throw new Exception('That user doesn\'t exist.');
+			// Get admin/pending/banned/restricted/visible statuses
+			$imAdmin = hasPrivilege(Privileges::AdminManageUsers);			
+			$isPending = (($userData["privileges"] & Privileges::UserPendingVerification) > 0);
+			$isBanned = (($userData["privileges"] & Privileges::UserNormal) == 0) && (($userData["privileges"] & Privileges::UserPublic) == 0);
+			$isRestricted = (($userData["privileges"] & Privileges::UserNormal) > 0) && (($userData["privileges"] & Privileges::UserPublic) == 0);
+			$isVisible = (!$isBanned && !$isRestricted && !$isPending) || $userData["id"] == $_SESSION["userid"];
+
+			if (!$isVisible) {
+				// The user is not visible
+				if ($imAdmin) {
+					// We are admin, show admin message and print profile
+					if ($isPending) {
+						echo '<div class="alert alert-warning"><i class="fa fa-exclamation-triangle"></i>	<b>This user has never logged in to Bancho and is pending verification.</b> Only admins can see this profile.</div>';
+					} else if ($isBanned) {
+						echo '<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i>	<b>User banned.</b></div>';
+					} else if ($isRestricted) {
+						echo '<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i>	<b>User restricted.</b></div>';
+					}
 				} else {
-					$restrictionType = (($userData["privileges"] & Privileges::UserNormal) == 0) ? "banned" : "restricted";
-					echo '<div class="alert alert-danger" role="alert"><i class="fa fa-exclamation-triangle"></i>	<b>User '.$restrictionType.'.</b></div>';
+					// We are a normal user, print 404 and die
+					throw new Exception('User not found');
 				}
 			}
 			// Get all user stats for all modes and username
