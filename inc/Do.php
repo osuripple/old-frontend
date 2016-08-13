@@ -461,7 +461,7 @@ class D {
 			}
 			// Check if we can edit this user
 			if ( (($oldData["privileges"] & Privileges::AdminManageUsers) > 0) && $_POST['u'] != $_SESSION['username']) {
-				throw new Exception("You don't have enough  to edit this user");
+				throw new Exception("You don't have enough permissions to edit this user");
 			}
 			// Check if email is valid
 			if (!filter_var($_POST['e'], FILTER_VALIDATE_EMAIL)) {
