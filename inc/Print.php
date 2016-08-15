@@ -1668,14 +1668,21 @@ class P {
 		// Global alert
 		self::GlobalAlert();
 		try {
+			$kind = $GLOBALS['db']->fetch('SELECT 1 FROM users WHERE id = ?', $u) ? "id" : "username";
+
 			// Check banned status
-			$userData = $GLOBALS['db']->fetch('
+			$userData = $GLOBALS['db']->fetch("
 SELECT
 	users_stats.*, users.privileges, users.latest_activity,
 	users.silence_end, users.silence_reason, users.register_datetime
 FROM users_stats
 LEFT JOIN users ON users.id=users_stats.id
-WHERE users_stats.id = ?', [$u]);
+WHERE users_stats.$kind = ? LIMIT 1", [$u]);
+
+			if (!$userData) {
+				// LISCIAMI LE MELE SUDICIO
+				throw new Fava('User not found');
+			}
 
 			// Get admin/pending/banned/restricted/visible statuses
 			$imAdmin = hasPrivilege(Privileges::AdminManageUsers);			
@@ -3255,4 +3262,11 @@ WHERE users_stats.id = ?', [$u]);
 			redirect('index.php?p=108&e='.$e->getMessage());
 		}
 	}
+}
+
+// LISCIAMI LE MELE SUDICIO
+class Fava extends Exception {
+	 public function __construct($message, $code = 0, Exception $previous = null) {
+        parent::__construct($message, $code, $previous);
+    }
 }
