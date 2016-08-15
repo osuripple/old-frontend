@@ -182,7 +182,7 @@ if ($p < 100) {
 ?>
 
     <!-- jQuery -->
-    <script src="./js/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 
 	<!-- User lookup -->
 	<?php
@@ -338,6 +338,13 @@ switch ($p) {
 						}
 						updatePrivileges();
 					}
+					$(".getcountry").click(function() {
+						var i = $(this);
+						$.get("https://ip.zxq.co/" + $(this).data("ip") + "/country", function(data) {
+							data = (data === "" ? "dunno" : data);
+							i.text("(" + data + ")");
+						});
+					});
                 </script>
                 ';
 	break;
