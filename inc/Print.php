@@ -76,7 +76,7 @@ class P {
 			echo '<td><p class="text-left"><b><a href="index.php?u='.$play["username"].'">'.$play['username'].'</a></b></p></td>';
 			echo '<td><p class="text-left">'.$bn.' <b>' . getScoreMods($play['mods']) . '</b></p></td>';
 			echo '<td><p class="text-left">'.$pm.'</p></td>';
-			echo '<td><p class="text-left">'.timeDifference(time(), osuDateToUNIXTimestamp($play['time'])).'</p></td>';
+			echo '<td><p class="text-left">'.timeDifference(time(), $play['time']).'</p></td>';
 			echo '<td><p class="text-left">'.number_format($play['score']).'</p></td>';
 			echo '<td><p class="text-right"><b>'.number_format($play['pp']).'pp</b></p></td>';
 			echo '</tr>';
@@ -102,7 +102,7 @@ class P {
 			echo '<td><p class="text-left"><a href="index.php?u='.$play["username"].'"><b>'.$play['username'].'</b></a></p></td>';
 			echo '<td><p class="text-left">'.$bn.' <b>' . getScoreMods($play['mods']) . '</b></p></td>';
 			echo '<td><p class="text-left">'.$pm.'</p></td>';
-			echo '<td><p class="text-left">'.timeDifference(time(), osuDateToUNIXTimestamp($play['time'])).'</p></td>';
+			echo '<td><p class="text-left">'.timeDifference(time(), $play['time']).'</p></td>';
 			echo '<td><p class="text-right"><b>'.number_format($play['pp']).'</b></p></td>';
 			echo '</tr>';
 		}

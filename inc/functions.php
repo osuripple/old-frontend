@@ -1299,18 +1299,6 @@ function calculateAccuracy($n300, $n100, $n50, $ngeki, $nkatu, $nmiss, $mode) {
 	return $accuracy * 100; // we're doing * 100 because $accuracy is like 0.9823[...]
 
 }
-function osuDateToUNIXTimestamp($date) {
-	// nyo loves memes
-	if ($date != 0) {
-		$d = DateTime::createFromFormat('ymdHis', $date);
-		$d->add(new DateInterval('PT1H'));
-
-		return ($d->getTimestamp())-3600;
-	} else {
-		return time() - 60 * 60 * 24; // Remove one day from the time because reasons
-
-	}
-}
 /*
  * getRequiredScoreForLevel
  * Gets the required score for $l level
