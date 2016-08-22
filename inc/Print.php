@@ -1672,7 +1672,11 @@ LEFT JOIN users ON users.id=users_stats.id
 WHERE users_stats.id = ?', [$u]);
 
 			// Get admin/pending/banned/restricted/visible statuses
-			$imAdmin = hasPrivilege(Privileges::AdminManageUsers);			
+			if (!checkLoggedIn()) {
+				$imAdmin = false;
+			} else {
+				$imAdmin = hasPrivilege(Privileges::AdminManageUsers);
+			}
 			$isPending = (($userData["privileges"] & Privileges::UserPendingVerification) > 0);
 			$isBanned = (($userData["privileges"] & Privileges::UserNormal) == 0) && (($userData["privileges"] & Privileges::UserPublic) == 0);
 			$isRestricted = (($userData["privileges"] & Privileges::UserNormal) > 0) && (($userData["privileges"] & Privileges::UserPublic) == 0);
@@ -1804,7 +1808,7 @@ WHERE users_stats.id = ?', [$u]);
 						<div class="panel panel-default">
 							<div class="panel-heading">
 								<button type="button" class="btn btn-default btn-xs spoiler-trigger" data-toggle="collapse">Expand userpage</button>';
-				if ($username == $_SESSION['username']) {
+				if (checkLoggedIn() && $username == $_SESSION['username']) {
 					echo '	<a href="index.php?p=8" type="button" class="btn btn-default btn-xs"><i>Edit</i></a>';
 				}
 				echo '</div>
@@ -1818,9 +1822,12 @@ WHERE users_stats.id = ?', [$u]);
 			echo '<div id="userpage-header">
 			<!-- Avatar, username and rank -->
 			<p><img id="user-avatar" src="'.URL::Avatar().'/'.$u.'" height="100" width="100" /></p>
-			<p id="username"><div style="display: inline; ' . (!empty($userData["user_color"]) ? "color: $userData[user_color];" : "") . ' font-size: 150%; '.$userStyle.'"><b>';
+			<p id="username"><div style="display: inline; ' . (!empty($userData["user_color"]) ? "color: $userData[user_color];" : "") . ' font-size: 140%; '.$userStyle.'"><b>';
 			if ($country != 'XX' && $showCountry == 1) {
 				echo '<img src="./images/flags/'.strtolower($country).'.png">	';
+			}
+			if (isOnline($userData["id"])) {
+				echo '<i class="fa fa-circle online-circle"></i>';
 			}
 			echo $username.'</b></div></p>';
 			if ($usernameAka != '') {

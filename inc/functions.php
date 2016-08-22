@@ -41,6 +41,7 @@ require_once $df.'/pages/IRC.php';
 require_once $df.'/pages/Beatmaps.php';
 require_once $df.'/pages/Verify.php';
 require_once $df.'/pages/Welcome.php';
+require_once $df.'/pages/Discord.php';
 $pages = [
 	new Login(),
 	new Leaderboard(),
@@ -59,6 +60,7 @@ $pages = [
 	new Beatmaps(),
 	new Verify(),
 	new Welcome(),
+	new Discord(),
 ];
 // Set timezone to UTC
 date_default_timezone_set('Europe/Rome');
@@ -519,8 +521,6 @@ function printPage($p) {
 		}
 	} else {
 		// Userpage
-		// Protected page
-		sessionCheck();
 		// Check if this is an int
 		if (is_numeric($_GET['u'])) {
 			// Int passed, we don't need to get user ID
@@ -556,6 +556,7 @@ function printPage($p) {
  *	echo('stuff');
 */
 function printNavbar() {
+	global $discordConfig;
 	echo '<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
 				<div class="container">
 					<div class="navbar-header">
@@ -609,12 +610,12 @@ function printNavbar() {
 						//<li class="dropdown-submenu"><a href="index.php?p=22&type=1"><i class="fa fa-plus-circle"></i>	'.($trollerino ? 'Report' : 'Request').' a feature</a></li>
 						//<li class="divider"></li>
 						echo '<li class="dropdown-submenu"><a href="https://git.zxq.co/ripple/ripple"><i class="fa fa-git"></i>	Git</a></li>
-						<li class="dropdown-submenu"><a href="https://discord.gg/0rJcZruIsA6rXuIx"><i class="fa fa-comment"></i>	Discord</a></li>
+						<li class="dropdown-submenu"><a href="'.$discordConfig["invite_url"].'"><i class="fa fa-comment"></i>	Discord</a></li>
 						<li class="dropdown-submenu"><a href="https://reddit.com/r/osuripple"><i class="fa fa-reddit"></i>	Reddit</a></li>
 						<li class="dropdown-submenu"><a href="index.php?p=21"><i class="fa fa-info-circle"></i>	About</a></li>
 					</ul>
 				</li>';
-		//echo '<li><a class="support-color" href="index.php?p=34"><b><i class="fa fa-heart" ></i>	Support us</a></b></li>';
+		echo '<li><a class="support-color" href="index.php?p=34"><b><i class="fa fa-heart" ></i>	Support us</a></b></li>';
 		if ($isBday) echo '<li><a href="/blog"><b><i class="fa fa-birthday-cake" ></i>	Happy birthday!</a></b></li>';
 		if (hasPrivilege(Privileges::AdminAccessRAP)) {
 			echo '<li><a href="index.php?p=100"><i class="fa fa-cog"></i>	<b>Admin Panel</b></a></li>';
@@ -622,10 +623,10 @@ function printNavbar() {
 	}
 	// Right elements
 	echo '</ul><ul class="nav navbar-nav navbar-right">';
+	echo '<li><input type="text" style="width:200px; margin-top: 10px;" class="form-control" name="query" id="query" placeholder="Search users..."></li>';
 	// Logged in right elements
 	if (checkLoggedIn()) {
 		global $URL;
-		echo '<li><input type="text" style="width:200px; margin-top: 10px;" class="form-control" name="query" id="query" placeholder="Search users..."></li>';
 		echo '<li class="dropdown">
 					<a data-toggle="dropdown"><img src="'.URL::Avatar().'/'.getUserID($_SESSION['username']).'" height="22" width="22" />	<b>'.$_SESSION['username'].'</b><span class="caret"></span></a>
 					<ul class="dropdown-menu">
@@ -636,10 +637,14 @@ function printNavbar() {
 						<li class="dropdown-submenu"><a href="index.php?p=7"><i class="fa fa-lock"></i>	Change password</a></li>
 						<li class="dropdown-submenu"><a href="index.php?p=8"><i class="fa fa-pencil"></i> Edit userpage 	<span class="label label-info">Beta</span></a></li>
 						<li class="dropdown-submenu"><a href="index.php?p=6"><i class="fa fa-cog"></i>	User settings</a></li>
+						<li class="divider"></li>
 						<li class="dropdown-submenu"><a href="index.php?p=30"><i class="fa fa-ticket"></i>	Two-Factor Auth	';
 						if (is2FAEnabled($_SESSION["userid"], false)) echo '<span class="label label-warning">!</span>';
 						echo '</a></li>
 						<li class="dropdown-submenu"><a href="index.php?p=36"><i class="fa fa-link"></i>	IRC Token';
+						if (hasPrivilege(Privileges::UserDonor)) {
+							echo '<li class="dropdown-submenu"><a href="index.php?p=40"><i class="fa fa-comments"></i>	Discord Donor';
+						}
 						//<li class="dropdown-submenu"><a href="index.php?p=24"><i class="fa fa-paper-plane"></i>	My reports</a></li>
 						echo '<li class="dropdown-submenu"><a href="submit.php?action=forgetEveryCookie"><i class="fa fa-chain-broken"></i>	Delete all login tokens</a></li>
 						<li class="divider"></li>
@@ -1970,7 +1975,10 @@ function getUserPrivileges($userID) {
 
 function hasPrivilege($privilege, $userID = -1) {
 	if ($userID == -1)
-		$userID = $_SESSION["userid"];
+		if (!array_key_exists("userid", $_SESSION))
+			return false;
+		else
+			$userID = $_SESSION["userid"];
 	$result = getUserPrivileges($userID) & $privilege;
 	return $result > 0 ? true : false;
 }
@@ -2043,4 +2051,14 @@ function setYCookie($userID) {
 
 function UNIXTimestampToOsuDate($unix) {
 	return date("ymdHis", $unix);
+}
+
+function isOnline($uid) {
+	global $URL;
+	try {
+		$data = getJsonCurl($URL["bancho"]."/api/v1/isOnline?id=".$uid);
+		return $data["result"];
+	} catch (Exception $e) {
+		return false;
+	}
 }

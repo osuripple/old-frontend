@@ -186,11 +186,9 @@ if ($p < 100) {
 
 	<!-- User lookup -->
 	<?php
-		if (checkLoggedIn()) {
-			APITokens::PrintScript();
-			echo '<script src="/js/typeahead.min.js"></script>
-				<script src="/js/userlookup.js"></script>';
-		}
+		APITokens::PrintScript();
+		echo '<script src="/js/typeahead.min.js"></script>
+			<script src="/js/userlookup.js"></script>';
 	?>
 
     <!-- Bootstrap Core JavaScript -->

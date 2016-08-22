@@ -1,6 +1,5 @@
 var search = function(query, syncResults, asyncResults) {
 	$.getJSON("/api/v1/users/lookup", {
-		token: APIToken,
 		name: query,
 	}, function(result) {
 		if (result.code == 200) {

@@ -1,7 +1,8 @@
 {
     "name": "osuripple/ripple",
     "require": {
-        "ezyang/htmlpurifier": "^4.7"
+        "ezyang/htmlpurifier": "^4.7",
+        "team-reflex/oauth2-discord": "^1.0"
     },
     "license": "MIT"
 }

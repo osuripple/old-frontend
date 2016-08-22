@@ -89,4 +89,14 @@ $reCaptchaConfig = [
 	"site_key" => "",
 	"secret_key" => "",
 	"ip" => false
-]
+];
+
+// Discord and Donor Bot config
+$discordConfig = [
+	"invite_url" => "",
+	"client_id" => "",
+	"client_secret" => "",
+
+	"donor_bot_url" => "http://127.0.0.1:3366",
+	"donor_bot_secret" => "braceaccesa",
+];

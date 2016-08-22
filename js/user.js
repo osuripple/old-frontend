@@ -1,6 +1,6 @@
 
 $(document).ready(function() {
-	if (typeof UserID == "undefined" || typeof APIToken == "undefined" || typeof Mode == "undefined") {
+	if (typeof UserID == "undefined" || typeof Mode == "undefined") {
 		return;
 	}
 	getScores("best");
@@ -17,7 +17,6 @@ function getScores(type) {
 	var btn = $(".load-more-user-scores[data-rel='" + type + "']");
 	btn.attr("disabled", "true");
 	$.getJSON("/api/v1/users/scores/" + type, {
-		token: APIToken,
 		id: UserID,
 		l: 20,
 		p: currentPage[type],
@@ -304,6 +303,5 @@ function getRank(gameMode, mods, acc, c300, c100, c50, cmiss) {
 				return "c";
 
 			return "d";
-
 	}
 }

@@ -683,17 +683,16 @@ hr {
 }
 
 .support-color * {
-	color: #db4f4f;
+	color: #E06767;
 }
 
 /* Tablet and bigger */
 @media ( min-width: 768px ) {
     .grid-divider {
-		position:absolute;
-		left:0;
-		right:0;
-        /* position: relative; */
+    		left:0;
+    		right:0;
         padding: 0;
+        position: relative;
     }
     .grid-divider>[class*='col-'] {
         position: static;
@@ -1056,4 +1055,15 @@ a.silent {
   -o-filter: blur(3px);
   -ms-filter: blur(3px);
   filter: blur(3px);
+}
+
+.half {
+  width: 50%;
+}
+
+.online-circle {
+  font-size: 50%;
+  vertical-align: middle;
+  color: #5FC79C;
+  margin-right: 3px;
 }

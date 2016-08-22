@@ -7,6 +7,7 @@ class Welcome {
 	public $mh_GET = ["u"];
 
 	public function P() {
+		global $discordConfig;
 		try {
 			// Make sure we have the "y" token
 			if (!isset($_COOKIE["y"]))
@@ -34,7 +35,7 @@ class Welcome {
 				<h4><i class="fa fa-question-circle"></i>	<a target="_blank" href="index.php?p=14">Help</a></h4>
 				<h4><i class="fa fa-link"></i>	<a target="_blank" href="index.php?p=16&id=1">Connection guide</a></h4>
 				<h4><i class="fa fa-server"></i>	<a target="_blank" href="http://status.ripple.moe">Server Status</a></h4>
-				<h4><i class="fa fa-comment"></i>	<a target="_blank" href="https://discord.gg/0rJcZruIsA6rXuIx">Official Discord</a></h4>
+				<h4><i class="fa fa-comment"></i>	<a target="_blank" href="'.$discordConfig["invite_url"].'">Official Discord</a></h4>
 				<h4><i class="fa fa-reddit"></i>	<a target="_blank" href="https://reddit.com/r/osuripple">Official Subreddit</a></h4>';
 			} else {
 				echo '<h1><i class="fa fa-hand-paper-o"></i> No.</h1>

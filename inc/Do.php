@@ -1485,11 +1485,11 @@ class D {
 		try {
 			if (!isset($_POST["id"]) || empty($_POST["id"]) || !isset($_POST["m"]) || empty($_POST["m"]))
 				throw new Exception("Invalid user");
-			$username = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$_POST["id"]]);
-			if (!$username) {
+			$userData = $GLOBALS["db"]->fetch("SELECT username, email FROM users WHERE id = ?", [$_POST["id"]]);
+			if (!$userData) {
 				throw new Exception("That user doesn't exist");
 			}
-			$username = current($username);
+			$username = $userData["username"];
 			$unixPeriod = time()+((30*86400)*$_POST["m"]);
 			$GLOBALS["db"]->execute("UPDATE users SET privileges = privileges | ".Privileges::UserDonor.", donor_expire = ? WHERE id = ?", [$unixPeriod, $_POST["id"]]);
 
@@ -1514,6 +1514,18 @@ class D {
 			}
 			$badges = implode(",", $badges);
 			$GLOBALS["db"]->execute("UPDATE users_stats SET badges_shown = ? WHERE id = ?", [$badges, $_POST["id"]]);
+			// Send email
+			global $MailgunConfig;
+			$mailer = new SimpleMailgun($MailgunConfig);
+			$mailer->Send(
+				'Ripple <noreply@'.$MailgunConfig['domain'].'>', $userData['email'],
+				'Thank you for donating!',
+				sprintf(
+					"Hey %s!<br>Thank you for donating to Ripple. Your donor expires in %s month(s).<br><br>Love u,<br>Ripple",
+					$reportData['username'],
+					$_POST["m"]
+				)
+			);
 			redirect("index.php?p=102&s=Donor status changed!");
 		}
 		catch(Exception $e) {
