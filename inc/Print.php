@@ -2237,7 +2237,7 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 				echo '<div class="container alert alert-warning" role="alert" style="width: 100%;"><p align="center">Since I love delivering completely random quotes:<br><i>if you keep going the way you are now... you\'re gonna have a bad time.</i></p></div>';
 			} else {
 				$multiName = $multiThing["username"];
-				redirect("/index.php?p=40&user=" . $multiName);
+				redirect("/index.php?p=41&user=" . $multiName);
 			}
 		} else if (!$errors) {
 			// Print default warning message if we have no exception/success/multiacc warn
