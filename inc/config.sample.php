@@ -71,7 +71,7 @@ $teamConfig = [
 		"name" => "Mark Fokawo",
 		"twitter" => "fokawooooo",
 		"email" => "fo@ka.wo",
-		"role" => "Master Bot"
+		"role" => "Master Bot",
 		"github" => "gitfoka"
 	]
 ];
@@ -89,4 +89,4 @@ $reCaptchaConfig = [
 	"site_key" => "",
 	"secret_key" => "",
 	"ip" => false
-]
+];

@@ -352,6 +352,10 @@ function printPage($p) {
 				sessionCheck();
 				P::FriendlistPage();
 			break;
+
+			case 40:
+				P::StopSign();
+			break;
 				// Admin panel (> 100 pages are admin ones)
 
 			case 100:
@@ -1972,10 +1976,10 @@ function isBanned($userID = -1) {
 }
 
 function multiaccCheckIP($ip) {
-	$multiUserID = $GLOBALS['db']->fetch("SELECT userid FROM ip_user WHERE ip = ?", [$ip]);
+	$multiUserID = $GLOBALS['db']->fetch("SELECT userid, users.username FROM ip_user LEFT JOIN users ON users.id = ip_user.userid WHERE ip = ?", [$ip]);
 	if (!$multiUserID)
 		return false;
-	return current($multiUserID);
+	return $multiUserID;
 	/*$multiUsername = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$multiUserID]);
 
 	if ($multiUsername) {
@@ -1985,10 +1989,10 @@ function multiaccCheckIP($ip) {
 }
 
 function getUserFromMultiaccToken($token) {
-	$multiToken = $GLOBALS["db"]->fetch("SELECT userid FROM identity_tokens WHERE token = ? LIMIT 1", [$token]);
+	$multiToken = $GLOBALS["db"]->fetch("SELECT userid, users.username FROM identity_tokens LEFT JOIN users ON users.id = identity_tokens.userid WHERE token = ? LIMIT 1", [$token]);
 	if (!$multiToken)
 		return false;
-	return current($multiToken);
+	return $multiToken;
 }
 
 function multiaccCheckToken() {

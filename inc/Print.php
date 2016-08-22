@@ -2028,6 +2028,22 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 	}
 
 	/*
+	 * StopSign
+	 * For preventing future multiaccounters.
+	*/
+	public static function StopSign() {
+		// Maintenance check
+		self::MaintenanceStuff();
+		// Global alert
+		self::GlobalAlert();
+		if (!isset($_GET["user"])) {
+			self::ExceptionMessage("lol");
+			return;
+		}
+		echo str_replace("{}", htmlspecialchars($_GET["user"]), file_get_contents('./html_static/elmo_stop.html'));
+	}
+
+	/*
 	 * RulesPage
 	 * Prints the rules page.
 	*/
@@ -2193,7 +2209,7 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 		// Registration enabled check
 		if (!checkRegistrationsEnabled()) {
 			// Registrations are disabled
-			self::ExceptionMessage('<b>Registration is currently disabled.</b>');
+			self::ExceptionMessage('<b>Registrations are currently disabled.</b>');
 			die();
 		}
 		echo '<br><div id="narrow-content"><h1><i class="fa fa-plus-circle"></i>	Sign up</h1>';
@@ -2205,11 +2221,17 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 		$multiIP = multiaccCheckIP($ip);
 		// "y" cookie
 		$multiToken = multiaccCheckToken();
+		$multiThing = $multiIP === FALSE ? $multiToken : $multiIP;
 
 		// Show multiacc warning if ip or token match
 		$errors = self::Messages();
-		if ($multiIP !== FALSE || $multiToken !== FALSE) {
-			echo '<div class="alert alert-warning"><b>It seems you have another account registered on Ripple. Having more than one account is against the rules.</b> If this is an error and you don\'t have other accounts registered on Ripple, continue with your registration. <b>Registering more than one account from the same computer is considered multiaccounting and will not be tolerated.</b></div>';
+		if (($multiIP !== FALSE || $multiToken !== FALSE)) {
+			if (@$_GET["iseethestopsign"] == "1") {
+				echo '<div class="container alert alert-warning" role="alert" style="width: 100%;"><p align="center">Since I love delivering completely random quotes:<br><i>if you keep going the way you are now... you\'re gonna have a bad time.</i></p></div>';
+			} else {
+				$multiName = $multiThing["username"];
+				redirect("/index.php?p=40&user=" . $multiName);
+			}
 		} else if (!$errors) {
 			// Print default warning message if we have no exception/success/multiacc warn
 			echo '<p>Please fill every field in order to sign up.<br>';
