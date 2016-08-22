@@ -156,28 +156,29 @@ function setTitle($p) {
 		return '<title>Google</title>';
 	} else {
 		$namesRipple = [
-			1 => 'Custom osu! server',
-			3 => 'Register',
-			4 => 'User CP',
-			5 => 'Change avatar',
-			6 => 'Edit user settings',
-			7 => 'Change password',
-			8 => 'Edit userpage',
-			14 => 'Documentation files',
-			16 => 'Read documentation',
-			17 => 'Changelog',
-			18 => 'Recover your password',
-			20 => 'Beta keys',
-			21 => 'About',
-			22 => 'Report a bug/Request a feature',
-			23 => 'Rules',
-			24 => 'My report',
-			25 => 'Report',
-			26 => 'Friends',
+			1 =>   'Custom osu! server',
+			3 =>   'Register',
+			4 =>   'User CP',
+			5 =>   'Change avatar',
+			6 =>   'Edit user settings',
+			7 =>   'Change password',
+			8 =>   'Edit userpage',
+			14 =>  'Documentation files',
+			16 =>  'Read documentation',
+			17 =>  'Changelog',
+			18 =>  'Recover your password',
+			20 =>  'Beta keys',
+			21 =>  'About',
+			22 =>  'Report a bug/Request a feature',
+			23 =>  'Rules',
+			24 =>  'My report',
+			25 =>  'Report',
+			26 =>  'Friends',
+			41 =>  'Elmo! Stop!',
 			'u' => 'Userpage',
 		];
 		$namesRAP = [
-			99 => 'You\'ve been tracked',
+			99 =>  'You\'ve been tracked',
 			100 => 'Dashboard',
 			101 => 'System settings',
 			102 => 'Users',
@@ -355,7 +356,7 @@ function printPage($p) {
 				P::FriendlistPage();
 			break;
 
-			case 40:
+			case 41:
 				P::StopSign();
 			break;
 				// Admin panel (> 100 pages are admin ones)

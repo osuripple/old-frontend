@@ -46,7 +46,7 @@ class Discord {
 			You have now access to the <b>#donators</b> text and voice channels on our official Discord server!
 			You can also set a <b>custom role</b> name and username <b>color</b> and change your <b>nickname</b> on Discord.
 			If you want to change your username, you can use the <code>/nick</code> command.
-			To set or edit your <b>custom role</b> name and color, use the command <code>!role ROLE_NAME HEX_COLOR</code>.
+			To set or edit your <b>custom role</b> name and color, use the command <code>!role HEX_COLOR ROLE_NAME</code>.
 			You can pick your HEX color <a href="http://www.colorpicker.com/" target="_blank">here</a>, it\'s the one that starts with \'#\'
 			You can change your role name and color <b>whenever you want!</b>
 			<br><br>
