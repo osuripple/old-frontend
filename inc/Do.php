@@ -1523,7 +1523,7 @@ class D {
 				'Thank you for donating!',
 				sprintf(
 					"Hey %s!<br>Thank you for donating to Ripple. Your donor expires in %s month(s).<br><br>Love u,<br>Ripple",
-					$reportData['username'],
+					$username,
 					$_POST["m"]
 				)
 			);
