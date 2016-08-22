@@ -8,6 +8,7 @@ class IRC {
 
 	public function P() {
 		P::GlobalAlert();
+		P::MaintenanceStuff();
 		echo '
 		<div id="content">
 			<div align="center">

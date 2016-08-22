@@ -8,6 +8,7 @@ class Leaderboard {
 
 	public function P() {
 		P::GlobalAlert();
+		P::MaintenanceStuff();
 
 		global $ScoresConfig;
 

@@ -11,6 +11,7 @@ class TwoFASetup {
 
 	public function P() {
 		P::GlobalAlert();
+		P::MaintenanceStuff();
 		//startSessionIfNotStarted();
 		$_SESSION["2fa"] = is2FAEnabled($_SESSION["userid"], true);
 		if (!$_SESSION["2fa"]) {

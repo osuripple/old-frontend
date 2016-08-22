@@ -11,6 +11,7 @@ class RequestRankedBeatmap {
 
 	public function P() {
 		P::GlobalAlert();
+		P::MaintenanceStuff();
 		startSessionIfNotStarted();
 		$hasSentRequest = $GLOBALS["db"]->fetch("SELECT * FROM rank_requests WHERE time > ? AND userid = ? LIMIT 2", [time()-(24*3600), $_SESSION["userid"]]);
 		$rankRequests = $GLOBALS["db"]->fetchAll("SELECT * FROM rank_requests WHERE time > ? ORDER BY time ASC LIMIT 20", [time()-(24*3600)]);

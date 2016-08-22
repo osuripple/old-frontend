@@ -10,9 +10,9 @@ class Support {
 	public $mh_POST = [];
 
 	public function P() {
-		//die();
 		startSessionIfNotStarted();
 		P::GlobalAlert();
+		P::MaintenanceStuff();
 		$isSupporter = hasPrivilege(Privileges::UserDonor);
 		if ($isSupporter) {
 			$expire = $GLOBALS["db"]->fetch("SELECT donor_expire FROM users WHERE id = ?", [$_SESSION["userid"]]);

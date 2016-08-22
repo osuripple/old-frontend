@@ -27,6 +27,7 @@ class Discord {
 					<h1><i class="fa fa-comments"></i> Discord Donor Privileges</h1>';
 		if (!isset($_GET["code"]) || empty($_GET["code"])) {
 			P::GlobalAlert();
+			P::MaintenanceStuff();
 			$discordID = $GLOBALS["db"]->fetch("SELECT discordid FROM discord_roles WHERE userid = ? LIMIT 1", [$_SESSION["userid"]]);
 			if ($discordID == false || $discordID["discordid"] == 0) {
 			echo '<b>Donors get special privileges on our Discord server too!</b><br>
