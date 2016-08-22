@@ -354,6 +354,10 @@ function printPage($p) {
 				sessionCheck();
 				P::FriendlistPage();
 			break;
+
+			case 40:
+				P::StopSign();
+			break;
 				// Admin panel (> 100 pages are admin ones)
 
 			case 100:
@@ -1304,18 +1308,6 @@ function calculateAccuracy($n300, $n100, $n50, $ngeki, $nkatu, $nmiss, $mode) {
 	return $accuracy * 100; // we're doing * 100 because $accuracy is like 0.9823[...]
 
 }
-function osuDateToUNIXTimestamp($date) {
-	// nyo loves memes
-	if ($date != 0) {
-		$d = DateTime::createFromFormat('ymdHis', $date);
-		$d->add(new DateInterval('PT1H'));
-
-		return ($d->getTimestamp())-3600;
-	} else {
-		return time() - 60 * 60 * 24; // Remove one day from the time because reasons
-
-	}
-}
 /*
  * getRequiredScoreForLevel
  * Gets the required score for $l level
@@ -1992,10 +1984,10 @@ function isBanned($userID = -1) {
 }
 
 function multiaccCheckIP($ip) {
-	$multiUserID = $GLOBALS['db']->fetch("SELECT userid FROM ip_user WHERE ip = ?", [$ip]);
+	$multiUserID = $GLOBALS['db']->fetch("SELECT userid, users.username FROM ip_user LEFT JOIN users ON users.id = ip_user.userid WHERE ip = ?", [$ip]);
 	if (!$multiUserID)
 		return false;
-	return current($multiUserID);
+	return $multiUserID;
 	/*$multiUsername = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$multiUserID]);
 
 	if ($multiUsername) {
@@ -2005,10 +1997,10 @@ function multiaccCheckIP($ip) {
 }
 
 function getUserFromMultiaccToken($token) {
-	$multiToken = $GLOBALS["db"]->fetch("SELECT userid FROM identity_tokens WHERE token = ? LIMIT 1", [$token]);
+	$multiToken = $GLOBALS["db"]->fetch("SELECT userid, users.username FROM identity_tokens LEFT JOIN users ON users.id = identity_tokens.userid WHERE token = ? LIMIT 1", [$token]);
 	if (!$multiToken)
 		return false;
-	return current($multiToken);
+	return $multiToken;
 }
 
 function multiaccCheckToken() {

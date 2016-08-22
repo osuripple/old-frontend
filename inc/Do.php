@@ -74,13 +74,14 @@ class D {
 			$multiToken = multiaccCheckToken();
 			if ($multiIP !== FALSE || $multiToken !== FALSE) {
 				if ($multiIP !== FALSE) {
-					$multiUserID = $multiIP;
+					$multiUserInfo = $multiIP;
 					$criteria = "IP **($ip)**";
 				} else {
-					$multiUserID = $multiToken;
+					$multiUserInfo = $multiToken;
 					$criteria = "Multiaccount token (IP is **$ip**)";
 				}
-				$multiUsername = getUserUsername($multiUserID);
+				$multiUsername = $multiUserInfo["username"];
+				$multiUserID = $multiUserInfo["userid"];
 				Schiavo::CM("User **$_POST[u]** registered from same $criteria as **$multiUsername** (https://ripple.moe/?u=$multiUserID). **POSSIBLE MULTIACCOUNT!!!**. Waiting for ingame verification...");
 			}
 			// Create password

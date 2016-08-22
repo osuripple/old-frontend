@@ -76,7 +76,7 @@ class P {
 			echo '<td><p class="text-left"><b><a href="index.php?u='.$play["username"].'">'.$play['username'].'</a></b></p></td>';
 			echo '<td><p class="text-left">'.$bn.' <b>' . getScoreMods($play['mods']) . '</b></p></td>';
 			echo '<td><p class="text-left">'.$pm.'</p></td>';
-			echo '<td><p class="text-left">'.timeDifference(time(), osuDateToUNIXTimestamp($play['time'])).'</p></td>';
+			echo '<td><p class="text-left">'.timeDifference(time(), $play['time']).'</p></td>';
 			echo '<td><p class="text-left">'.number_format($play['score']).'</p></td>';
 			echo '<td><p class="text-right"><b>'.number_format($play['pp']).'pp</b></p></td>';
 			echo '</tr>';
@@ -102,7 +102,7 @@ class P {
 			echo '<td><p class="text-left"><a href="index.php?u='.$play["username"].'"><b>'.$play['username'].'</b></a></p></td>';
 			echo '<td><p class="text-left">'.$bn.' <b>' . getScoreMods($play['mods']) . '</b></p></td>';
 			echo '<td><p class="text-left">'.$pm.'</p></td>';
-			echo '<td><p class="text-left">'.timeDifference(time(), osuDateToUNIXTimestamp($play['time'])).'</p></td>';
+			echo '<td><p class="text-left">'.timeDifference(time(), $play['time']).'</p></td>';
 			echo '<td><p class="text-right"><b>'.number_format($play['pp']).'</b></p></td>';
 			echo '</tr>';
 		}
@@ -360,6 +360,7 @@ class P {
 			// Get user data
 			$userData = $GLOBALS['db']->fetch('SELECT * FROM users WHERE id = ?', $_GET['id']);
 			$userStatsData = $GLOBALS['db']->fetch('SELECT * FROM users_stats WHERE id = ?', $_GET['id']);
+			$ips = $GLOBALS['db']->fetchAll('SELECT ip FROM ip_user WHERE userid = ?', $_GET['id']);
 			// Check if this user exists
 			if (!$userData || !$userStatsData) {
 				throw new Exception("That user doesn't exist");
@@ -556,6 +557,11 @@ class P {
 			<i>(visible only from RAP)</i></td>
 			<td><textarea name="ncm" class="form-control" style="overflow:auto;resize:vertical;height:100px">' . $userData["notes"] . '</textarea></td>
 			</tr>';
+			echo '<tr><td>IPs</td><td><ul>';
+			foreach ($ips as $ip) {
+				echo "<li>$ip[ip] <a class='getcountry' data-ip='$ip[ip]' title='Click to retrieve IP country'>(?)</a></li>";
+			}
+			echo '</ul></td></tr>';
 			echo '</tbody></form>';
 			echo '</table>';
 			echo '<div class="text-center" style="width:50%; margin-left:25%;">
@@ -1662,14 +1668,21 @@ class P {
 		// Global alert
 		self::GlobalAlert();
 		try {
+			$kind = $GLOBALS['db']->fetch('SELECT 1 FROM users WHERE id = ?', $u) ? "id" : "username";
+
 			// Check banned status
-			$userData = $GLOBALS['db']->fetch('
+			$userData = $GLOBALS['db']->fetch("
 SELECT
 	users_stats.*, users.privileges, users.latest_activity,
 	users.silence_end, users.silence_reason, users.register_datetime
 FROM users_stats
 LEFT JOIN users ON users.id=users_stats.id
-WHERE users_stats.id = ?', [$u]);
+WHERE users_stats.$kind = ? LIMIT 1", [$u]);
+
+			if (!$userData) {
+				// LISCIAMI LE MELE SUDICIO
+				throw new Fava('User not found');
+			}
 
 			// Get admin/pending/banned/restricted/visible statuses
 			if (!checkLoggedIn()) {
@@ -2022,6 +2035,22 @@ WHERE users_stats.id = ?', [$u]);
 	}
 
 	/*
+	 * StopSign
+	 * For preventing future multiaccounters.
+	*/
+	public static function StopSign() {
+		// Maintenance check
+		self::MaintenanceStuff();
+		// Global alert
+		self::GlobalAlert();
+		if (!isset($_GET["user"])) {
+			self::ExceptionMessage("lol");
+			return;
+		}
+		echo str_replace("{}", htmlspecialchars($_GET["user"]), file_get_contents('./html_static/elmo_stop.html'));
+	}
+
+	/*
 	 * RulesPage
 	 * Prints the rules page.
 	*/
@@ -2187,7 +2216,7 @@ WHERE users_stats.id = ?', [$u]);
 		// Registration enabled check
 		if (!checkRegistrationsEnabled()) {
 			// Registrations are disabled
-			self::ExceptionMessage('<b>Registration is currently disabled.</b>');
+			self::ExceptionMessage('<b>Registrations are currently disabled.</b>');
 			die();
 		}
 		echo '<br><div id="narrow-content"><h1><i class="fa fa-plus-circle"></i>	Sign up</h1>';
@@ -2199,11 +2228,17 @@ WHERE users_stats.id = ?', [$u]);
 		$multiIP = multiaccCheckIP($ip);
 		// "y" cookie
 		$multiToken = multiaccCheckToken();
+		$multiThing = $multiIP === FALSE ? $multiToken : $multiIP;
 
 		// Show multiacc warning if ip or token match
 		$errors = self::Messages();
-		if ($multiIP !== FALSE || $multiToken !== FALSE) {
-			echo '<div class="alert alert-warning"><b>It seems you have another account registered on Ripple. Having more than one account is against the rules.</b> If this is an error and you don\'t have other accounts registered on Ripple, continue with your registration. <b>Registering more than one account from the same computer is considered multiaccounting and will not be tolerated.</b></div>';
+		if (($multiIP !== FALSE || $multiToken !== FALSE)) {
+			if (@$_GET["iseethestopsign"] == "1") {
+				echo '<div class="container alert alert-warning" role="alert" style="width: 100%;"><p align="center">Since I love delivering completely random quotes:<br><i>if you keep going the way you are now... you\'re gonna have a bad time.</i></p></div>';
+			} else {
+				$multiName = $multiThing["username"];
+				redirect("/index.php?p=40&user=" . $multiName);
+			}
 		} else if (!$errors) {
 			// Print default warning message if we have no exception/success/multiacc warn
 			echo '<p>Please fill every field in order to sign up.<br>';
@@ -3256,4 +3291,11 @@ WHERE users_stats.id = ?', [$u]);
 			redirect('index.php?p=108&e='.$e->getMessage());
 		}
 	}
+}
+
+// LISCIAMI LE MELE SUDICIO
+class Fava extends Exception {
+	 public function __construct($message, $code = 0, Exception $previous = null) {
+        parent::__construct($message, $code, $previous);
+    }
 }
