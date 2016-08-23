@@ -26,6 +26,8 @@ class Verify {
 					<b>Your account has been created, but it\'s not active yet!</b> Please log in to <b>Bancho</b> to activate it.
 					You don\'t know how to connect to Ripple? Follow <a target="_blank" href="index.php?p=16&id=1">this guide</a>!<br>
 				</p>
+				<h1><b>DO NOT LET ANYONE EXCEPT YOURSELF LOG INTO YOUR RIPPLE ACCOUNT FROM THEIR COMPUTER!!</b></h1>
+				<h4>Get on our <a href="https://discord.gg/4f2Bc7c">Discord server</a>\'s #help channel instead so that we can help you out if you have trouble connecting.</h4>
 				<hr>
 				<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
 				<h3>Waiting for verification...</h3>
