@@ -1673,7 +1673,7 @@ class P {
 			// Check banned status
 			$userData = $GLOBALS['db']->fetch("
 SELECT
-	users_stats.*, users.privileges, users.latest_activity,
+	users_stats.*, users.privileges, users.id, users.latest_activity,
 	users.silence_end, users.silence_reason, users.register_datetime
 FROM users_stats
 LEFT JOIN users ON users.id=users_stats.id
