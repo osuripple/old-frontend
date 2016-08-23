@@ -1840,9 +1840,9 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 			if ($country != 'XX' && $showCountry == 1) {
 				echo '<img src="./images/flags/'.strtolower($country).'.png">	';
 			}
-			/*if (isOnline($userData["id"])) {
+			if (isOnline($userData["id"])) {
 				echo '<i class="fa fa-circle online-circle"></i>';
-			}*/
+			}
 			echo $username.'</b></div></p>';
 			if ($usernameAka != '') {
 				echo '<small><i>A.K.A '.htmlspecialchars($usernameAka).'</i></small>';
