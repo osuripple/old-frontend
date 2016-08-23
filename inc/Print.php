@@ -1693,7 +1693,8 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 			$isPending = (($userData["privileges"] & Privileges::UserPendingVerification) > 0);
 			$isBanned = (($userData["privileges"] & Privileges::UserNormal) == 0) && (($userData["privileges"] & Privileges::UserPublic) == 0);
 			$isRestricted = (($userData["privileges"] & Privileges::UserNormal) > 0) && (($userData["privileges"] & Privileges::UserPublic) == 0);
-			$isVisible = (!$isBanned && !$isRestricted && !$isPending) || $userData["id"] == $_SESSION["userid"];
+			$myUserID = (checkLoggedIn()) ? $_SESSION["userid"] : -1;
+			$isVisible = (!$isBanned && !$isRestricted && !$isPending) || $userData["id"] == $myUserID;
 
 			if (!$isVisible) {
 				// The user is not visible
