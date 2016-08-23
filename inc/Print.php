@@ -1673,7 +1673,7 @@ class P {
 			// Check banned status
 			$userData = $GLOBALS['db']->fetch("
 SELECT
-	users_stats.*, users.privileges, users.latest_activity,
+	users_stats.*, users.privileges, users.id, users.latest_activity,
 	users.silence_end, users.silence_reason, users.register_datetime
 FROM users_stats
 LEFT JOIN users ON users.id=users_stats.id
@@ -1693,7 +1693,8 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 			$isPending = (($userData["privileges"] & Privileges::UserPendingVerification) > 0);
 			$isBanned = (($userData["privileges"] & Privileges::UserNormal) == 0) && (($userData["privileges"] & Privileges::UserPublic) == 0);
 			$isRestricted = (($userData["privileges"] & Privileges::UserNormal) > 0) && (($userData["privileges"] & Privileges::UserPublic) == 0);
-			$isVisible = (!$isBanned && !$isRestricted && !$isPending) || $userData["id"] == $_SESSION["userid"];
+			$myUserID = (checkLoggedIn()) ? $_SESSION["userid"] : -1;
+			$isVisible = (!$isBanned && !$isRestricted && !$isPending) || $userData["id"] == $myUserID;
 
 			if (!$isVisible) {
 				// The user is not visible
