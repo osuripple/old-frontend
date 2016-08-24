@@ -1486,12 +1486,18 @@ class D {
 		try {
 			if (!isset($_POST["id"]) || empty($_POST["id"]) || !isset($_POST["m"]) || empty($_POST["m"]))
 				throw new Exception("Invalid user");
-			$userData = $GLOBALS["db"]->fetch("SELECT username, email FROM users WHERE id = ?", [$_POST["id"]]);
+			$userData = $GLOBALS["db"]->fetch("SELECT username, email, donor_expire FROM users WHERE id = ?", [$_POST["id"]]);
 			if (!$userData) {
 				throw new Exception("That user doesn't exist");
 			}
+			$isDonor = hasPrivilege(Privileges::UserDonor, $_POST["id"]);
 			$username = $userData["username"];
-			$unixPeriod = time()+((30*86400)*$_POST["m"]);
+			if (!$isDonor || $_POST["type"] == 1) {
+				$start = time();
+			} else {
+				$start = $userData["donor_expire"];
+			}
+			$unixPeriod = $start+((30*86400)*$_POST["m"]);
 			$GLOBALS["db"]->execute("UPDATE users SET privileges = privileges | ".Privileges::UserDonor.", donor_expire = ? WHERE id = ?", [$unixPeriod, $_POST["id"]]);
 
 			// We do the log thing here because the badge part _might_ fail

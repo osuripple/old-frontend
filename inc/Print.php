@@ -576,11 +576,10 @@ class P {
 								echo '<a href="index.php?p=110&id='.$_GET['id'].'" class="btn btn-success">Edit badges</a>';
 							}
 							echo '	<a href="index.php?p=104&id='.$_GET['id'].'" class="btn btn-info">Change identity</a>';
-							if (!hasPrivilege(Privileges::UserDonor, $_GET["id"])) {
-								echo '	<a href="index.php?p=121&id='.$_GET['id'].'" class="btn btn-warning">Give donor</a>';
-							} else {
-								echo '	<a onclick="sure(\'submit.php?action=removeDonor&id='.$_GET['id'].'\');" class="btn btn-warning">Remove donor</a>';
+							if (hasPrivilege(Privileges::UserDonor, $_GET["id"])) {
+								echo '	<a onclick="sure(\'submit.php?action=removeDonor&id='.$_GET['id'].'\');" class="btn btn-danger">Remove donor</a>';
 							}
+							echo '	<a href="index.php?p=121&id='.$_GET['id'].'" class="btn btn-warning">Give donor</a>';
 							echo '	<a href="index.php?u='.$_GET['id'].'" class="btn btn-primary">View profile</a>
 						</li>
 					</ul>';
@@ -3145,32 +3144,35 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 				throw new Exception("Invalid user");
 			}
 			$username = current($username);
-			$isDonor = hasPrivilege(Privileges::UserDonor, $_GET["id"]);
-			if ($isDonor) {
-				echo '<p align="center"><br>'.$username.' is already a Donor<br><br>
-				<a class="btn btn-primary" href="submit.php?action=removeDonor&id='.$_GET["id"].'">Remove donor</a></p>';
-			} else {
-				echo '<table class="table table-striped table-hover table-50-center"><tbody>';
-				echo '<form id="edit-user-badges" action="submit.php" method="POST"><input name="action" value="giveDonor" hidden>';
-				echo '<tr>
-				<td>User ID</td>
-				<td><p class="text-center"><input type="text" name="id" class="form-control" value="'.$_GET["id"].'" readonly></td>
-				</tr>';
-				echo '<tr>
-				<td>Username</td>
-				<td><p class="text-center"><input type="text" class="form-control" value="'.$username.'" readonly></td>
-				</tr>';
-				echo '<tr>
-				<td>Period<br>(number of months)</td>
-				<td>
-				<input name="m" type="number" class="form-control" placeholder="Months" required></input>
-				</td>
-				</tr>';
+			echo '<table class="table table-striped table-hover table-50-center"><tbody>';
+			echo '<form id="edit-user-badges" action="submit.php" method="POST"><input name="action" value="giveDonor" hidden>';
+			echo '<tr>
+			<td>User ID</td>
+			<td><p class="text-center"><input type="text" name="id" class="form-control" value="'.$_GET["id"].'" readonly></td>
+			</tr>';
+			echo '<tr>
+			<td>Username</td>
+			<td><p class="text-center"><input type="text" class="form-control" value="'.$username.'" readonly></td>
+			</tr>';
+			echo '<tr>
+			<td>Period</td>
+			<td>
+			<input name="m" type="number" class="form-control" placeholder="Months" required></input>
+			</td>
+			</tr>';
+			echo '<tr>
+			<td>Operation type</td>
+			<td>
+			<select name="type" class="selectpicker" data-width="100%">
+				<option value=0>Add months</option>
+				<option value=1>Replace months</option>
+			</select></td>
+			</tr>';
 
-				echo '</tbody></form>';
-				echo '</table>';
-				echo '<div class="text-center"><button type="submit" form="edit-user-badges" class="btn btn-primary">Give donor</button></div>';
-			}
+						
+			echo '</tbody></form>';
+			echo '</table>';
+			echo '<div class="text-center"><button type="submit" form="edit-user-badges" class="btn btn-primary">Give donor</button></div>';
 			echo '</div>';
 		}
 		catch(Exception $e) {
