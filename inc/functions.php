@@ -2049,7 +2049,7 @@ function UNIXTimestampToOsuDate($unix) {
 function isOnline($uid) {
 	global $URL;
 	try {
-		$data = getJsonCurl($URL["bancho"]."/api/v1/isOnline?u=". urlencode($uid) ."&id=1");
+		$data = getJsonCurl($URL["bancho"]."/api/v1/isOnline?id=".urlencode($uid));
 		return $data["result"];
 	} catch (Exception $e) {
 		return false;
