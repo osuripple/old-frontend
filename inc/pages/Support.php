@@ -10,6 +10,7 @@ class Support {
 	public $mh_POST = [];
 
 	public function P() {
+		$maxDonor = 24;
 		startSessionIfNotStarted();
 		P::GlobalAlert();
 		P::MaintenanceStuff();
@@ -103,7 +104,7 @@ class Support {
 					<h4>Read carefully</h4>
 					<p class="half">
 						You may donate through either <b>PayPal</b> (or credit/debit card linked to PayPal) or <b>Bitcoin</b>. Use the <b>slider</b> below to choose the amount of months you\'d like to have the donor benefits, and the cost will be instantly calculated. Remember that if, for instance, you choose to donate € 4 instead of € 3.51, you will only be given one donor month.<br><br>
-						<div class="slider" style="width: 100%;" data-slider-min="1" data-slider-max="24" data-slider-value="1" data-slider-tooltip="hide"></div><br>
+						<div class="slider" style="width: 100%;" data-slider-min="1" data-slider-max="'.$maxDonor.'" data-slider-value="1" data-slider-tooltip="hide"></div><br>
 						<span id="supporter-prices"></span>
 					</p>
 					<hr>
@@ -114,86 +115,21 @@ class Support {
 							<h3><i class="fa fa-paypal"></i>	Prefer PayPal?</h3></h3>
 							<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_self">
 								<table>
-								<tr><td><input type="hidden" name="on0" value="Period">Period</td></tr><tr><td>
-								<select name="os0" id="paypal-supporter-period">
-									<option value="1 months">1 months €3,51 EUR</option>
-									<option value="2 months">2 months €5,69 EUR</option>
-									<option value="3 months">3 months €7,56 EUR</option>
-									<option value="4 months">4 months €9,25 EUR</option>
-									<option value="5 months">5 months €10,81 EUR</option>
-									<option value="6 months">6 months €12,29 EUR</option>
-									<option value="7 months">7 months €13,69 EUR</option>
-									<option value="8 months">8 months €15,03 EUR</option>
-									<option value="9 months">9 months €16,32 EUR</option>
-									<option value="10 months">10 months €17,57 EUR</option>
-									<option value="11 months">11 months €18,78 EUR</option>
-									<option value="12 months">12 months €19,96 EUR</option>
-									<option value="13 months">13 months €21,11 EUR</option>
-									<option value="14 months">14 months €22,23 EUR</option>
-									<option value="15 months">15 months €23,33 EUR</option>
-									<option value="16 months">16 months €24,41 EUR</option>
-									<option value="17 months">17 months €25,47 EUR</option>
-									<option value="18 months">18 months €26,51 EUR</option>
-									<option value="19 months">19 months €27,53 EUR</option>
-									<option value="20 months">20 months €28,54 EUR</option>
-									<option value="21 months">21 months €29,53 EUR</option>
-									<option value="22 months">22 months €30,51 EUR</option>
-									<option value="23 months">23 months €31,47 EUR</option>
-									<option value="24 months">24 months €32,42 EUR</option>
-								</select>
+								<tr><td><input type="hidden" name="on0" value="Period">Period</td></tr><tr><td>';
 
-								<!-- Memini divertentini for more than 10 options -->
-								<input type="hidden" name="option_index" value="0">
-								<input type="hidden" name="option_select0" value="1 months">
-								<input type="hidden" name="option_amount0" value="3.51">
-								<input type="hidden" name="option_select1" value="2 months">
-								<input type="hidden" name="option_amount1" value="5.69">
-								<input type="hidden" name="option_select2" value="3 months">
-								<input type="hidden" name="option_amount2" value="7.56">
-								<input type="hidden" name="option_select3" value="4 months">
-								<input type="hidden" name="option_amount3" value="9.25">
-								<input type="hidden" name="option_select4" value="5 months">
-								<input type="hidden" name="option_amount4" value="10.81">
-								<input type="hidden" name="option_select5" value="6 months">
-								<input type="hidden" name="option_amount5" value="12.29">
-								<input type="hidden" name="option_select6" value="7 months">
-								<input type="hidden" name="option_amount6" value="13.69">
-								<input type="hidden" name="option_select7" value="8 months">
-								<input type="hidden" name="option_amount7" value="15.03">
-								<input type="hidden" name="option_select8" value="9 months">
-								<input type="hidden" name="option_amount8" value="16.32">
-								<input type="hidden" name="option_select9" value="10 months">
-								<input type="hidden" name="option_amount9" value="17.57">
-								<input type="hidden" name="option_select10" value="11 months">
-								<input type="hidden" name="option_amount10" value="18.78">
-								<input type="hidden" name="option_select11" value="12 months">
-								<input type="hidden" name="option_amount11" value="19.96">
-								<input type="hidden" name="option_select12" value="13 months">
-								<input type="hidden" name="option_amount12" value="21.11">
-								<input type="hidden" name="option_select13" value="14 months">
-								<input type="hidden" name="option_amount13" value="22.23">
-								<input type="hidden" name="option_select14" value="15 months">
-								<input type="hidden" name="option_amount14" value="23.33">
-								<input type="hidden" name="option_select15" value="16 months">
-								<input type="hidden" name="option_amount15" value="24.41">
-								<input type="hidden" name="option_select16" value="17 months">
-								<input type="hidden" name="option_amount16" value="25.47">
-								<input type="hidden" name="option_select17" value="18 months">
-								<input type="hidden" name="option_amount17" value="26.51">
-								<input type="hidden" name="option_select18" value="19 months">
-								<input type="hidden" name="option_amount18" value="27.53">
-								<input type="hidden" name="option_select19" value="20 months">
-								<input type="hidden" name="option_amount19" value="28.54">
-								<input type="hidden" name="option_select20" value="21 months">
-								<input type="hidden" name="option_amount20" value="29.53">
-								<input type="hidden" name="option_select21" value="22 months">
-								<input type="hidden" name="option_amount21" value="30.51">
-								<input type="hidden" name="option_select22" value="23 months">
-								<input type="hidden" name="option_amount22" value="31.47">
-								<input type="hidden" name="option_select23" value="24 months">
-								<input type="hidden" name="option_amount23" value="32.42">
+								echo '<select name="os0" id="paypal-supporter-period">';
+								for ($i=0; $i < $maxDonor; $i++) { 
+									echo '<option value="'.($i+1).' months">'.($i+1).' months €'.getDonorPrice($i+1).' EUR</option>';
+								}
+								echo '</select>';
 
-								</td></tr>
+								echo '<input type="hidden" name="option_index" value="0">';
+								for ($i=0; $i < $maxDonor; $i++) { 
+									echo '<input type="hidden" name="option_select'.$i.'" value="'.($i+1).' months">';
+									echo '<input type="hidden" name="option_amount'.$i.'" value="'.getDonorPrice($i+1).'">';
+								}
+
+								echo '</td></tr>
 								<tr><td><input type="hidden" name="on1" value="Ripple user to give donor">Ripple user to give donor</td></tr><tr><td><input type="text" name="os1" maxlength="200" value="'.$_SESSION["username"].'"></td></tr>
 								</table>
 								<input type="hidden" name="currency_code" value="EUR">

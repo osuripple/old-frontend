@@ -3164,7 +3164,7 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 			<td>Operation type</td>
 			<td>
 			<select name="type" class="selectpicker" data-width="100%">
-				<option value=0>Add months</option>
+				<option value=0 selected>Add months</option>
 				<option value=1>Replace months</option>
 			</select></td>
 			</tr>';

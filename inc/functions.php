@@ -2055,3 +2055,7 @@ function isOnline($uid) {
 		return false;
 	}
 }
+
+function getDonorPrice($months) {
+	return number_format(pow($months * 30 * 0.2, 0.70), 2, ".", "");
+}
