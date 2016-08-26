@@ -8,6 +8,7 @@ class Verify {
 
 	public function P() {
 		// Make sure the "y" token is the one from the correct user
+		global $discordConfig;
 		try {
 			// Make sure we have the "y" token
 			if (!isset($_COOKIE["y"]))
@@ -26,11 +27,13 @@ class Verify {
 					<b>Your account has been created, but it\'s not active yet!</b> Please log in to <b>Bancho</b> to activate it.
 					You don\'t know how to connect to Ripple? Follow <a target="_blank" href="index.php?p=16&id=1">this guide</a>!<br>
 				</p>
-				<h1><b>DO NOT LET ANYONE EXCEPT YOURSELF LOG INTO YOUR RIPPLE ACCOUNT FROM THEIR COMPUTER!!</b></h1>
-				<h4>Get on our <a href="https://discord.gg/4f2Bc7c">Discord server</a>\'s #help channel instead so that we can help you out if you have trouble connecting.</h4>
+				<div class="alert alert-danger animated shake">
+					<i class="fa fa-exclamation-triangle"></i>
+					<b>Do not let anyone except yourself log into your ripple account from their computer!</b> Get on our <a href="'.$discordConfig["invite_url"].'">Discord server</a>\'s #help channel instead so that we can help you out if you have trouble connecting.
+				</div>
 				<hr>
 				<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
-				<h3>Waiting for verification...</h3>
+				<h3>Waiting for Bancho login...</h3>
 			</div>';
 		} catch (Exception $e) {
 			redirect("index.php");

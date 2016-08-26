@@ -358,8 +358,8 @@ class P {
 				throw new Exception('Invalid user ID!');
 			}
 			// Get user data
-			$userData = $GLOBALS['db']->fetch('SELECT * FROM users WHERE id = ?', $_GET['id']);
-			$userStatsData = $GLOBALS['db']->fetch('SELECT * FROM users_stats WHERE id = ?', $_GET['id']);
+			$userData = $GLOBALS['db']->fetch('SELECT * FROM users WHERE id = ? LIMIT 1', $_GET['id']);
+			$userStatsData = $GLOBALS['db']->fetch('SELECT * FROM users_stats WHERE id = ? LIMIT 1', $_GET['id']);
 			$ips = $GLOBALS['db']->fetchAll('SELECT ip FROM ip_user WHERE userid = ?', $_GET['id']);
 			// Check if this user exists
 			if (!$userData || !$userStatsData) {
@@ -372,6 +372,14 @@ class P {
 			} else {
 				$haxText = "No";
 				$haxCol = "success";
+			}
+			// Cb check
+			if ($userStatsData["can_custom_badge"] == 1) {
+				$cbText = "Yes";
+				$cbCol = "success";
+			} else {
+				$cbText = "No";
+				$cbCol = "danger";
 			}
 			// Set readonly stuff
 			$readonly[0] = ''; // User data stuff
@@ -542,7 +550,27 @@ class P {
 			}
 			echo '<tr>
 			<td>Avatar<br><a onclick="sure(\'submit.php?action=resetAvatar&id='.$_GET['id'].'\')">(reset avatar)</a></td>
-			<td><img src="'.URL::Avatar().'/'.$_GET['id'].'" height="50" width="50"></img></td>
+			<td>
+				<p align="center">
+					<img src="'.URL::Avatar().'/'.$_GET['id'].'" height="50" width="50"></img>
+				</p>
+			</td>
+			</tr>';
+			if (hasPrivilege(Privileges::UserDonor, $_GET["id"])) {
+				echo '<tr>
+				<td>Custom badge</td>
+				<td>
+					<p align="center">
+						<i class="fa '.htmlspecialchars($userStatsData["custom_badge_icon"]).' fa-2x"></i>
+						<br>
+						<b>'.htmlspecialchars($userStatsData["custom_badge_name"]).'</b>
+					</p>
+				</td>
+				</tr>';
+			}
+			echo '<tr>
+			<td>Can edit custom badge</td>
+			<td><span class="label label-'.$cbCol.'">'.$cbText.'</span></td>
 			</tr>';
 			echo '<tr>
 			<td>Detected AQN folder
@@ -583,22 +611,23 @@ class P {
 							echo '	<a href="index.php?u='.$_GET['id'].'" class="btn btn-primary">View profile</a>
 						</li>
 					</ul>';
-					if (hasPrivilege(Privileges::AdminBanUsers) || hasPrivilege(Privileges::AdminWipeUsers)) {
-						echo '<ul class="list-group">
-						<li class="list-group-item list-group-item-danger">Dangerous Zone</li>
-						<li class="list-group-item">';
-						if (hasPrivilege(Privileges::AdminWipeUsers)) {
-							echo '	<a href="index.php?p=123&id='.$_GET["id"].'" class="btn btn-danger">Wipe account</a>';
-							echo '	<a href="index.php?p=122&id='.$_GET["id"].'" class="btn btn-danger">Rollback account</a>';
-						}
-						if (hasPrivilege(Privileges::AdminBanUsers)) {
-							echo '	<a onclick="sure(\'submit.php?action=banUnbanUser&id='.$_GET['id'].'\')" class="btn btn-danger">(Un)ban user</a>';
-							echo '	<a onclick="sure(\'submit.php?action=restrictUnrestrictUser&id='.$_GET['id'].'\')" class="btn btn-danger">(Un)restrict user</a>';
-						}
-						echo '<br>
-							</li>
-						</ul>';
+
+					echo '<ul class="list-group">
+					<li class="list-group-item list-group-item-danger">Dangerous Zone</li>
+					<li class="list-group-item">';
+					if (hasPrivilege(Privileges::AdminWipeUsers)) {
+						echo '	<a href="index.php?p=123&id='.$_GET["id"].'" class="btn btn-danger">Wipe account</a>';
+						echo '	<a href="index.php?p=122&id='.$_GET["id"].'" class="btn btn-danger">Rollback account</a>';
 					}
+					if (hasPrivilege(Privileges::AdminBanUsers)) {
+						echo '	<a onclick="sure(\'submit.php?action=banUnbanUser&id='.$_GET['id'].'\')" class="btn btn-danger">(Un)ban user</a>';
+						echo '	<a onclick="sure(\'submit.php?action=restrictUnrestrictUser&id='.$_GET['id'].'\')" class="btn btn-danger">(Un)restrict user</a>';
+					}
+					echo '	<a onclick="sure(\'submit.php?action=toggleCustomBadge&id='.$_GET['id'].'\');" class="btn btn-danger">'.(($userStatsData["can_custom_badge"] == 1) ? "Revoke" : "Grant").' custom badge</a>';
+					echo '<br>
+						</li>
+					</ul>';
+
 				echo '</div>
 				</div>';
 		}
@@ -1734,6 +1763,38 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 			$latestActivity = $userData['latest_activity'];
 			$silenceEndTime = $userData['silence_end'];
 			$silenceReason = $userData['silence_reason'];
+
+			// Get badges id and icon (max 6 badges)
+			$allBadges = $GLOBALS['db']->fetchAll('SELECT id, icon, name FROM badges');
+			$badgeID = explode(',', $userData['badges_shown']);
+			for ($i = 0; $i < count($badgeID); $i++) {
+				foreach ($allBadges as $singleBadge) {
+					if ($singleBadge['id'] == $badgeID[$i]) {
+						$badgeIcon[$i] = htmlspecialchars($singleBadge['icon']);
+						$badgeName[$i] = htmlspecialchars($singleBadge['name']);
+					}
+				}
+				if (empty($badgeIcon[$i])) {
+					$badgeIcon[$i] = 0;
+				}
+				if (empty($badgeName[$i])) {
+					$badgeIcon[$i] = '';
+				}
+			}
+
+			// Set custom badge
+			$showCustomBadge = hasPrivilege(Privileges::UserDonor) && $userData["show_custom_badge"] == 1 && $userData["can_custom_badge"] == 1;
+			if ($showCustomBadge) {
+				for ($i=0; $i < 6; $i++) { 
+					if ($badgeID[$i] == 0) {
+						$badgeID[$i] = -1;
+						$badgeIcon[$i] = htmlspecialchars($userData["custom_badge_icon"]);
+						$badgeName[$i] = "<i>".htmlspecialchars($userData["custom_badge_name"])."</i>";
+						break;
+					}
+				}
+			}
+
 			// Make sure that we have at least one score to calculate maximum combo, otherwise maximum combo is 0
 			$maximumCombo = $GLOBALS['db']->fetch('SELECT max_combo FROM scores WHERE userid = ? AND play_mode = ? ORDER BY max_combo DESC LIMIT 1', [$userData['id'], $m]);
 			if ($maximumCombo) {
@@ -1784,23 +1845,6 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 			} else {
 				$rank = sprintf('%02d', $rank);
 				$rankSymbol = '#';
-			}
-			// Get badges id and icon (max 6 badges)
-			$allBadges = $GLOBALS['db']->fetchAll('SELECT id, icon, name FROM badges');
-			$badgeID = explode(',', $userData['badges_shown']);
-			for ($i = 0; $i < count($badgeID); $i++) {
-				foreach ($allBadges as $singleBadge) {
-					if ($singleBadge['id'] == $badgeID[$i]) {
-						$badgeIcon[$i] = $singleBadge['icon'];
-						$badgeName[$i] = $singleBadge['name'];
-					}
-				}
-				if (empty($badgeIcon[$i])) {
-					$badgeIcon[$i] = 0;
-				}
-				if (empty($badgeName[$i])) {
-					$badgeIcon[$i] = '';
-				}
 			}
 			// Silence thing
 			if ($silenceEndTime - time() > 0) {
@@ -1865,25 +1909,25 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 			echo '<div id="userpage-content">
 			<div class="col-md-3">';
 			// Badges Left colum
-			if ($badgeID[0] > 0) {
+			if ($badgeID[0] > 0 || $badgeID[0] == -1) {
 				echo '<i class="fa '.$badgeIcon[0].' fa-2x"></i><br><b>'.$badgeName[0].'</b><br><br>';
 			}
-			if ($badgeID[2] > 0) {
+			if ($badgeID[2] > 0 || $badgeID[2] == -1) {
 				echo '<i class="fa '.$badgeIcon[2].' fa-2x"></i><br><b>'.$badgeName[2].'</b><br><br>';
 			}
-			if ($badgeID[4] > 0) {
+			if ($badgeID[4] > 0 || $badgeID[4] == -1) {
 				echo '<i class="fa '.$badgeIcon[4].' fa-2x"></i><br><b>'.$badgeName[4].'</b><br><br>';
 			}
 			echo '</div>
 			<div class="col-md-3">';
 			// Badges Right column
-			if ($badgeID[1] > 0) {
+			if ($badgeID[1] > 0 || $badgeID[1] == -1) {
 				echo '<i class="fa '.$badgeIcon[1].' fa-2x"></i><br><b>'.$badgeName[1].'</b><br><br>';
 			}
-			if ($badgeID[3] > 0) {
+			if ($badgeID[3] > 0 || $badgeID[3] == -1) {
 				echo '<i class="fa '.$badgeIcon[3].' fa-2x"></i><br><b>'.$badgeName[3].'</b><br><br>';
 			}
-			if ($badgeID[5] > 0) {
+			if ($badgeID[5] > 0 || $badgeID[5] == -1) {
 				echo '<i class="fa '.$badgeIcon[5].' fa-2x"></i><br><b>'.$badgeName[5].'</b><br><br>';
 			}
 			// Calculate required score for our level
@@ -2299,7 +2343,7 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 		// Global alert
 		self::GlobalAlert();
 		// Get user settings data
-		$data = $GLOBALS['db']->fetch('SELECT * FROM users_stats WHERE username = ?', $_SESSION['username']);
+		$data = $GLOBALS['db']->fetch('SELECT * FROM users_stats WHERE id = ? LIMIT 1', $_SESSION['userid']);
 		// Title
 		echo '<div id="narrow-content"><h1><i class="fa fa-cog"></i>	User settings</h1>';
 		// Print Exception if set
@@ -2315,9 +2359,16 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 		if (!isset($_GET['e']) && !isset($_GET['s'])) {
 			echo '<p>You can edit your account settings here.</p>';
 		}
+
 		// Default select stuff
 		$selected[0] = [0 => '', 1 => ''];
 		$selected[1] = [0 => '', 1 => ''];
+		$selected[2] = [0 => '', 1 => ''];
+		
+		$selected[0][$data['show_country']] = 'selected';
+		$selected[1][isset($_COOKIE['st']) && $_COOKIE['st'] == 1] = 'selected';
+		$selected[2][$data['show_custom_badge']] = 'selected';
+
 		// Howl is cool so he does it in his own way
 		$mode = $data['favourite_mode'];
 		$cj = function ($index) use ($mode) {
@@ -2328,17 +2379,7 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 
 			return $r.'';
 		};
-		// Selected stuff
-		if ($data['show_country'] == 1) {
-			$selected[0][1] = 'selected';
-		} else {
-			$selected[0][0] = 'selected';
-		}
-		if (isset($_COOKIE['st']) && $_COOKIE['st'] == 1) {
-			$selected[1][1] = 'selected';
-		} else {
-			$selected[1][0] = 'selected';
-		}
+
 		// Print form
 		echo '<form action="submit.php" method="POST">
 		<input name="action" value="saveUserSettings" hidden>
@@ -2376,16 +2417,58 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 		<div class="input-group" style="width:100%">
 			<span class="input-group-addon" id="basic-addon3" style="width:40%">A.K.A</span>
 			<input type="text" name="aka" class="form-control" value="'.htmlspecialchars($data['username_aka']).'" placeholder="Alternative username (not for login)" aria-describedby="basic-addon3" spellcheck="false">
-		</div>
-		<p style="line-height: 15px"></p>
-		<h3>Playstyle</h3>
-		<div style="text-align: left">
+		</div>';
+
+		if (hasPrivilege(Privileges::UserDonor)) {
+			echo '<p style="line-height: 15px"></p>
+			<div class="input-group" style="width:100%">
+				<span class="input-group-addon" id="basic-addon0" style="width:40%">Show custom badge</span>
+				<select name="showCustomBadge" class="selectpicker" data-width="100%">
+					<option value="1" '.$selected[2][1].'>Yes</option>
+					<option value="0" '.$selected[2][0].'>No</option>
+				</select>
+			</div>';
+		}
+		echo '<p style="line-height: 15px"></p><hr>';
+		if (hasPrivilege(Privileges::UserDonor)) {
+			echo '<h3>Custom Badge</h3>';
+			if ($data["can_custom_badge"] == 0) {
+				echo '<div class="alert alert-danger">
+					<i class="fa fa-exclamation-triangle"></i>
+					Due to an incorrect use of custom badges, we\'ve <b>revoked your ability to create custom badges.</b>
+				</div>';
+			} else {
+				echo '
+				<div class="alert alert-warning">
+					<i class="fa fa-exclamation-triangle"></i>
+					<b>Do not use offensive badges and do not pretend to be someone else with your badge.</b> If you abuse the badges system, you\'ll be <b>silenced</b> and you won\'t be able to <b>edit your custom badge</b> anymore.
+				</div>
+				<div class="row">
+					<div class="col-md-6">
+						<i id="badge-icon" class="fa '.htmlspecialchars($data["custom_badge_icon"]).' fa-2x"></i>
+						<br>
+						<b><span id="badge-name">'.htmlspecialchars($data["custom_badge_name"]).'</span></b>
+					</div>
+					<div class="col-md-6" style="text-align: left;">
+						<input id="badge-icon-input" type="text" placeholder="Icon" name="badgeIcon" data-placement="bottomLeft" class="form-control icp icp-auto" value="'.htmlspecialchars($data["custom_badge_icon"]).'" maxlength="32">
+						<p style="line-height: 15px"></p>
+						<input id="badge-name-input" type="text" placeholder="Name" name="badgeName" class="form-control" value="'.htmlspecialchars($data["custom_badge_name"]).'" maxlength="24">
+						<p style="line-height: 15px"></p>
+					</div>
+				</div>';
+			}
+			echo '<p style="line-height: 15px"></p>
+				<hr>';
+		}
+
+		echo '<h3>Playstyle</h3>
+		<div>
 		';
 		// Display playstyle checkboxes
 		$playstyle = $data['play_style'];
 		foreach ($PlayStyleEnum as $k => $v) {
-			echo "<br>
-			<input type='checkbox' name='ps_$k' value='1' ".($playstyle & $v ? 'checked' : '')."> $k";
+			echo "
+			<label style='font-weight: normal;'><input type='checkbox' name='ps_$k' value='1' ".($playstyle & $v ? 'checked' : '')."> $k</label><br>";
 		}
 		echo '
 		</div>

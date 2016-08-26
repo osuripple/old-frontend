@@ -207,6 +207,10 @@ try {
 			sessionCheckAdmin(Privileges::AdminWipeUsers);
 			D::Rollback();
 		break;
+		case 'toggleCustomBadge':
+			sessionCheckAdmin(Privileges::AdminManageUsers);
+			D::ToggleCustomBadge();
+		break;
 	}
 }
 catch(Exception $e) {

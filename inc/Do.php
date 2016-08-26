@@ -932,6 +932,10 @@ class D {
 	public static function saveUserSettings() {
 		global $PlayStyleEnum;
 		try {
+			function valid($value, $min=0, $max=1) {
+				return ($value >= $min && $value <= $max);
+			}
+
 			// Check if we are logged in
 			sessionCheck();
 			// Restricted check
@@ -939,11 +943,15 @@ class D {
 				throw new Exception(1);
 			}
 			// Check if everything is set
-			if (!isset($_POST['f']) || !isset($_POST['c']) || !isset($_POST['aka']) || !isset($_POST['st'])) {
+			if (!isset($_POST['f']) || !isset($_POST['c']) || !isset($_POST['aka']) || !isset($_POST['st']) || !isset($_POST['mode'])) {
+				throw new Exception(0);
+			}
+			// Make sure values are valid
+			if (!valid($_POST['mode'], 0, 3) || !valid($_POST['f']) || !valid($_POST['st']) || (isset($_POST["showCustomBadge"]) && !valid($_POST["showCustomBadge"]))) {
 				throw new Exception(0);
 			}
 			// Check if username color is not empty and if so, set to black (default)
-			if (empty($_POST['c'])) {
+			if (empty($_POST['c']) || !preg_match('/^#[a-f0-9]{6}$/i', $_POST['c'])) {
 				$c = 'black';
 			} else {
 				$c = $_POST['c'];
@@ -956,12 +964,17 @@ class D {
 					$pm += $PlayStyleEnum[$i];
 				}
 			}
-			// Update mode
-			if ($_POST['mode'] <= 3 && $_POST['mode'] >= 0) {
-				$GLOBALS['db']->execute('UPDATE users_stats SET favourite_mode = ? WHERE username = ?', [$_POST['mode'], $_SESSION['username']]);
+			// Save custom badge
+			$canCustomBadge = current($GLOBALS["db"]->fetch("SELECT can_custom_badge FROM users_stats WHERE id = ? LIMIT 1", [$_SESSION["userid"]])) == 1;
+			if (hasPrivilege(Privileges::UserDonor) && $canCustomBadge && isset($_POST["showCustomBadge"]) && isset($_POST["badgeName"]) && isset($_POST["badgeIcon"])) {
+				$oldCustomBadge = $GLOBALS["db"]->fetch("SELECT custom_badge_name AS name, custom_badge_icon AS icon FROM users_stats WHERE id = ? LIMIT 1", [$_SESSION["userid"]]);
+				if ($oldCustomBadge["name"] != $_POST["badgeName"] || $oldCustomBadge["icon"] != $_POST["badgeIcon"]) {
+					Schiavo::CM("User **$_SESSION[username]** has changed his custom badge to **$_POST[badgeName]** *($_POST[badgeIcon])*");
+				}
+				$GLOBALS["db"]->execute("UPDATE users_stats SET show_custom_badge = ?, custom_badge_name = ?, custom_badge_icon = ? WHERE id = ? LIMIT 1", [$_POST["showCustomBadge"], $_POST["badgeName"], $_POST["badgeIcon"], $_SESSION["userid"]]);
 			}
 			// Save data in db
-			$GLOBALS['db']->execute('UPDATE users_stats SET user_color = ?, show_country = ?, username_aka = ?, safe_title = ?, play_style = ? WHERE username = ?', [$c, $_POST['f'], $_POST['aka'], $_POST['st'], $pm, $_SESSION['username']]);
+			$GLOBALS['db']->execute('UPDATE users_stats SET user_color = ?, show_country = ?, username_aka = ?, safe_title = ?, play_style = ?, favourite_mode = ? WHERE id = ? LIMIT 1', [$c, $_POST['f'], $_POST['aka'], $_POST['st'], $pm, $_POST['mode'], $_SESSION['userid']]);
 			// Update safe title cookie
 			updateSafeTitle();
 			// Done, redirect to success page
@@ -1496,8 +1509,12 @@ class D {
 				$start = time();
 			} else {
 				$start = $userData["donor_expire"];
+				if ($start < time()) {
+					$start = time();
+				}
 			}
 			$unixPeriod = $start+((30*86400)*$_POST["m"]);
+			$months = round(($unixPeriod-time())/(30*86400));
 			$GLOBALS["db"]->execute("UPDATE users SET privileges = privileges | ".Privileges::UserDonor.", donor_expire = ? WHERE id = ?", [$unixPeriod, $_POST["id"]]);
 
 			// We do the log thing here because the badge part _might_ fail
@@ -1510,7 +1527,12 @@ class D {
 			$badges = explode(",", current($badges));
 			$meme = true;
 			foreach ($badges as $i => $badge) {
-				if ($badge == 0) {
+				// Break if we already have a donor badge
+				if ($badge == 14) {	// 14 == donor badge id
+					$meme = false;
+					break;
+				}
+				if ($badge == 0 || $badge == 2) {
 					$meme = false;
 					$badges[$i] = 14;	// 14 == donor badge id
 					break;
@@ -1530,10 +1552,10 @@ class D {
 				sprintf(
 					"Hey %s!<br>Thank you for donating to Ripple. Your donor expires in %s month(s).<br><br>Love u,<br>Ripple",
 					$username,
-					$_POST["m"]
+					$months
 				)
 			);
-			redirect("index.php?p=102&s=Donor status changed!");
+			redirect("index.php?p=102&s=Donor status changed. Donor for that user now expires in ".$months." months!");
 		}
 		catch(Exception $e) {
 			redirect('index.php?p=102&e='.$e->getMessage());
@@ -1577,7 +1599,7 @@ class D {
 		try {
 			if (!isset($_POST["id"]) || empty($_POST["id"]))
 				throw new Exception("Invalid user");
-			$userData = $GLOBALS["db"]->fetch("SELECT username, privileges FROM users WHERE id = ?", [$_POST["id"]]);
+			$userData = $GLOBALS["db"]->fetch("SELECT username, privileges FROM users WHERE id = ? LIMIT 1", [$_POST["id"]]);
 			if (!$userData) {
 				throw new Exception("That user doesn't exist");
 			}
@@ -1603,6 +1625,33 @@ class D {
 
 			rapLog(sprintf("has rolled back %s %s's account", $rollbackString, $username), $_SESSION["userid"]);
 			redirect("index.php?p=102&s=User account has been rolled back!");
+		} catch(Exception $e) {
+			redirect('index.php?p=102&e='.$e->getMessage());
+		}
+	}
+
+	public static function ToggleCustomBadge() {
+		try {
+			if (!isset($_GET["id"]) || empty($_GET["id"]))
+				throw new Exception("Invalid user");
+			$userData = $GLOBALS["db"]->fetch("SELECT username, privileges FROM users WHERE id = ? LIMIT 1", [$_GET["id"]]);
+			if (!$userData) {
+				throw new Exception("That user doesn't exist");
+			}
+			$username = $userData["username"];
+			// Check if we can edit this user
+			if ( ($userData["privileges"] & Privileges::AdminManageUsers) > 0) {
+				throw new Exception("You don't have enough permissions to grant/revoke custom badge privilege on this account");
+			}
+
+			// Grant/revoke custom badge privilege
+			$can = current($GLOBALS["db"]->fetch("SELECT can_custom_badge FROM users_stats WHERE id = ? LIMIT 1", [$_GET["id"]]));
+			$grantRevoke = ($can == 0) ? "granted" : "revoked";
+			$can = !$can;
+			$GLOBALS["db"]->execute("UPDATE users_stats SET can_custom_badge = ? WHERE id = ? LIMIT 1", [$can, $_GET["id"]]);
+
+			rapLog(sprintf("has %s custom badge privilege on %s's account", $grantRevoke, $username), $_SESSION["userid"]);
+			redirect("index.php?p=102&s=Custom badge privilege revoked/granted!");
 		} catch(Exception $e) {
 			redirect('index.php?p=102&e='.$e->getMessage());
 		}

@@ -183,6 +183,7 @@ if ($p < 100) {
 
     <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="http://code.jquery.com/jquery-migrate-3.0.0.js"></script>
 
 	<!-- User lookup -->
 	<?php
@@ -494,6 +495,22 @@ switch ($p) {
 			}
 
 			echo '</script>';
+	break;
+
+	case 6:
+		echo '<script>
+			$(".icp").on("iconpickerSelected", function(e) {
+				var faClass = $("#badge-icon-input").val();
+				if (!faClass.startsWith("fa-")) {
+					return;
+				}
+				$("#badge-icon").attr("class", "fa "+faClass+" fa-2x").html();
+			});
+
+			$("#badge-name-input").keyup(function() {
+				$("#badge-name").text($("#badge-name-input").val()).html();
+			});
+		</script>';
 	break;
 }
 

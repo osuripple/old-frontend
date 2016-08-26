@@ -69,10 +69,9 @@ class Support {
 						</div>
 					</div>
 					<div class="col-sm-4">
-						<div align="center"><span class="label label-default">Coming soon</span></div>
-						<div class="col-padding coming-soon">
+						<div class="col-padding">
 							<h3><i class="fa fa-pencil"></i>	Custom badge editor</h3>
-							<p>You will also (soon) be able to make <b>your own badge</b> for your user profile with <b>custom icon and text</b>! How cool is that?!?</p>
+							<p>You will also be able to make <b>your own badge</b> for your user profile with <b>custom icon and text</b>! How cool is that?!?</p>
 						</div>
 					</div>
 				</div>
