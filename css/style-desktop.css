@@ -71,6 +71,7 @@ ul.nav li:hover > ul.dropdown-menu {
 	padding-top: 40px;
 	padding-bottom: 40px;
 	text-align: center;
+  width: 100%;
 }
 
 #userpage-plays {
@@ -617,12 +618,6 @@ hr {
   background-color: #EEE;
   border-radius: 4px;
 }
-
-#userpage-content {
-  display: inline-block;
-}
-
-
 
 .bubbles-container {
 	margin-left: 25%;
