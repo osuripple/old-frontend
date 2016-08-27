@@ -1783,7 +1783,7 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 			}
 
 			// Set custom badge
-			$showCustomBadge = hasPrivilege(Privileges::UserDonor) && $userData["show_custom_badge"] == 1 && $userData["can_custom_badge"] == 1;
+			$showCustomBadge = hasPrivilege(Privileges::UserDonor, $userData['id']) && $userData["show_custom_badge"] == 1 && $userData["can_custom_badge"] == 1;
 			if ($showCustomBadge) {
 				for ($i=0; $i < 6; $i++) { 
 					if ($badgeID[$i] == 0) {
