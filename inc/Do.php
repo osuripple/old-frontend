@@ -899,11 +899,9 @@ class D {
 		// Logging out without being logged in doesn't make much sense
 		if (checkLoggedIn()) {
 			startSessionIfNotStarted();
-			if (isset($_COOKIE['s']) && isset($_COOKIE['t'])) {
+			if (isset($_COOKIE['sli'])) {
 				$rch = new RememberCookieHandler();
-				// Desu-troy permanent session.
-				$rch->Destroy($_COOKIE['s']);
-				$rch->UnsetCookies();
+				$rch->Destroy();
 			}
 			$_SESSION = [];
 			session_unset();
@@ -921,7 +919,7 @@ class D {
 	public static function ForgetEveryCookie() {
 		startSessionIfNotStarted();
 		$rch = new RememberCookieHandler();
-		$rch->DestroyAll($_SESSION['username']);
+		$rch->DestroyAll($_SESSION['userid']);
 		redirect('index.php?p=1&s=forgetDone');
 	}
 

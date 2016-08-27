@@ -3,54 +3,53 @@
  * RememberCookieHandler
  * A simple way to remember an user over time.
  *
- * @author kwisk <kwisk@airmail.cc>
- *
- * @version 1.0
+ * @author Howl <the@howl.moe>
+ * @version 1.1
  */
 class RememberCookieHandler {
-	private $ID;
-
 	/**
 	 * Check
-	 * Checks the user cookie if they have got valid cookies for auto-login.
+	 * Checks whether the user is currently not logged in and has the required
+	 * cookies for the "stay logged in" thing.
 	 *
 	 * @return bool true if the cookies are valid, false otherwise.
 	 */
 	public function Check() {
-		if (!empty($_COOKIE['s']) && !empty($_COOKIE['t']) && is_numeric($_COOKIE['s']) && is_numeric($_COOKIE['t'])) {
-			return true;
-		} else {
-			return false;
-		}
+		startSessionIfNotStarted();
+		return !isset($_SESSION["username"]) && @$_COOKIE["sli"] != "";
 	}
 
 	/**
 	 * Validate
 	 * Checks if a remember cookie is ok, and logs in the user if it is.
 	 *
-	 * @return int -1 in case something critical happened (an unauthorized user tried to access the user's account), 0 in case it's a normal failure, 1 if the user is now logged in inside their account. -2 if everything went smooth, but the user is banned.
+	 * @return int
+	 * @see ValidateValue
 	 */
 	public function Validate() {
-		$d = $GLOBALS['db']->fetch('SELECT * FROM remember WHERE series_identifier = ?;', $_COOKIE['s']);
-		if ($d === false) {
-			// There is no series_identifier for that $_COOKIE["s"], despite being given to the server on the request. Delete the cookies.
+		$parts = explode("|", $_COOKIE["sli"], 2);
+		if (count($parts) < 2) {
 			$this->UnsetCookies();
-
-			return 0;
+			return ValidateValue::Failure;
 		}
-		$this->ID = $d['userid'];
-		if (hash('sha256', $_COOKIE['t']) != $d['token_sha']) {
-			// Alarm. Thief detected.
-			$this->SecureFromThieves();
-
-			return -1;
-		} else {
-			// Login the user.
-			$this->Login();
-			$this->UpdateExisting($_COOKIE['s']);
-
-			return 1;
+		$r = $GLOBALS["db"]->fetch("SELECT id, userid, token_sha FROM remember WHERE series_identifier = ? LIMIT 1",
+			[$parts[0]]);
+		if (!$r) {
+			$this->UnsetCookies();
+			return ValidateValue::Failure;			
 		}
+		if ($r["token_sha"] == hash("sha256", $parts[1])) {
+			// all checks successful, login
+			// login will return either NowLoggedIn or UserBanned
+			return $this->Login($r["userid"]);
+		}
+		// was not equal
+		// this means that someone's trying to access this user's account
+		// kick their dick
+		// glory to arstotzka
+		$GLOBALS["db"]->execute("DELETE FROM remember WHERE id = ? LIMIT 1", [$r['id']]);
+		$this->UnsetCookies();
+		return ValidateValue::Thieving;
 	}
 
 	/**
@@ -58,89 +57,76 @@ class RememberCookieHandler {
 	 * Issue new permanent cookie for auto-login.
 	 */
 	public function IssueNew($u) {
-		// 2147483647 is int max
-		$randmax = (mt_getrandmax() <= 2147483647 ? mt_getrandmax() : 2147483647);
-		$sid = mt_rand(0, $randmax);
-		$t = mt_rand(0, $randmax);
-		setcookie('s', $sid, time() + 60 * 60 * 24 * 30 * 6, '/'); // Six months.
-		setcookie('t', $t, time() + 60 * 60 * 24 * 30 * 6, '/');
-		$GLOBALS['db']->execute('INSERT INTO remember(userid, series_identifier, token_sha) VALUES (?, ?, ?);', [getUserID($u), $sid, hash('sha256', $t)]);
+		$num = unpack("L", random_bytes(4))[1];
+		$tok = base64_encode(random_bytes(75));
+		setcookie("sli", ((string)$num) . "|" . $tok, time() + 60 * 60 * 24 * 30 * 3);
+		$GLOBALS["db"]->execute("INSERT INTO remember(userid, series_identifier, token_sha) VALUES
+			(?, ?, ?)", [$u, $num, hash("sha256", $tok)]);
 	}
 
 	/**
 	 * Destroy
 	 * Destroys a particular sid and token in the database.
-	 *
-	 * @param string $sid The sid to destroy.
 	 */
-	public function Destroy($sid) {
-		$GLOBALS['db']->execute('DELETE FROM remember WHERE series_identifier = ?', $sid);
+	public function Destroy() {
+		if (!isset($_SESSION["userid"]))
+			return;
+		$GLOBALS["db"]->execute("DELETE FROM remember WHERE userid = ? AND series_identifier = ? LIMIT 1;", 
+			[$_SESSION["userid"], explode("|", $_COOKIE["sli"])[0]]);
+		$this->UnsetCookies();
 	}
 
 	/**
 	 * DestroyAll
-	 * Destroys all sids and token for the user in the database.
+	 * Destroys all sids and tokens for the user in the database.
 	 *
-	 * @param string $u The username.
+	 * @param int $u UserID
 	 */
-	public function DestroyAll($u, $isAlreadyID = false) {
-		$GLOBALS['db']->execute('DELETE FROM remember WHERE userid = ?', ($isAlreadyID ? $u : getUserID($u)));
-	}
-
-	/**
-	 * SecureFromThieves
-	 * Deletes all authentication hashes in the database. The user's account is being thieved.
-	 * This function also sends an email to the user, telling them about what happened and not to worry if they can't autologin next time.
-	 */
-	private function SecureFromThieves() {
-		$this->DestroyAll($this->ID, true);
-		// tell the user they fucked up.
-		addError('Invalid auto-login cookie.');
-		redirect('index.php?p=2');
+	public function DestroyAll($u) { 
+		$GLOBALS["db"]->execute("DELETE FROM rememeber WHERE userid = ?;", [$u]);
 	}
 
 	/**
 	 * Login
 	 * Login into user's account, onto successful validation.
+	 *
+	 * @return int ValidateValue
 	 */
-	private function Login() {
-		// ban check
-		if ((current($GLOBALS['db']->fetch('SELECT privileges FROM users WHERE id = ?', $this->ID)) & 2) == 0) {
+	private function Login($userID) {
+		$u = $GLOBALS['db']->fetch("SELECT id, username, privileges, password_md5 
+			FROM users WHERE id = ? LIMIT 1", [$userID]);
+		if (!$u || (($u["privileges"] & Privileges::UserNormal) === 0)) {
 			$this->UnsetCookies();
-			addError("You are banned.");
-			redirect('index.php?p=2');
+			return ValidateValue::UserBanned;
 		}
-		$password = $GLOBALS['db']->fetch('SELECT password_md5 FROM users WHERE id = ?', $this->ID);
+		// set cookie for another 3 months
+		setcookie("sli", $_COOKIE["sli"], time() + 60 * 60 * 24 * 30 * 3);
 		startSessionIfNotStarted();
-		$_SESSION['userid'] = $this->ID;
-		$_SESSION['username'] = getUserUsername($this->ID);
-		$_SESSION['password'] = $password['password_md5'];
+		$_SESSION['username'] = $u['username'];
+		$_SESSION['userid'] = $u['id'];
+		$_SESSION['password'] = $u['password_md5'];
 		$_SESSION['passwordChanged'] = false;
+		$_SESSION['2fa'] = is2FAEnabled($u["id"], true);
+		logIP($u['id']);
+		// Get safe title
+		updateSafeTitle();
 		// Save latest activity
-		updateLatestActivity($this->ID);
+		updateLatestActivity($u['id']);
+		return ValidateValue::NowLoggedIn;
 	}
 
 	/**
 	 * UnsetCookies
-	 * Unset the t and s cookies in the user's browser.
+	 * Unset the sli cookie in the user's browser.
 	 */
 	public function UnsetCookies() {
-		unset($_COOKIE['s']);
-		setcookie('s', '', time() - 3600, '/');
-		unset($_COOKIE['t']);
-		setcookie('t', '', time() - 3600, '/');
+		unsetCookie("sli");		
 	}
+}
 
-	/**
-	 * UpdateExisting
-	 * Updates the existing cookie and the value in the database with a new token.
-	 *
-	 * @param int $sid series identifier to be updated in the database.
-	 */
-	private function UpdateExisting($sid) {
-		$randmax = (mt_getrandmax() <= 2147483647 ? mt_getrandmax() : 2147483647);
-		$t = mt_rand(0, $randmax);
-		setcookie('t', $t, time() + 60 * 60 * 24 * 30 * 6, '/'); // Six months.
-		$GLOBALS['db']->execute('UPDATE remember SET token_sha = ? WHERE series_identifier = ?;', [hash('sha256', $t), $sid]);
-	}
+abstract class ValidateValue {
+	const UserBanned  = -2; // user is banned, show warning
+	const Thieving    = -1; // someone appears to be thieving. the token is deleted from db for security
+	const Failure     = 0;  // cookie has been removed
+	const NowLoggedIn = 1;  // the user is now logged in successfully
 }

@@ -801,24 +801,9 @@ function sessionCheck() {
 		startSessionIfNotStarted();
 		// Check if we are logged in
 		if (!isset($_SESSION["username"])) {
-			// Check for the autologin cookies.
-			$c = new RememberCookieHandler();
-			if ($c->Check()) {
-				if ($c->Validate() === 0) {
-					unset($_SESSION['redirpage']);
-					$_SESSION['redirpage'] = $_SERVER['REQUEST_URI'];
-					throw new Exception('You are not logged in.');
-				}
-				// We don't need to handle any other case.
-				// If it's -1, alert will automatically be triggered and user sent to error page.
-				// If it's -2, same as above.
-				// If it's 1, this function will keep on executing normally.
-
-			} else {
-				unset($_SESSION['redirpage']);
-				$_SESSION['redirpage'] = $_SERVER['REQUEST_URI'];
-				throw new Exception('You are not logged in.');
-			}
+			unset($_SESSION['redirpage']);
+			$_SESSION['redirpage'] = $_SERVER['REQUEST_URI'];
+			throw new Exception('You are not logged in.');
 		}
 		// Check if we've changed our password
 		if ($_SESSION['passwordChanged']) {
@@ -966,24 +951,8 @@ function checkLoggedIn() {
 	}
 	// Check if we are logged in
 	if (!isset($_SESSION['userid'])) {
-		// Check for the autologin cookies.
-		$c = new RememberCookieHandler();
-		if ($c->Check()) {
-			if ($c->Validate() === 0) {
-				$checkLoggedInCache = false;
-
-				return false;
-			}
-			// We don't need to handle any other case.
-			// If it's -1, alert will automatically be triggered and user sent to error page.
-			// If it's -2, same as above.
-			// If it's 1, this function will keep on executing normally.
-
-		} else {
-			$checkLoggedInCache = false;
-
-			return false;
-		}
+		$checkLoggedInCache = false;
+		return false;
 	}
 	// Check if our password is still valid
 	if ($GLOBALS['db']->fetch('SELECT password FROM users WHERE username = ?', $_SESSION['username']) == $_SESSION['password']) {
@@ -1917,13 +1886,18 @@ function redirect2FA() {
 
 
 
-/* RIP Documentation and comments from now on.
+/* 
+   RIP Documentation and comments from now on.
    Those functions are the last ones that we've added to old-frontend
    Because new frontend is coming soonTM, so I don't want to waste time writing comments and docs.
    You'll also find 20% more memes in these functions.
 
    ...and fuck php
-   -- Nyo */
+   -- Nyo 
+   
+   I'd just like to interject for a moment. You do not just 'fuck' PHP, you 'fuck' PHP with a CACTUS!
+   -- Howl
+*/
 
 
 
@@ -2058,4 +2032,9 @@ function isOnline($uid) {
 
 function getDonorPrice($months) {
 	return number_format(pow($months * 30 * 0.2, 0.70), 2, ".", "");
+}
+
+function unsetCookie($name) {
+	unset($_COOKIE[$name]);
+	setcookie($name, "", time()-3600);
 }

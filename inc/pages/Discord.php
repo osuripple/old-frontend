@@ -8,11 +8,11 @@ class Discord {
 	function __construct() {
 		global $discordConfig;
 		global $URL;
-		$this->provider = new \Discord\OAuth\Discord([
+		/*$this->provider = new \Discord\OAuth\Discord([
 			'clientId'     => $discordConfig["client_id"],
 			'clientSecret' => $discordConfig["client_secret"],
 			'redirectUri'  => $URL["server"]."/index.php?p=40",
-		]);
+		]);*/
 	}
 
 	public function P() {

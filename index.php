@@ -8,7 +8,13 @@ ob_start();
 startSessionIfNotStarted();
 $c = new RememberCookieHandler();
 if ($c->Check()) {
-	$c->Validate();
+	$v = $c->Validate();
+	switch ($v) {
+		case ValidateValue::UserBanned:
+			addError("You are banned, as such you've been logged out of your account automatically.");
+			break;
+		// /shrugs
+	}
 }
 // Redirect to 2FA block page if needed
 redirect2FA();
