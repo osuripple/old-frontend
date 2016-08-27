@@ -48,10 +48,6 @@ class D {
 			if ($GLOBALS['db']->fetch('SELECT * FROM users WHERE email = ?', $_POST['e'])) {
 				throw new Exception('An user with that email already exists!');
 			}
-			// Check if beta key is valid
-			/*if (!$GLOBALS['db']->fetch('SELECT id FROM beta_keys WHERE key_md5 = ? AND allowed = 1', md5($_POST['k']))) {
-				throw new Exception('Invalid beta key.');
-			}*/
 			// Check captcha
 			if (!isset($_POST["g-recaptcha-response"])) {
 				throw new Exception("Invalid captcha");
@@ -98,8 +94,6 @@ class D {
 			foreach (['std', 'taiko', 'ctb', 'mania'] as $m) {
 				Leaderboard::Update($uid, 0, $m);
 			}
-			// Invalidate beta key
-			//$GLOBALS['db']->execute('UPDATE beta_keys SET allowed = 0 WHERE key_md5 = ?', md5($_POST['k']));
 			Schiavo::CM("User (**$_POST[u]** | $_POST[e]) registered (successfully) from **" . $ip . "**");
 			// Generate and set identity token ("y" cookie)
 			setYCookie($uid);
@@ -646,7 +640,7 @@ class D {
 			}
 			// Make sure that this badge exists
 			$name = $GLOBALS['db']->fetch('SELECT name FROM badges WHERE id = ?', $_GET['id']);
-			// Beta key doesn't exists wtf
+			// Badge doesn't exists wtf
 			if (!$name) {
 				throw new Exception("This badge doesn't exists");
 			}

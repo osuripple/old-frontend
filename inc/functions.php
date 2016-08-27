@@ -110,30 +110,6 @@ function randomString($l, $c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv
 	}
 	return $res;
 }
-/*
- * generateKey
- * Generate a single beta key
- *
- * @return (string) the beta key
-*/
-function generateKey() {
-	$dict = '0123456789abcdef';
-	$t = 4;
-	$key = '';
-	while ($t != 0) {
-		$i = 4;
-		while ($i != 0) {
-			$key .= $dict[rand(1, strlen($dict)) - 1];
-			$i -= 1;
-		}
-		if ($t != 1) {
-			$key .= '-';
-		}
-		$t -= 1;
-	}
-
-	return $key;
-}
 function getIP() {
 	global $ipEnv;
 	return getenv($ipEnv); // Add getenv('HTTP_FORWARDED_FOR')?: before getenv if you are using a dumb proxy. Meaning that if you try to get the user's IP with REMOTE_ADDR, it returns 127.0.0.1 or keeps saying the same IP, always.
@@ -167,7 +143,6 @@ function setTitle($p) {
 			16 =>  'Read documentation',
 			17 =>  'Changelog',
 			18 =>  'Recover your password',
-			20 =>  'Beta keys',
 			21 =>  'About',
 			22 =>  'Report a bug/Request a feature',
 			23 =>  'Rules',
@@ -184,7 +159,6 @@ function setTitle($p) {
 			102 => 'Users',
 			103 => 'Edit user',
 			104 => 'Change identity',
-			105 => 'Beta Keys',
 			106 => 'Documentation Pages',
 			107 => 'Edit documentation page',
 			108 => 'Badges',
