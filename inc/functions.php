@@ -316,11 +316,6 @@ function printPage($p) {
 			case 18:
 				P::PasswordRecovery();
 			break;
-				// Beta keys page
-
-			/*case 20:
-				P::BetaKeys();
-			break;*/
 				// About page
 
 			case 21:
@@ -388,12 +383,6 @@ function printPage($p) {
 			case 104:
 				sessionCheckAdmin(Privileges::AdminManageUsers);
 				P::AdminChangeIdentity();
-			break;
-				// Admin panel - Beta keys
-
-			case 105:
-				sessionCheckAdmin(Privileges::AdminManageBetaKeys);
-				P::AdminBetaKeys();
 			break;
 				// Admin panel - Documentation
 
@@ -688,9 +677,6 @@ function printAdminSidebar() {
 
 						if (hasPrivilege(Privileges::AdminManageBadges))
 							echo '<li><a href="index.php?p=108"><i class="fa fa-certificate"></i>	Badges</a></li>';
-
-						/*if (hasPrivilege(Privileges::AdminManageBetaKeys))
-							echo '<li><a href="index.php?p=105"><i class="fa fa-gift"></i>	Beta keys</a></li>';*/
 
 						if (hasPrivilege(Privileges::AdminManageDocs))
 							echo '<li><a href="index.php?p=106"><i class="fa fa-question-circle"></i>	Documentation</a></li>';
