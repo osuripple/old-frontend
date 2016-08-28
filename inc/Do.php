@@ -825,11 +825,28 @@ class D {
 			// Save custom badge
 			$canCustomBadge = current($GLOBALS["db"]->fetch("SELECT can_custom_badge FROM users_stats WHERE id = ? LIMIT 1", [$_SESSION["userid"]])) == 1;
 			if (hasPrivilege(Privileges::UserDonor) && $canCustomBadge && isset($_POST["showCustomBadge"]) && isset($_POST["badgeName"]) && isset($_POST["badgeIcon"])) {
+				// Script kiddie check 1
+				$forbiddenNames = ["BAT", "Developer", "Community Manager"];
+				if (in_array($_POST["badgeName"], $forbiddenNames)) {
+					throw new Fava(0);
+				}
+
 				$oldCustomBadge = $GLOBALS["db"]->fetch("SELECT custom_badge_name AS name, custom_badge_icon AS icon FROM users_stats WHERE id = ? LIMIT 1", [$_SESSION["userid"]]);
 				if ($oldCustomBadge["name"] != $_POST["badgeName"] || $oldCustomBadge["icon"] != $_POST["badgeIcon"]) {
 					Schiavo::CM("User **$_SESSION[username]** has changed his custom badge to **$_POST[badgeName]** *($_POST[badgeIcon])*");
 				}
-				$GLOBALS["db"]->execute("UPDATE users_stats SET show_custom_badge = ?, custom_badge_name = ?, custom_badge_icon = ? WHERE id = ? LIMIT 1", [$_POST["showCustomBadge"], $_POST["badgeName"], $_POST["badgeIcon"], $_SESSION["userid"]]);
+
+				// Script kiddie check 2
+				// (is this even needed...?)
+				$forbiddenClasses = ["fa-lg", "fa-2x", "fa-3x", "fa-4x", "fa-5x", "fa-ul", "fa-li", "fa-border", "fa-pull-right", "fa-pull-left", "fa-stack", "fa-stack-2x", "fa-stack-1x"];
+				$icon = explode(" ", $_POST["badgeIcon"]);
+				for ($i=0; $i < count($icon); $i++) { 
+					if (substr($icon[$i], 0, 3) != "fa-" || in_array($icon[$i], $forbiddenClasses)) {
+						$icon[$i] = "";
+					}
+				}
+				$icon = implode(" ", $icon);
+				$GLOBALS["db"]->execute("UPDATE users_stats SET show_custom_badge = ?, custom_badge_name = ?, custom_badge_icon = ? WHERE id = ? LIMIT 1", [$_POST["showCustomBadge"], $_POST["badgeName"], $icon, $_SESSION["userid"]]);
 			}
 			// Save data in db
 			$GLOBALS['db']->execute('UPDATE users_stats SET user_color = ?, show_country = ?, username_aka = ?, safe_title = ?, play_style = ?, favourite_mode = ? WHERE id = ? LIMIT 1', [$c, $_POST['f'], $_POST['aka'], $_POST['st'], $pm, $_POST['mode'], $_SESSION['userid']]);
