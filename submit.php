@@ -79,22 +79,6 @@ try {
 		break;
 			// Admin functions, need sessionCheckAdmin() because can be performed only by admins
 
-		case 'generateBetaKeys':
-			sessionCheckAdmin(Privileges::AdminManageBetaKeys);
-			D::GenerateBetaKey();
-		break;
-		case 'allowDisallowBetaKey':
-			sessionCheckAdmin(Privileges::AdminManageBetaKeys);
-			D::AllowDisallowBetaKey();
-		break;
-		case 'publicPrivateBetaKey':
-			sessionCheckAdmin(Privileges::AdminManageBetaKeys);
-			D::PublicPrivateBetaKey();
-		break;
-		case 'removeBetaKey':
-			sessionCheckAdmin(Privileges::AdminManageBetaKeys);
-			D::RemoveBetaKey();
-		break;
 		case 'saveSystemSettings':
 			sessionCheckAdmin(Privileges::AdminManageSettings);
 			D::SaveSystemSettings();

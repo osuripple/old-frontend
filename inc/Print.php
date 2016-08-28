@@ -8,7 +8,7 @@ class P {
 	public static function AdminDashboard() {
 		// Get admin dashboard data
 		$totalScores = number_format(current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM scores LIMIT 1')));
-		$betaKeysLeft = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM beta_keys WHERE allowed = 1 AND public = 1 LIMIT 1'));
+		$betaKeysLeft = "∞";
 		$totalPPQuery = $GLOBALS['db']->fetch("SELECT SUM(pp) FROM scores WHERE completed = 3");
 		$totalPP = 0;
 		foreach ($totalPPQuery as $pp) {
@@ -692,118 +692,6 @@ class P {
 			// Redirect to exception page
 			redirect('index.php?p=102&e='.$e->getMessage());
 		}
-	}
-
-	/*
-	 * AdminBetaKeys
-	 * Prints the admin panel beta keys page
-	*/
-	public static function AdminBetaKeys() {
-		// Get data
-		$betaKeysLeft = $GLOBALS['db']->fetch('SELECT COUNT(*) as count FROM beta_keys WHERE allowed = 1 AND public = 1 LIMIT 1');
-		// Print beta keys stuff
-		echo '<div id="wrapper">';
-		printAdminSidebar();
-		echo '<div id="page-content-wrapper">';
-		// Maintenance check
-		self::MaintenanceStuff();
-		// Print Success if set
-		if (isset($_GET['s']) && !empty($_GET['s'])) {
-			self::SuccessMessage($_GET['s']);
-		}
-		// Print Exception if set
-		if (isset($_GET['e']) && !empty($_GET['e'])) {
-			self::ExceptionMessage($_GET['e']);
-		}
-		echo '<h3><i class="fa fa-gift"></i>	Beta keys</h3>';
-		echo 'There are <b>'.$betaKeysLeft["count"].'</b> public Beta Keys left<br><br>';
-		/* Beta keys table
-		echo '<table class="table table-striped table-hover table-75-center">
-		<thead>
-		<tr><th class="text-left"><i class="fa fa-gift"></i>	ID</th><th class="text-center">MD5</th><th class="text-center">Description</th><th class="text-center">Allowed</th><th class="text-center">Public</th><th class="text-center">Action</th></tr>
-		</thead>
-		<tbody>';
-		for ($i = 0; $i < count($betaKeys); $i++) {
-			// Set allowed label color and text
-			if ($betaKeys[$i]['allowed'] == 0) {
-				$allowedColor = 'danger';
-				$allowedText = 'No';
-			} else {
-				$allowedColor = 'success';
-				$allowedText = 'Yes';
-			}
-			// Set public label color and text
-			if ($betaKeys[$i]['public'] == 0) {
-				$publicColor = 'danger';
-				$publicText = 'No';
-			} else {
-				$publicColor = 'success';
-				$publicText = 'Yes';
-			}
-			// Print row
-			echo '<tr>';
-			echo '<td class="success"><p class="text-left"><b>'.$betaKeys[$i]['id'].'</b></p></td>';
-			echo '<td class="success"><p class="text-center">'.$betaKeys[$i]['key_md5'].'</p></td>';
-			echo '<td class="success"><p class="text-center">'.$betaKeys[$i]['description'].'</p></td>';
-			echo '<td class="success"><p class="text-center"><span class="label label-'.$allowedColor.'">'.$allowedText.'</span></p></td>';
-			echo '<td class="success"><p class="text-center"><span class="label label-'.$publicColor.'">'.$publicText.'</span></p></td>';
-			// Delete button
-			echo '<td class="success"><p class="text-center">
-			<div class="btn-group"><a title="Delete beta key" class="btn btn-xs btn-danger" onclick="sure(\'submit.php?action=removeBetaKey&id='.$betaKeys[$i]['id'].'\')"><span class="glyphicon glyphicon-trash"></span></a>';
-			// Allow/disallow button
-			if ($betaKeys[$i]['allowed'] == 1) {
-				echo '<a title="Disallow beta key (mark as already used)" class="btn btn-xs btn-warning" href="submit.php?action=allowDisallowBetaKey&id='.$betaKeys[$i]['id'].'"><span class="glyphicon glyphicon-thumbs-down"></span></a>';
-			} else {
-				echo '<a title="Allow beta key (mark as not used)" class="btn btn-xs btn-success" href="submit.php?action=allowDisallowBetaKey&id='.$betaKeys[$i]['id'].'"><span class="glyphicon glyphicon-thumbs-up"></span></a>';
-			}
-			// Public/private button
-			if ($betaKeys[$i]['public'] == 1) {
-				echo '<a title="Make private (hide on Beta keys page)" class="btn btn-xs btn-warning" href="submit.php?action=publicPrivateBetaKey&id='.$betaKeys[$i]['id'].'"><span class="glyphicon glyphicon-remove"></span></a>';
-			} else {
-				echo '<a title="Make public (show on Beta keys page)" class="btn btn-xs btn-success" href="submit.php?action=publicPrivateBetaKey&id='.$betaKeys[$i]['id'].'"><span class="glyphicon glyphicon-ok"></span></a>';
-			}
-			echo '</div></td>';
-			echo '</tr>';
-		}
-		echo '</tbody></table>'; */
-		// Add beta key button
-		echo '<p align="center"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addBetaKeyModal">Add beta keys</button></p>';
-		echo '</div>';
-		// Modal
-		echo '<div class="modal fade" id="addBetaKeyModal" tabindex="-1" role="dialog" aria-labelledby="addBetaKeyModalLabel">
-		<div class="modal-dialog">
-		<div class="modal-content">
-		<div class="modal-header">
-		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-		<h4 class="modal-title" id="addBetaKeyModalLabel">Keygen</h4>
-		</div>
-		<div class="modal-body">
-		<p>
-		<div class="wavetext"></div>
-		<marquee loop="infinite">Bless me with your gift of lights. Righteous cause on judgment night: feel the sorrow the light has swallowed. Feel the freedom like no tomorrow...</marquee>
-		<form id="beta-keys-form" action="submit.php" method="POST">
-		<input name="action" value="generateBetaKeys" hidden>
-		<div class="input-group">
-		<span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-tag" aria-hidden="true"></span></span>
-		<input type="number" name="n" class="form-control" placeholder="Number of Beta Keys to generate" aria-describedby="basic-addon1" required>
-		</div><p style="line-height: 15px"></p>
-		<div class="input-group">
-		<span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></span>
-		<input type="text" name="d" maxlength="128" class="form-control" placeholder="Description (*key* will be replaced with the actual key)" aria-describedby="basic-addon1">
-		</div>
-		<p style="line-height: 15px"></p>
-		<input type="checkbox" name="p">Public (show on Beta Keys page)<br>
-		<b>If you add public keys, description will be ignored and replaced with *key*</b>
-		</form>
-		</p>
-		</div>
-		<div class="modal-footer">
-		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-		<button type="submit" form="beta-keys-form" class="btn btn-primary">Add keys</button>
-		</div>
-		</div>
-		</div>
-		</div>';
 	}
 
 	/*
@@ -2025,48 +1913,6 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 	}
 
 	/*
-	 * BetaKeys
-	 * Prints the beta keys page.
-	*/
-	public static function BetaKeys() {
-		// Maintenance check
-		self::MaintenanceStuff();
-		// Global alert
-		self::GlobalAlert();
-		// Title and alerts
-		echo '<p align="center"><h1><i class="fa fa-key"></i>	Beta Keys</h1>';
-		// Actual Beta Keys page
-		echo 'You can find Beta Keys here.<br>There\'s no valid keys? Don\'t worry, we add new ones periodically.<br></p>';
-		$betaKeys = $GLOBALS['db']->fetchAll('SELECT description,allowed FROM beta_keys WHERE public = 1 AND allowed = 1 ORDER BY allowed DESC');
-		if ($betaKeys) {
-			// Print table header
-			echo "<table class='table table-hover'>
-			<thead>
-			<tr>
-			<th><p class='text-center'>Beta key</p></th>
-			<th><p class='text-center'>Status</p></th>
-			</tr>
-			</thead>
-			<tbody>";
-			// Print table content
-			foreach ($betaKeys as $key) {
-				if ($key['allowed'] == 1) {
-					$icon = 'check';
-					$row = 'success';
-				} else {
-					$icon = 'exclamation';
-					$row = 'danger';
-				}
-				echo "<tr class='".$row."'><td><p class='text-center'><b>".$key['description']."</b></p></td><td><p class='text-center'><i class='fa fa-".$icon."'></i></p></td></tr>";
-			}
-			// Print table end
-			echo '</tbody></table>';
-		} else {
-			echo '<b>No beta keys available. Try again later.</b>';
-		}
-	}
-
-	/*
 	 * AboutPage
 	 * Prints the about page.
 	*/
@@ -2296,7 +2142,6 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 		<div class="input-group"><span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-lock" max-width="25%"></span></span><input type="password" name="p1" required class="form-control" placeholder="Password" aria-describedby="basic-addon1"></div><p style="line-height: 15px"></p>
 		<div class="input-group"><span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-lock" max-width="25%"></span></span><input type="password" name="p2" required class="form-control" placeholder="Repeat Password" aria-describedby="basic-addon1"></div><p style="line-height: 15px"></p>
 		<div class="input-group"><span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-envelope" max-width="25%"></span></span><input type="text" name="e" required class="form-control" placeholder="Email" aria-describedby="basic-addon1"></div><p style="line-height: 15px"></p>
-		<!--div class="input-group"><span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-gift" max-width="25%"></span></span><input type="text" name="k" required class="form-control" placeholder="Beta Key" aria-describedby="basic-addon1"></div><p style="line-height: 15px"></p>-->
 		<br>
 		<div class="g-recaptcha" style="padding-left:25%;" data-sitekey="6LdGziUTAAAAAKz2wTjAmKkgYsj329N8ohb_A4Qt"></div>
 		<hr>

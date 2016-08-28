@@ -48,10 +48,6 @@ class D {
 			if ($GLOBALS['db']->fetch('SELECT * FROM users WHERE email = ?', $_POST['e'])) {
 				throw new Exception('An user with that email already exists!');
 			}
-			// Check if beta key is valid
-			/*if (!$GLOBALS['db']->fetch('SELECT id FROM beta_keys WHERE key_md5 = ? AND allowed = 1', md5($_POST['k']))) {
-				throw new Exception('Invalid beta key.');
-			}*/
 			// Check captcha
 			if (!isset($_POST["g-recaptcha-response"])) {
 				throw new Exception("Invalid captcha");
@@ -98,8 +94,6 @@ class D {
 			foreach (['std', 'taiko', 'ctb', 'mania'] as $m) {
 				Leaderboard::Update($uid, 0, $m);
 			}
-			// Invalidate beta key
-			//$GLOBALS['db']->execute('UPDATE beta_keys SET allowed = 0 WHERE key_md5 = ?', md5($_POST['k']));
 			Schiavo::CM("User (**$_POST[u]** | $_POST[e]) registered (successfully) from **" . $ip . "**");
 			// Generate and set identity token ("y" cookie)
 			setYCookie($uid);
@@ -178,140 +172,6 @@ class D {
 		}
 		catch(Exception $e) {
 			redirect('index.php?p=18&e='.$e->getMessage());
-		}
-	}
-
-	/*
-	 * GenerateBetaKey
-	 * Generate beta key(s) function
-	*/
-	public static function GenerateBetaKey() {
-		try {
-			// Check if everything is set
-			if (empty($_POST['n'])) {
-				throw new Exception('Nice troll.');
-			}
-			// Set public value
-			$p = isset($_POST['p']) ? 1 : 0;
-			if ($p == 1) {
-				$desc = '*key*';
-			} else {
-				$desc = $_POST['d'];
-			}
-			// We store plain keys here to show them at the end
-			$plainKeys = '';
-			// Generate all the keys
-			for ($i = 0; $i < $_POST['n']; $i++) {
-				$d = false;
-				while ($d == false) {
-					$key = generateKey();
-					$hash = md5($key);
-					if (!$GLOBALS['db']->fetch('SELECT * FROM beta_keys WHERE key_md5 = ?', $hash)) {
-						$GLOBALS['db']->execute('INSERT INTO beta_keys(key_md5, description, allowed, public) VALUES (?, ?, ?, ?);', [$hash, str_replace('*key*', $key, $desc), 1, $p]);
-						$d = true;
-						$plainKeys = $plainKeys.'<br>'.$key;
-					} else {
-						$d = false;
-					}
-				}
-			}
-			// Beta keys generated, go to done page
-			redirect('index.php?p=105&s=<b>Beta keys generated!</b>'.$plainKeys);
-		}
-		catch(Exception $e) {
-			// Redirect to Exception page
-			redirect('index.php?p=105&e='.$e->getMessage());
-		}
-	}
-
-	/*
-	 * AllowDisallowBetaKey
-	 * Allow/Disallow beta key function (ADMIN CP)
-	*/
-	public static function AllowDisallowBetaKey() {
-		try {
-			// Check if everything is set
-			if (empty($_GET['id'])) {
-				throw new Exception('Nice troll.');
-			}
-			// Get current allowed value of this beta key
-			$allowed = current($GLOBALS['db']->fetch('SELECT allowed FROM beta_keys WHERE id = ?', $_GET['id']));
-			// Get new allowed value
-			if ($allowed == 1) {
-				$newAllowed = 0;
-			} else {
-				$newAllowed = 1;
-			}
-			// Change allowed value
-			$GLOBALS['db']->execute('UPDATE beta_keys SET allowed = ? WHERE id = ?', [$newAllowed, $_GET['id']]);
-			// RAP log
-			rapLog(sprintf("has set beta key %d as %s", $_GET["id"], $newAllowed == 0 ? "not allowed" : "allowed"));
-			// Done, redirect to success page
-			redirect('index.php?p=105&s=Allowed value changed!');
-		}
-		catch(Exception $e) {
-			// Redirect to Exception page
-			redirect('index.php?p=105&e='.$e->getMessage());
-		}
-	}
-
-	/*
-	 * PublicPrivateBetaKey
-	 * Public/private beta key function (ADMIN CP)
-	*/
-	public static function PublicPrivateBetaKey() {
-		try {
-			// Check if everything is set
-			if (empty($_GET['id'])) {
-				throw new Exception('Nice troll.');
-			}
-			// Get current public value of this beta key
-			$public = current($GLOBALS['db']->fetch('SELECT public FROM beta_keys WHERE id = ?', $_GET['id']));
-			// Get new public value
-			if ($public == 1) {
-				$newPublic = 0;
-			} else {
-				$newPublic = 1;
-			}
-			// Change allowed value
-			$GLOBALS['db']->execute('UPDATE beta_keys SET public = ? WHERE id = ?', [$newPublic, $_GET['id']]);
-			// RAP log
-			rapLog(sprintf("has set beta key %d as %s", $_GET["id"], $newPublic == 0 ? "private" : "public"));
-			// Done, redirect to success page
-			redirect('index.php?p=105&s=Public value changed!');
-		}
-		catch(Exception $e) {
-			// Redirect to Exception page
-			redirect('index.php?p=105&e='.$e->getMessage());
-		}
-	}
-
-	/*
-	 * RemoveBetaKey
-	 * Remove beta key function (ADMIN CP)
-	*/
-	public static function RemoveBetaKey() {
-		try {
-			// Check if everything is set
-			if (empty($_GET['id'])) {
-				throw new Exception('Nice troll.');
-			}
-			// Make sure that this key exists
-			$exists = $GLOBALS['db']->fetch('SELECT * FROM beta_keys WHERE id = ?', $_GET['id']);
-			// Beta key doesn't exists wtf
-			if (!$exists) {
-				throw new Exception("This beta key doesn\'t exists");
-			}
-			// Delete beta key
-			$GLOBALS['db']->execute('DELETE FROM beta_keys WHERE id = ?', $_GET['id']);
-			// Rap log
-			rapLog(sprintf("has set deleted beta key %d", $_GET["id"]));
-			// Done, redirect to success page
-			redirect('index.php?p=105&s=Beta key deleted!');
-		}
-		catch(Exception $e) {
-			// Redirect to Exception page
-			redirect('index.php?p=105&e='.$e->getMessage());
 		}
 	}
 
@@ -780,7 +640,7 @@ class D {
 			}
 			// Make sure that this badge exists
 			$name = $GLOBALS['db']->fetch('SELECT name FROM badges WHERE id = ?', $_GET['id']);
-			// Beta key doesn't exists wtf
+			// Badge doesn't exists wtf
 			if (!$name) {
 				throw new Exception("This badge doesn't exists");
 			}

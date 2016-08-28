@@ -266,34 +266,6 @@ if ($p < 100) {
     <!-- Custom JavaScript for this page here -->
     <?php
 switch ($p) {
-		// Admin cp - beta keys
-
-	case 105:
-		echo '
-            <script type="text/javascript">
-            var text = "Digital Insanity";
-
-            for(var i in text) {
-              if(text[i] === " ") {
-                $(".wavetext").append( $("<span>").html("&nbsp;") );
-              } else {
-                $(".wavetext").append( $("<span>").text(text[i]) );
-              }
-            }
-            </script>
-
-            <script type="text/javascript">
-                // Ripple insanity
-                $("#addBetaKeyModal").on("shown.bs.modal", function () {
-                    audio = new Audio("./audio/keygen.mp3");
-                    audio.play();
-                });
-
-                $("#addBetaKeyModal").on("hidden.bs.modal", function () {
-                    audio.pause();
-                });
-            </script>';
-	break;
 		// Admin cp - edit user
 
 	case 103:
