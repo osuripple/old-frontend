@@ -10,29 +10,31 @@ class RequestRankedBeatmap {
 	public $mh_POST = ["url"];
 
 	public function P() {
+		global $ScoresConfig;
 		P::GlobalAlert();
 		P::MaintenanceStuff();
 		startSessionIfNotStarted();
-		$hasSentRequest = $GLOBALS["db"]->fetch("SELECT * FROM rank_requests WHERE time > ? AND userid = ? LIMIT 2", [time()-(24*3600), $_SESSION["userid"]]);
-		$rankRequests = $GLOBALS["db"]->fetchAll("SELECT * FROM rank_requests WHERE time > ? ORDER BY time ASC LIMIT 20", [time()-(24*3600)]);
+		$myRequests = $GLOBALS["db"]->fetch("SELECT COUNT(*) AS count FROM rank_requests WHERE time > ? AND userid = ? LIMIT ".$ScoresConfig["rankRequestsPerUser"], [time()-(24*3600), $_SESSION["userid"]]);
+		$rankRequests = $GLOBALS["db"]->fetch("SELECT COUNT(*) AS count FROM rank_requests WHERE time > ? ORDER BY time ASC LIMIT ".$ScoresConfig["rankRequestsQueueSize"], [time()-(24*3600)]);
 		echo '
 		<div id="content">
 			<div align="center">
 				<h1><i class="fa fa-music"></i> Request beatmap ranking</h1>
 				<h4>Here you can send a request to rank an unranked beatmap on ripple.</h4>';
-				if ($hasSentRequest >= 2) {
-					echo '<div class="alert alert-warning" role="alert"><i class="fa fa-warning"></i>	You can send only <b>2 rank requests</b> every 24 hours. <b>Please come back tomorrow.</b></div>';
+				if ($myRequests["count"] >= $ScoresConfig["rankRequestsPerUser"]) {
+					echo '<div class="alert alert-warning" role="alert"><i class="fa fa-warning"></i>	You can send only <b>'.$ScoresConfig["rankRequestsPerUser"].' rank requests</b> every 24 hours. <b>Please come back tomorrow.</b></div>';
+					return;
 				}
-				if (count($rankRequests) >= 20) {
-					echo '<div class="alert alert-warning" role="alert"><i class="fa fa-warning"></i>	A maximum of <b>20 rank requests</b> can be sent every <b>24 hours</b>. No more requests can be submitted for now. <b>Please come back later.</b></div>';
+				if ($rankRequests["count"] >= $ScoresConfig["rankRequestsQueueSize"]) {
+					echo '<div class="alert alert-warning" role="alert"><i class="fa fa-warning"></i>	A maximum of <b>'.$ScoresConfig["rankRequestsQueueSize"].' rank requests</b> can be sent every <b>24 hours</b>. No more requests can be submitted for now. <b>Please come back later.</b></div>';
 					echo '<hr><h4 style="display: inline;">Estimated time until next request:</h4><br>
 					<h3 style="display: inline;">'.timeDifference(time(), $rankRequests[0]["time"]+24*3600, false, "Less than a minute").'</h3>';
 					return;
 				}
 				echo '<hr>
-				<h2 style="display: inline;">'.count($rankRequests).'</h2><h3 style="display: inline;">/20</h3><br><h4>requests submitted</h4><h6>in the past 24 hours</h6>
+				<h2 style="display: inline;">'.$rankRequests["count"].'</h2><h3 style="display: inline;">/'.$ScoresConfig["rankRequestsQueueSize"].'</h3><br><h4>requests submitted</h4><h6>in the past 24 hours</h6>
 				<hr>
-				<div class="alert alert-warning" role="alert"><i class="fa fa-warning"></i>	Every user can send <b>2 rank requests every 24 hours</b>, and a maximum of <b>20 beatmaps</b> can be requested <b>every 24 hours</b> by all users. <b>Remember that troll or invalid maps will still count as valid rank requests, so request only beatmaps that you <u>really</u> want to see ranked, since the number of daily rank requests is limited.</b></div>
+				<div class="alert alert-warning" role="alert"><i class="fa fa-warning"></i>	Every user can send <b>'.$ScoresConfig["rankRequestsPerUser"].' rank requests every 24 hours</b>, and a maximum of <b>'.$ScoresConfig["rankRequestsQueueSize"].' beatmaps</b> can be requested <b>every 24 hours</b> by all users. <b>Remember that troll or invalid maps will still count as valid rank requests, so request only beatmaps that you <u>really</u> want to see ranked, since the number of daily rank requests is limited.</b></div>
 				<b>Beatmap/Beatmap set link</b><br>
 				<form action="submit.php" method="POST">
 					<input name="action" value="RequestRankedBeatmap" hidden>
@@ -61,17 +63,18 @@ class RequestRankedBeatmap {
 	}
 
 	public function DoGetData() {
+		global $ScoresConfig;
 		try {
 			// Make sure the user hasn't requested too many maps
-			$hasSentRequest = $GLOBALS["db"]->fetch("SELECT * FROM rank_requests WHERE time > ? AND userid = ? LIMIT 2", [time()-(24*3600), $_SESSION["userid"]]);
-			if ($hasSentRequest) {
-				throw new Exception("You can have only 2 requests every 24 hours.");
+			$myRequests = $GLOBALS["db"]->fetch("SELECT COUNT(*) AS count FROM rank_requests WHERE time > ? AND userid = ? LIMIT ".$ScoresConfig["rankRequestsPerUser"], [time()-(24*3600), $_SESSION["userid"]]);
+			if ($myRequests["count"] >= $ScoresConfig["rankRequestsPerUser"]) {
+				throw new Exception("You can have only ".$ScoresConfig["rankRequestsPerUser"]." requests every 24 hours.");
 			}
 
 			// Make sure < 10 rank requests have been submitted in the past 24 hours
-			$rankRequests = $GLOBALS["db"]->fetchAll("SELECT * FROM rank_requests WHERE time > ? LIMIT 20", [time()-(24*3600)]);
-			if (count($rankRequests) >= 20) {
-				throw new Exception("A maximum of <b>20 rank requests</b> can be sent every <b>24 hours</b>. No more requests can be submitted for now.");
+			$rankRequests = $GLOBALS["db"]->fetchAll("SELECT COUNT(*) AS count FROM rank_requests WHERE time > ? LIMIT ".$ScoresConfig["rankRequestsQueueSize"], [time()-(24*3600)]);
+			if ($rankRequests["count"] >= $ScoresConfig["rankRequestsQueueSize"]) {
+				throw new Exception("A maximum of <b>".$ScoresConfig["rankRequestsQueueSize"]." rank requests</b> can be sent every <b>24 hours</b>. No more requests can be submitted for now.");
 			}
 
 			// Make sure the URL is valid

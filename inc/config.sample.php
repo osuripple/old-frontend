@@ -62,7 +62,9 @@ $ScoresConfig = [
 	"enablePP" => true,
 	"useNewBeatmapsTable" => true,		// 0: get beatmaps names from beatmaps_names (old php scores server)
 										// 1: get beatmaps names from beatmaps (LETS)
-	"api_key" => ""
+	"api_key" => "",
+	"rankRequestsQueueSize" => 20,
+	"rankRequestsPerUser" => 2
 ];
 
 // Team page config
