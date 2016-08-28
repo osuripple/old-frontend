@@ -101,7 +101,7 @@ class RequestRankedBeatmap {
 			$otherCriteria = $criteria == "beatmap_id" ? "beatmapset_id" : "beatmap_id";
 			$otherID = $GLOBALS["db"]->fetch("SELECT ".$otherCriteria." FROM beatmaps WHERE ".$criteria." = ?", [$matches[2]]);
 			if ($otherID) {
-				if ($GLOBALS["db"]->fetch("SELECT * FROM rank_requests WHERE bid = ? AND type = ?", [current($otherID), $otherType])) {
+				if ($GLOBALS["db"]->fetch("SELECT * FROM rank_requests WHERE bid = ? AND type = ? AND time > ?", [current($otherID), $otherType, time()-(24*3600)])) {
 					throw new Exception("That beatmap was already requested.");
 				}
 			}
