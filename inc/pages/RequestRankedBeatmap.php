@@ -15,7 +15,7 @@ class RequestRankedBeatmap {
 		P::MaintenanceStuff();
 		startSessionIfNotStarted();
 		$myRequests = $GLOBALS["db"]->fetch("SELECT COUNT(*) AS count FROM rank_requests WHERE time > ? AND userid = ? LIMIT ".$ScoresConfig["rankRequestsPerUser"], [time()-(24*3600), $_SESSION["userid"]]);
-		$rankRequests = $GLOBALS["db"]->fetch("SELECT COUNT(*) AS count FROM rank_requests WHERE time > ? ORDER BY time ASC LIMIT ".$ScoresConfig["rankRequestsQueueSize"], [time()-(24*3600)]);
+		$rankRequests = $GLOBALS["db"]->fetchAll("SELECT * FROM rank_requests WHERE time > ? ORDER BY time ASC LIMIT ".$ScoresConfig["rankRequestsQueueSize"], [time()-(24*3600)]);
 		echo '
 		<div id="content">
 			<div align="center">
@@ -25,14 +25,14 @@ class RequestRankedBeatmap {
 					echo '<div class="alert alert-warning" role="alert"><i class="fa fa-warning"></i>	You can send only <b>'.$ScoresConfig["rankRequestsPerUser"].' rank requests</b> every 24 hours. <b>Please come back tomorrow.</b></div>';
 					return;
 				}
-				if ($rankRequests["count"] >= $ScoresConfig["rankRequestsQueueSize"]) {
+				if (count($rankRequests) >= $ScoresConfig["rankRequestsQueueSize"]) {
 					echo '<div class="alert alert-warning" role="alert"><i class="fa fa-warning"></i>	A maximum of <b>'.$ScoresConfig["rankRequestsQueueSize"].' rank requests</b> can be sent every <b>24 hours</b>. No more requests can be submitted for now. <b>Please come back later.</b></div>';
 					echo '<hr><h4 style="display: inline;">Estimated time until next request:</h4><br>
 					<h3 style="display: inline;">'.timeDifference(time(), $rankRequests[0]["time"]+24*3600, false, "Less than a minute").'</h3>';
 					return;
 				}
 				echo '<hr>
-				<h2 style="display: inline;">'.$rankRequests["count"].'</h2><h3 style="display: inline;">/'.$ScoresConfig["rankRequestsQueueSize"].'</h3><br><h4>requests submitted</h4><h6>in the past 24 hours</h6>
+				<h2 style="display: inline;">'.count($rankRequests).'</h2><h3 style="display: inline;">/'.$ScoresConfig["rankRequestsQueueSize"].'</h3><br><h4>requests submitted</h4><h6>in the past 24 hours</h6>
 				<hr>
 				<div class="alert alert-warning" role="alert"><i class="fa fa-warning"></i>	Every user can send <b>'.$ScoresConfig["rankRequestsPerUser"].' rank requests every 24 hours</b>, and a maximum of <b>'.$ScoresConfig["rankRequestsQueueSize"].' beatmaps</b> can be requested <b>every 24 hours</b> by all users. <b>Remember that troll or invalid maps will still count as valid rank requests, so request only beatmaps that you <u>really</u> want to see ranked, since the number of daily rank requests is limited.</b></div>
 				<b>Beatmap/Beatmap set link</b><br>
