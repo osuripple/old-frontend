@@ -392,6 +392,8 @@ switch ($p) {
 					$("#supporter-prices").html(str);
 					$("#supporter-btc-price").html(priceMBTC);
 					$("#paypal-supporter-period").val(months+" months");
+					$("#pay").attr("href", "https://paypal.me/ripplemoe/"+priceEUR);
+					$("#paypal-price").html(priceEUR);
 				};
 
 

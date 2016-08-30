@@ -111,35 +111,10 @@ class Support {
 				<div class="row" align="center">
 					<div class="col-sm-6">
 						<div class="col-padding">
-							<h3><i class="fa fa-paypal"></i>	Prefer PayPal?</h3></h3>
-							<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_self">
-								<table>
-								<tr><td><input type="hidden" name="on0" value="Period">Period</td></tr><tr><td>';
-
-								echo '<select name="os0" id="paypal-supporter-period">';
-								for ($i=0; $i < $maxDonor; $i++) { 
-									echo '<option value="'.($i+1).' months">'.($i+1).' months €'.getDonorPrice($i+1).' EUR</option>';
-								}
-								echo '</select>';
-
-								echo '<input type="hidden" name="option_index" value="0">';
-								for ($i=0; $i < $maxDonor; $i++) { 
-									echo '<input type="hidden" name="option_select'.$i.'" value="'.($i+1).' months">';
-									echo '<input type="hidden" name="option_amount'.$i.'" value="'.getDonorPrice($i+1).'">';
-								}
-
-								echo '</td></tr>
-								<tr><td><input type="hidden" name="on1" value="Ripple user to give donor">Ripple user to give donor</td></tr><tr><td><input type="text" name="os1" maxlength="200" value="'.$_SESSION["username"].'"></td></tr>
-								</table>
-								<input type="hidden" name="currency_code" value="EUR">
-								<input type="hidden" name="business" value="to@nyo.zz.mu">
-								<input type="hidden" name="cmd" value="_xclick">
-								<input type="hidden" name="display" value="0">
-								<br>
-								<button type="submit" class="btn btn-danger" name="submit"><i class="fa fa-heart"></i>	Donate now</button>
-								<!-- <input type="image" src="https://www.paypalobjects.com/it_IT/IT/i/btn/btn_buynowCC_LG.gif" border="0" name="submit"> -->
-								<img alt="" border="0" src="https://www.paypalobjects.com/it_IT/i/scr/pixel.gif" width="1" height="1">
-							</form>
+							<h3><i class="fa fa-paypal"></i>	Prefer PayPal?</h3></h3>';
+							echo 'Click the button below to donate <b><span id="paypal-price"></span></b> € to Ripple<br>
+							<b><u>Write your Ripple username in donation\'s message!<br></b></u>
+							<a type="button" id="pay" href="#" type="submit" class="btn btn-danger" name="submit"><i class="fa fa-heart"></i>	Donate now</a>
 						</div>
 					</div>
 					<div class="col-sm-6">
