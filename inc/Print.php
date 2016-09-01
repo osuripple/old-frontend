@@ -1211,12 +1211,12 @@ class P {
 			if (!isset($_GET['id'])) {
 				throw new Exception('Invalid user id');
 			}
-			// Get user badges and explode
-			$userBadges = explode(',', current($GLOBALS['db']->fetch('SELECT badges_shown FROM users_stats WHERE id = ?', $_GET['id'])));
+			// get all badges
+			$allBadges = $GLOBALS['db']->fetchAll("SELECT id, name FROM badges");
+			// Get user badges
+			$userBadges = $GLOBALS['db']->fetchAll('SELECT badge FROM user_badges ub WHERE ub.user = ?', $_GET['id']);
 			// Get username
 			$username = current($GLOBALS['db']->fetch('SELECT username FROM users WHERE id = ?', $_GET['id']));
-			// Get badges data
-			$badgeData = $GLOBALS['db']->fetchAll('SELECT * FROM badges');
 			// Print edit user badges stuff
 			echo '<div id="wrapper">';
 			printAdminSidebar();
@@ -1227,45 +1227,23 @@ class P {
 			echo '<table class="table table-striped table-hover table-50-center">';
 			echo '<tbody><form id="edit-user-badges" action="submit.php" method="POST"><input name="action" value="saveUserBadges" hidden>';
 			echo '<tr>
-			<td>Username</td>
+			<td>User</td>
 			<td><p class="text-center"><input type="text" name="u" class="form-control" value="'.$username.'" readonly></td>
 			</tr>';
-			echo '<tr>
-			<td>Badge 1</td>
-			<td>';
-			printBadgeSelect('b01', $userBadges[0], $badgeData);
-			echo '</td>
-			</tr>';
-			echo '<tr>
-			<td>Badge 2</td>
-			<td>';
-			printBadgeSelect('b02', $userBadges[1], $badgeData);
-			echo '</td>
-			</tr>';
-			echo '<tr>
-			<td>Badge 3</td>
-			<td>';
-			printBadgeSelect('b03', $userBadges[2], $badgeData);
-			echo '</td>
-			</tr>';
-			echo '<tr>
-			<td>Badge 4</td>
-			<td>';
-			printBadgeSelect('b04', $userBadges[3], $badgeData);
-			echo '</td>
-			</tr>';
-			echo '<tr>
-			<td>Badge 5</td>
-			<td>';
-			printBadgeSelect('b05', $userBadges[4], $badgeData);
-			echo '</td>
-			</tr>';
-			echo '<tr>
-			<td>Badge 6</td>
-			<td>';
-			printBadgeSelect('b06', $userBadges[5], $badgeData);
-			echo '</td>
-			</tr>';
+			for ($i = 1; $i <= 6; $i++) {
+				echo '<tr>
+				<td>Badge ' . $i . '</td>
+				<td>';
+				echo "<select name='b0$i' class='selectpicker' data-width='100%'>";
+				foreach ($allBadges as $badge) {
+					$selected = "";
+					if ($badge["id"] == @$userBadges[$i-1]["badge"])
+						$selected = " selected";
+					echo "<option value='$badge[id]'$selected>$badge[name]</option>";
+				}
+				echo '</select></td>
+				</tr>';
+			}
 			echo '</tbody></form>';
 			echo '</table>';
 			echo '<div class="text-center"><button type="submit" form="edit-user-badges" class="btn btn-primary">Save changes</button></div>';
@@ -1589,7 +1567,7 @@ class P {
 			// Check banned status
 			$userData = $GLOBALS['db']->fetch("
 SELECT
-	users_stats.*, users.privileges, users.id, users.latest_activity,
+	users_stats.*, users.privileges, users.id as usersuid, users.latest_activity,
 	users.silence_end, users.silence_reason, users.register_datetime
 FROM users_stats
 LEFT JOIN users ON users.id=users_stats.id
@@ -1630,6 +1608,7 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 			}
 			// Get all user stats for all modes and username
 			$username = $userData["username"];
+			$userID = $userData["usersuid"];
 			// Set default modes texts, selected is bolded below
 			$modesText = [0 => 'osu!standard', 1 => 'Taiko', 2 => 'Catch the Beat', 3 => 'osu!mania'];
 			// Get stats for selected mode
@@ -1653,20 +1632,23 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 			$silenceReason = $userData['silence_reason'];
 
 			// Get badges id and icon (max 6 badges)
-			$allBadges = $GLOBALS['db']->fetchAll('SELECT id, icon, name FROM badges');
-			$badgeID = explode(',', $userData['badges_shown']);
-			for ($i = 0; $i < count($badgeID); $i++) {
-				foreach ($allBadges as $singleBadge) {
-					if ($singleBadge['id'] == $badgeID[$i]) {
-						$badgeIcon[$i] = htmlspecialchars($singleBadge['icon']);
-						$badgeName[$i] = htmlspecialchars($singleBadge['name']);
-					}
+			$badgeID = [];
+			$badgeIcon = [];
+			$badgeName = [];
+			
+			$badges = $GLOBALS["db"]->fetchAll("SELECT b.id, b.icon, b.name
+			FROM user_badges ub
+			LEFT JOIN badges b ON b.id = ub.badge
+			WHERE ub.user = ?", [$userID]);
+			foreach ($badges as $key => $badge) {
+				$badgeID[$key] = $badge["id"];
+				$badgeIcon[$key] = htmlspecialchars($badge['icon']);
+				$badgeName[$key] = htmlspecialchars($badge['name']);
+				if (empty($badgeIcon[$key])) {
+					$badgeIcon[$key] = 0;
 				}
-				if (empty($badgeIcon[$i])) {
-					$badgeIcon[$i] = 0;
-				}
-				if (empty($badgeName[$i])) {
-					$badgeIcon[$i] = '';
+				if (empty($badgeName[$key])) {
+					$badgeIcon[$key] = '';
 				}
 			}
 
@@ -1674,7 +1656,7 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 			$showCustomBadge = hasPrivilege(Privileges::UserDonor, $userData['id']) && $userData["show_custom_badge"] == 1 && $userData["can_custom_badge"] == 1;
 			if ($showCustomBadge) {
 				for ($i=0; $i < 6; $i++) { 
-					if ($badgeID[$i] == 0) {
+					if (@$badgeID[$i] == 0) {
 						$badgeID[$i] = -1;
 						$badgeIcon[$i] = htmlspecialchars($userData["custom_badge_icon"]);
 						$badgeName[$i] = "<i>".htmlspecialchars($userData["custom_badge_name"])."</i>";
@@ -1797,25 +1779,25 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 			echo '<div id="userpage-content">
 			<div class="col-md-3">';
 			// Badges Left colum
-			if ($badgeID[0] > 0 || $badgeID[0] == -1) {
+			if (@$badgeID[0] > 0 || @$badgeID[0] == -1) {
 				echo '<i class="fa '.$badgeIcon[0].' fa-2x"></i><br><b>'.$badgeName[0].'</b><br><br>';
 			}
-			if ($badgeID[2] > 0 || $badgeID[2] == -1) {
+			if (@$badgeID[2] > 0 || @$badgeID[2] == -1) {
 				echo '<i class="fa '.$badgeIcon[2].' fa-2x"></i><br><b>'.$badgeName[2].'</b><br><br>';
 			}
-			if ($badgeID[4] > 0 || $badgeID[4] == -1) {
+			if (@$badgeID[4] > 0 || @$badgeID[4] == -1) {
 				echo '<i class="fa '.$badgeIcon[4].' fa-2x"></i><br><b>'.$badgeName[4].'</b><br><br>';
 			}
 			echo '</div>
 			<div class="col-md-3">';
 			// Badges Right column
-			if ($badgeID[1] > 0 || $badgeID[1] == -1) {
+			if (@$badgeID[1] > 0 || @$badgeID[1] == -1) {
 				echo '<i class="fa '.$badgeIcon[1].' fa-2x"></i><br><b>'.$badgeName[1].'</b><br><br>';
 			}
-			if ($badgeID[3] > 0 || $badgeID[3] == -1) {
+			if (@$badgeID[3] > 0 || @$badgeID[3] == -1) {
 				echo '<i class="fa '.$badgeIcon[3].' fa-2x"></i><br><b>'.$badgeName[3].'</b><br><br>';
 			}
-			if ($badgeID[5] > 0 || $badgeID[5] == -1) {
+			if (@$badgeID[5] > 0 || @$badgeID[5] == -1) {
 				echo '<i class="fa '.$badgeIcon[5].' fa-2x"></i><br><b>'.$badgeName[5].'</b><br><br>';
 			}
 			// Calculate required score for our level

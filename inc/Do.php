@@ -581,14 +581,19 @@ class D {
 			if (!isset($_POST['u']) || !isset($_POST['b01']) || !isset($_POST['b02']) || !isset($_POST['b03']) || !isset($_POST['b04']) || !isset($_POST['b05']) || !isset($_POST['b06']) || empty($_POST['u'])) {
 				throw new Exception('Nice troll.');
 			}
+			$user = $GLOBALS['db']->fetch('SELECT id FROM users WHERE username = ?', $_POST['u']);
 			// Make sure that this user exists
-			if (!$GLOBALS['db']->fetch('SELECT id FROM users WHERE username = ?', $_POST['u'])) {
+			if (!$user) {
 				throw new Exception("That user doesn't exist.");
 			}
-			// Get the string with all the badges
-			$badgesString = $_POST['b01'].','.$_POST['b02'].','.$_POST['b03'].','.$_POST['b04'].','.$_POST['b05'].','.$_POST['b06'];
-			// Save the new badges string
-			$GLOBALS['db']->execute('UPDATE users_stats SET badges_shown = ? WHERE username = ?', [$badgesString, $_POST['u']]);
+			// delete current badges
+			$GLOBALS["db"]->execute("DELETE FROM user_badges WHERE user = ?", [$user["id"]]);
+			// add badges
+			for ($i = 0; $i <= 6; $i++) {
+				$x = $_POST["b0" . $i];
+				if ($x == 0) continue;
+				$GLOBALS["db"]->execute("INSERT INTO user_badges(user, badge) VALUES (?, ?);", [$user["id"], $x]);
+			}
 			// RAP log
 			rapLog(sprintf("has edited %s's badges", $_POST["u"]));
 			// Done, redirect to success page
@@ -1395,38 +1400,39 @@ class D {
 			// We do the log thing here because the badge part _might_ fail
 			rapLog(sprintf("has given donor for %s months to user %s", $_POST["m"], $username), $_SESSION["userid"]);
 
-			$badges = $GLOBALS["db"]->fetch("SELECT badges_shown FROM users_stats WHERE id = ?", [$_POST["id"]]);
+			$badges = $GLOBALS["db"]->fetch("SELECT badge FROM user_badges WHERE user = ?", [$_POST["id"]]);
 			if (!$badges) {
-				throw new Exception("Something went terribly wrong. Call nyo and tell him that there was a meme (no user_stats entry) for user ".$_POST["id"]);
+				throw new Exception("Something went terribly wrong. Call nyo and tell him that there was a meme (the query fucked up) for user ".$_POST["id"]);
 			}
-			$badges = explode(",", current($badges));
-			$meme = true;
-			foreach ($badges as $i => $badge) {
-				// Break if we already have a donor badge
-				if ($badge == 14) {	// 14 == donor badge id
-					$meme = false;
-					break;
-				}
-				if ($badge == 0 || $badge == 2) {
-					$meme = false;
-					$badges[$i] = 14;	// 14 == donor badge id
+			$hasAlready = false;
+			foreach ($badges as $badge) {
+				if ($badge["badge"] == 14) {	// 14 == donor badge id
+					$hasAlready = true;
 					break;
 				}
 			}
-			if ($meme) {
-				throw new Exception("That (boi) user has now donor privileges, but there are no unused badges on his profile. Please edit his badges manually and replace a badge with the donor one.");
+			if (!$hasAlready) {
+				// 14 = donor badge
+				$GLOBALS["db"]->execute("INSERT INTO user_badges(user, badge) VALUES (?, ?);", [$_POST["id"], 14]);
 			}
-			$badges = implode(",", $badges);
-			$GLOBALS["db"]->execute("UPDATE users_stats SET badges_shown = ? WHERE id = ?", [$badges, $_POST["id"]]);
 			// Send email
+			
+			// Feelin' peppy-y
+			if ($_POST["m"] >= 20) $TheMoreYouKnow = "Did you know that your donation accounts for roughly one month of keeping the main server up? That's crazy! Thank you so much!";
+			else if ($_POST["m"] >= 15 && $_POST["m"] < 20) $TheMoreYouKnow = "Normally we would say how much of our expenses a certain donation pays for, but your donation is halfway through paying the domain for 1 year and paying the main server for 1 month. So we don't really know what to say here: your donation pays for about 75% of keeping the server up one month... ? I guess? Thank you anyway!";
+			else if ($_POST["m"] >= 10 && $_POST["m"] < 15) $TheMoreYouKnow = "You know what we could do with the amount you donated? We could probably renew the domain for one more year! Although your money is more likely to end up being spent on paying the main server. Thanks anyway!"; 
+			else if ($_POST["m"] >= 4 && $_POST["m"] < 10) $TheMoreYouKnow = "Your donation will help to keep the beatmap mirror we set up for Ripple up for one month! Thanks a lot!";
+			else if ($_POST["m"] >= 1 && $_POST["m"] < 4) $TheMoreYouKnow =  "With your donation, we can afford to keep up the error logging server, which is a little VPS on which we host an error logging service (Sentry). Thanks a lot!";
+
 			global $MailgunConfig;
 			$mailer = new SimpleMailgun($MailgunConfig);
 			$mailer->Send(
 				'Ripple <noreply@'.$MailgunConfig['domain'].'>', $userData['email'],
 				'Thank you for donating!',
 				sprintf(
-					"Hey %s!<br>Thank you for donating to Ripple. Your donor expires in %s month(s).<br><br>Love u,<br>Ripple",
+					"Hey %s! Thanks for donating to Ripple. It's thanks to the support of people like you that we can afford keeping the service up. Your donation has been processed, and you should now be able to get the donator role on discord, and have access to all the other perks listed on the \"Support us\" page.<br><br>%s<br><br>Your donor expires in %s months. Until then, have fun!<br>The Ripple Team",
 					$username,
+					$TheMoreYouKnow,
 					$months
 				)
 			);
@@ -1449,18 +1455,8 @@ class D {
 			$GLOBALS["db"]->execute("UPDATE users SET privileges = privileges & ~".Privileges::UserDonor.", donor_expire = 0 WHERE id = ?", [$_GET["id"]]);
 
 			// Remove donor badge
-			$badges = $GLOBALS["db"]->fetch("SELECT badges_shown FROM users_stats WHERE id = ?", [$_GET["id"]]);
-			if (!$badges) {
-				throw new Exception("Something went terribly wrong. Call nyo and tell him that there was a meme (no user_stats entry) for user ".$_POST["id"]);
-			}
-			$badges = explode(",", current($badges));
-			foreach ($badges as $i => $badge) {
-				if ($badge == 14) {	// 14 == donor badge id
-					$badges[$i] = 0;		// 0 == none
-				}
-			}
-			$badges = implode(",", $badges);
-			$GLOBALS["db"]->execute("UPDATE users_stats SET badges_shown = ? WHERE id = ?", [$badges, $_GET["id"]]);
+			// 14 = donor badge id
+			$GLOBALS["db"]->execute("DELETE FROM user_badges WHERE user = ? AND badge = ?", [$_GET["id"], 14]);
 
 			rapLog(sprintf("has removed donor from user %s", $username), $_SESSION["userid"]);
 			redirect("index.php?p=102&s=Donor status changed!");
