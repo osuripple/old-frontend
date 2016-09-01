@@ -105,7 +105,7 @@ class D {
 		} catch(Exception $e) {
 			// Redirect to Exception page
 			addError($e->getMessage());
-			redirect('index.php?p=3');
+			redirect('index.php?p=3&iseethestopsign=1');
 		}
 	}
 
