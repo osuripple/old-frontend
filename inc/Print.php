@@ -1562,7 +1562,7 @@ class P {
 		// Global alert
 		self::GlobalAlert();
 		try {
-			$kind = $GLOBALS['db']->fetch('SELECT 1 FROM users WHERE id = ?', $u) ? "id" : "username";
+			$kind = $GLOBALS['db']->fetch('SELECT 1 FROM users WHERE id = ?', (int)$u) ? "id" : "username";
 
 			// Check banned status
 			$userData = $GLOBALS['db']->fetch("
@@ -1571,7 +1571,7 @@ SELECT
 	users.silence_end, users.silence_reason, users.register_datetime
 FROM users_stats
 LEFT JOIN users ON users.id=users_stats.id
-WHERE users_stats.$kind = ? LIMIT 1", [$u]);
+WHERE users.$kind = ? LIMIT 1", [$u]);
 
 			if (!$userData) {
 				// LISCIAMI LE MELE SUDICIO
@@ -1748,7 +1748,7 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 			// Userpage header
 			echo '<div id="userpage-header">
 			<!-- Avatar, username and rank -->
-			<p><img id="user-avatar" src="'.URL::Avatar().'/'.$u.'" height="100" width="100" /></p>
+			<p><img id="user-avatar" src="'.URL::Avatar().'/'.$userData["id"].'" height="100" width="100" /></p>
 			<p id="username"><div style="display: inline; ' . (!empty($userData["user_color"]) ? "color: $userData[user_color];" : "") . ' font-size: 140%; '.$userStyle.'"><b>';
 			if ($country != 'XX' && $showCountry == 1) {
 				echo '<img src="./images/flags/'.strtolower($country).'.png">	';

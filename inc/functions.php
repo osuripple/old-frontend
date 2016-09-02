@@ -489,26 +489,7 @@ function printPage($p) {
 		}
 	} else {
 		// Userpage
-		// Check if this is an int
-		if (is_numeric($_GET['u'])) {
-			// Int passed, we don't need to get user ID
-			$u = intval($_GET['u']);
-		} else {
-			// Username passed, get user ID if it exists
-			if (checkUserExists($_GET['u'])) {
-				$u = getUserID($_GET['u']);
-			} else {
-				$u = 0;
-			}
-		}
-		// Get playmode (default 0)
-		if (!isset($_GET['m']) || !is_numeric($_GET['m'])) {
-			$m = -1;
-		} else {
-			$m = $_GET['m'];
-		}
-		// Print userpage
-		P::UserPage($u, $m);
+		P::UserPage($_GET["u"], (int)@$_GET['m']);
 	}
 }
 /*
