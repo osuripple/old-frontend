@@ -1562,7 +1562,7 @@ class P {
 		// Global alert
 		self::GlobalAlert();
 		try {
-			$kind = $GLOBALS['db']->fetch('SELECT 1 FROM users WHERE id = ?', $u) ? "id" : "username";
+			$kind = $GLOBALS['db']->fetch('SELECT 1 FROM users WHERE id = ?', (int)$u) ? "id" : "username";
 
 			// Check banned status
 			$userData = $GLOBALS['db']->fetch("
@@ -1571,7 +1571,7 @@ SELECT
 	users.silence_end, users.silence_reason, users.register_datetime
 FROM users_stats
 LEFT JOIN users ON users.id=users_stats.id
-WHERE users_stats.$kind = ? LIMIT 1", [$u]);
+WHERE users.$kind = ? LIMIT 1", [$u]);
 
 			if (!$userData) {
 				// LISCIAMI LE MELE SUDICIO
@@ -1748,7 +1748,7 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 			// Userpage header
 			echo '<div id="userpage-header">
 			<!-- Avatar, username and rank -->
-			<p><img id="user-avatar" src="'.URL::Avatar().'/'.$u.'" height="100" width="100" /></p>
+			<p><img id="user-avatar" src="'.URL::Avatar().'/'.$userData["id"].'" height="100" width="100" /></p>
 			<p id="username"><div style="display: inline; ' . (!empty($userData["user_color"]) ? "color: $userData[user_color];" : "") . ' font-size: 140%; '.$userStyle.'"><b>';
 			if ($country != 'XX' && $showCountry == 1) {
 				echo '<img src="./images/flags/'.strtolower($country).'.png">	';
@@ -2412,27 +2412,6 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 			</form></div>';
 		}
 	}
-
-	/*
-	 * Alerts
-	 * Print the alerts for the logged in user.
-
-	public static function Alerts() {
-		// Account activation alert (not implemented yet)
-		if (getUserAllowed($_SESSION['username']) == 2) {
-			echo '<div class="alert alert-warning" role="alert">To avoid using accounts that you don\'t own, you need to <b>confirm your Ripple account</b>. To do so, simply <b>open your osu! client, login to ripple server and submit a score.</b> Every score is ok, even on unranked maps. <u><b>Remember that if you don\'t activate your Ripple account within 3 hours, it\'ll be deleted!</b></u></div>';
-		}
-		// Documentation alert to help new users
-		if (getUserID($_SESSION['username']) == 2) {
-			echo '<div class="alert alert-warning" role="alert">If you are having troubles while activating your account or connecting to Ripple, please check the Documentation section by clicking <a href="index.php?p=14">here</a>.</div>';
-		}
-		// Country flag alert (only for not pending users)
-		if (getUserAllowed($_SESSION['username']) != 2 && current($GLOBALS['db']->fetch('SELECT country FROM users_stats WHERE username = ?', $_SESSION['username'])) == 'XX') {
-			echo '<div class="alert alert-warning" role="alert"><b>You don\'t have a country flag.</b> Send a score (even a failed/retried one is fine) to get your country flag.</div>';
-		}
-		// Other alerts (such as maintenance, ip change and stuff) will be added here
-
-	}*/
 
 	/*
 	 * MaintenanceAlert
