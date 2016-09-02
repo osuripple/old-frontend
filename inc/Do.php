@@ -40,9 +40,14 @@ class D {
 			if (UsernameHelper::isUsernameForbidden($_POST['u'])) {
 				throw new Exception('Username now allowed. Please choose another one.');
 			}
+			// Username with mixed spaces
+			if (strpos($_POST["u"], " ") !== false && strpos($_POST["u"], "_") !== false) {
+				throw new Exception('Usernames with both spaces and underscores are not supported.');
+			}
 			// Check if username is already in db
-			$unaPioggiaDiGiustizia = str_replace(" ", "_", $_POST["u"]);
-			if ($GLOBALS['db']->fetch('SELECT * FROM users WHERE username LIKE ?', [$unaPioggiaDiGiustizia])) {
+			$spaceToUnderscore = str_replace(" ", "_", $_POST["u"]);
+			$underscoreToSpace = str_replace("_", " ", $_POST["u"]);
+			if ($GLOBALS['db']->fetch('SELECT * FROM users WHERE username = ? OR username = ?', [$spaceToUnderscore, $underscoreToSpace])) {	
 				throw new Exception('That username was already found in the database! Perhaps someone stole it from you? Those bastards!');
 			}
 			// Check if email is already in db
