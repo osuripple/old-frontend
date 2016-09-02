@@ -2414,27 +2414,6 @@ WHERE users_stats.$kind = ? LIMIT 1", [$u]);
 	}
 
 	/*
-	 * Alerts
-	 * Print the alerts for the logged in user.
-
-	public static function Alerts() {
-		// Account activation alert (not implemented yet)
-		if (getUserAllowed($_SESSION['username']) == 2) {
-			echo '<div class="alert alert-warning" role="alert">To avoid using accounts that you don\'t own, you need to <b>confirm your Ripple account</b>. To do so, simply <b>open your osu! client, login to ripple server and submit a score.</b> Every score is ok, even on unranked maps. <u><b>Remember that if you don\'t activate your Ripple account within 3 hours, it\'ll be deleted!</b></u></div>';
-		}
-		// Documentation alert to help new users
-		if (getUserID($_SESSION['username']) == 2) {
-			echo '<div class="alert alert-warning" role="alert">If you are having troubles while activating your account or connecting to Ripple, please check the Documentation section by clicking <a href="index.php?p=14">here</a>.</div>';
-		}
-		// Country flag alert (only for not pending users)
-		if (getUserAllowed($_SESSION['username']) != 2 && current($GLOBALS['db']->fetch('SELECT country FROM users_stats WHERE username = ?', $_SESSION['username'])) == 'XX') {
-			echo '<div class="alert alert-warning" role="alert"><b>You don\'t have a country flag.</b> Send a score (even a failed/retried one is fine) to get your country flag.</div>';
-		}
-		// Other alerts (such as maintenance, ip change and stuff) will be added here
-
-	}*/
-
-	/*
 	 * MaintenanceAlert
 	 * Prints the maintenance alert and die if we are normal users
 	 * Prints the maintenance alert and keep printing the page if we are mod/admin
