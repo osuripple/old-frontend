@@ -68,6 +68,7 @@ $ScoresConfig = [
 ];
 
 // Team page config
+$teamHidden = [];
 $teamConfig = [
 	999 => [
 		"name" => "Mark Fokawo",
