@@ -41,7 +41,8 @@ class D {
 				throw new Exception('Username now allowed. Please choose another one.');
 			}
 			// Check if username is already in db
-			if ($GLOBALS['db']->fetch('SELECT * FROM users WHERE username = ?', $_POST['u'])) {
+			$unaPioggiaDiGiustizia = str_replace(" ", "_", $_POST["u"]);
+			if ($GLOBALS['db']->fetch('SELECT * FROM users WHERE username LIKE ?', [$unaPioggiaDiGiustizia])) {
 				throw new Exception('That username was already found in the database! Perhaps someone stole it from you? Those bastards!');
 			}
 			// Check if email is already in db
