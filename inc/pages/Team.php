@@ -26,7 +26,7 @@ class Team {
 
 				echo '<hr><h3><i class="fa fa-code"></i>	Developers</h3>
 				Developers add new features to the server, squash bugs, keep the server up and running and take care of its maintenance.<br>
-				They don\'t do anything related to the community. You can distringuish them because they have a blue name in game chat.<br><br>';
+				They don\'t do anything related to the community. You can distinguish them because they have a blue name in game chat.<br><br>';
 				self::printTeam("developer");
 
 				echo '<hr><h3><i class="fa fa-music"></i>	BATs</h3>
