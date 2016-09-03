@@ -20,7 +20,7 @@ class Support {
 			if ($expire) {
 				$expire = current($expire);
 				if ($expire > time()) {
-					$expireString = timeDifference(time(), $expire, false);
+					$expireString = trim(timeDifference(time(), $expire, false));
 				} else {
 					$expireString = 'less than one hour';
 				}
