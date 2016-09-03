@@ -11,7 +11,7 @@ class Leaderboard {
 		P::MaintenanceStuff();
 
 		global $ScoresConfig;
-		echo "<h2>La tabellina fierissima</h2>";
+		echo "<h2>Leaderboard</h2>";
 		// Leaderboard names (to bold the selected mode)
 		$modesText = [0 => 'osu!standard', 1 => 'Taiko', 2 => 'Catch the Beat', 3 => 'osu!mania'];
 		// Set $m value to 0 if not set
