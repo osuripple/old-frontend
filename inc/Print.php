@@ -1562,7 +1562,7 @@ class P {
 		// Global alert
 		self::GlobalAlert();
 		try {
-			$kind = $GLOBALS['db']->fetch('SELECT 1 FROM users WHERE id = ?', (int)$u) ? "id" : "username";
+			$kind = $GLOBALS['db']->fetch('SELECT 1 FROM users WHERE id = ?', [$u]) ? "id" : "username";
 
 			// Check banned status
 			$userData = $GLOBALS['db']->fetch("
@@ -1690,6 +1690,53 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			$modesText[$m] = '<b>'.$modesText[$m].'</b>';
 			// Get userpage
 			$userpageContent = $userData['userpage_content'];
+
+			// seriosuly fuck this shit who the fuck thought it was sane to write this fucking piece
+			// of fucking shit like holy titties fuck tits cock the whole code of oldfrontend is absolutely
+			// fucked but i still can't believe how FUCKED the code of the user profiles are why are they
+			// even called userpages in this fucking code they're supposed to be profiles not pages
+			// userpages are the ones with custom data written in bbcode
+			// why are userpages in bbcode
+			// like
+			// markdown is much superior
+			// anyway
+			// you might wonder why the fuck i am doing the next thing
+			// and that is $u used to always be an userid
+			// and then changes happened and the validation to check $_GET["u"] was an username or
+			// an userid was moved into the userpage() function
+			// problem is though
+			// i forgot there was another check of more or less the same thing in functions.php
+			// (fuck functions.php by the way)
+			// and so yeah
+			// $u then became either an username or an userid
+			// except I didn't know it was used in other places apart from the initial lookup of the user.
+			// fuck
+			// this
+			// gay
+			// earth
+			// https://www.youtube.com/watch?v=HnrjygAG18o
+			// TOOONIGHT IM GONNA HAVE MYSELF A REAL GOOD TIME
+			// I FEEL ALIIIVE AH AH AAAH
+			// AND THE WORLD
+			// IS TURNING INSIDE OUT YEAH
+			// I'M FLOATING AROUND IN ECSTASY
+			// SO DON'T STOP ME NOW
+			// SO DON'T STOP ME NOW
+			// CAUSE IM HAVING A GOOD TIME
+			// HAVING A GOOD TIME
+			// I'M A SUPERSTARE LEAKING THROUGH THE SKYES LIKE A TIGER
+			// DEFYING THE LAWS OF GRAVITY'
+			// I'M A RACING CAR PASSING BY LIKE LADY GODDIVA
+			// I GOTTA GO
+			// GO
+			// GO
+			// THERE'S NO STOPPING ME
+			// Now that I filled my whole screen with this comment I can finally procede writing
+			// some more shitty code
+			// I hope my nonsense has made your day
+			// And don't you dare post this on reddit.
+			$u = $userData["id"];
+
 			// Friend button
 			if (!checkLoggedIn() || $username == $_SESSION['username']) {
 				$friendButton = '';
