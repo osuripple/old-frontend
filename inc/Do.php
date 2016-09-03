@@ -1492,13 +1492,14 @@ class D {
 				case "y": $periodSeconds = 86400*365; $periodName = "Year"; break;
 			}
 
-			$removeAfterOsuTime = UNIXTimestampToOsuDate(time()-($_POST["length"]*$periodSeconds));
+			//$removeAfterOsuTime = UNIXTimestampToOsuDate(time()-($_POST["length"]*$periodSeconds));
+			$removeAfter = time()-($_POST["length"]*$periodSeconds);
 			$rollbackString = $_POST["length"]." ".$periodName;
 			if ($_POST["length"] > 1) {
 				$rollbackString .= "s";
 			}
 
-			$GLOBALS["db"]->execute("DELETE FROM scores WHERE userid = ? AND time >= ?", [$_POST["id"], $removeAfterOsuTime]);
+			$GLOBALS["db"]->execute("DELETE FROM scores WHERE userid = ? AND time >= ?", [$_POST["id"], $removeAfter]);
 
 			rapLog(sprintf("has rolled back %s %s's account", $rollbackString, $username), $_SESSION["userid"]);
 			redirect("index.php?p=102&s=User account has been rolled back!");
