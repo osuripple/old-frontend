@@ -1624,7 +1624,6 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			$replaysWatchedByOthers = $userData['replays_watched_'.$modeForDB];
 			$pp = $userData['pp_'.$modeForDB];
 			$country = $userData['country'];
-			$showCountry = $userData['show_country'];
 			$usernameAka = $userData['username_aka'];
 			$level = $userData['level_'.$modeForDB];
 			$latestActivity = $userData['latest_activity'];
@@ -1797,7 +1796,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			<!-- Avatar, username and rank -->
 			<p><img id="user-avatar" src="'.URL::Avatar().'/'.$userData["id"].'" height="100" width="100" /></p>
 			<p id="username"><div style="display: inline; ' . (!empty($userData["user_color"]) ? "color: $userData[user_color];" : "") . ' font-size: 140%; '.$userStyle.'"><b>';
-			if ($country != 'XX' && $showCountry == 1) {
+			if ($country != 'XX') {
 				echo '<img src="./images/flags/'.strtolower($country).'.png">	';
 			}
 			if (isOnline($userData["id"])) {
@@ -2235,11 +2234,9 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		}
 
 		// Default select stuff
-		$selected[0] = [0 => '', 1 => ''];
 		$selected[1] = [0 => '', 1 => ''];
 		$selected[2] = [0 => '', 1 => ''];
 		
-		$selected[0][$data['show_country']] = 'selected';
 		$selected[1][isset($_COOKIE['st']) && $_COOKIE['st'] == 1] = 'selected';
 		$selected[2][$data['show_custom_badge']] = 'selected';
 
@@ -2257,14 +2254,6 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		// Print form
 		echo '<form action="submit.php" method="POST">
 		<input name="action" value="saveUserSettings" hidden>
-		<div class="input-group" style="width:100%">
-			<span class="input-group-addon" id="basic-addon0" style="width:40%">Show country flag</span>
-			<select name="f" class="selectpicker" data-width="100%">
-				<option value="1" '.$selected[0][1].'>Yes</option>
-				<option value="0" '.$selected[0][0].'>No</option>
-			</select>
-		</div>
-		<p style="line-height: 15px"></p>
 		<div class="input-group" style="width:100%">
 			<span class="input-group-addon" id="basic-addon1" style="width:40%">Safe page title</span>
 			<select name="st" class="selectpicker" data-width="100%">
