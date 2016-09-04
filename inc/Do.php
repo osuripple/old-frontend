@@ -505,9 +505,15 @@ class D {
 			if ( (($privileges & Privileges::AdminManageUsers) > 0) && $_POST['oldu'] != $_SESSION['username']) {
 				throw new Exception("You don't have enough permissions to edit this user");
 			}
-			// Make sure the new username doesn't already exist
-			if (checkUserExists($_POST['newu'])) {
-				throw new Exception("Username already used by another user. No changes have been made.");
+			// No username with mixed spaces
+			if (strpos($_POST["newu"], " ") !== false && strpos($_POST["newu"], "_") !== false) {
+				throw new Exception('Usernames with both spaces and underscores are not supported.');
+			}
+			// Check if username is already in db
+			$spaceToUnderscore = str_replace(" ", "_", $_POST["newu"]);
+			$underscoreToSpace = str_replace("_", " ", $_POST["newu"]);
+			if ($GLOBALS['db']->fetch('SELECT * FROM users WHERE username = ? OR username = ?', [$spaceToUnderscore, $underscoreToSpace])) {	
+				throw new Exception('Username already used by another user. No changes have been made.');
 			}
 			// Change stuff
 			$GLOBALS['db']->execute('UPDATE users SET username = ? WHERE id = ?', [$_POST['newu'], $_POST['id']]);
