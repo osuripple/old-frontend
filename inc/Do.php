@@ -512,7 +512,7 @@ class D {
 			// Check if username is already in db
 			$spaceToUnderscore = str_replace(" ", "_", $_POST["newu"]);
 			$underscoreToSpace = str_replace("_", " ", $_POST["newu"]);
-			if ($GLOBALS['db']->fetch('SELECT * FROM users WHERE username = ? OR username = ?', [$spaceToUnderscore, $underscoreToSpace])) {	
+			if ($GLOBALS['db']->fetch('SELECT * FROM users WHERE username = ? OR username = ? AND id != $_POST['id']', [$spaceToUnderscore, $underscoreToSpace])) {	
 				throw new Exception('Username already used by another user. No changes have been made.');
 			}
 			// Change stuff
