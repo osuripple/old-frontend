@@ -10,6 +10,11 @@ body {
 	font-family: Source Sans Pro;
 	font-size: 160%;
 }
+@media (min-width: 768px) and (max-width: 1000px) {
+    body {
+        padding-top: 140px;
+    }
+}
 
 h1, h2, h3, h4, h5, h6 {
 	font-family: Raleway;
