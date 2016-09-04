@@ -1891,10 +1891,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				<td id="stats-name">Replays watched by others</td>
 				<td id="stats-value"><b>'.number_format($replaysWatchedByOthers).'</b></td>
 			</tr>';
-			// Country
-			if ($showCountry) {
-				echo '<tr><td id="stats-name">From</td><td id="stats-value"><b>'.countryCodeToReadable($country).'</b></td></tr>';
-			}
+			echo '<tr><td id="stats-name">From</td><td id="stats-value"><b>'.countryCodeToReadable($country).'</b></td></tr>';
 			// Show latest activity only if it's valid
 			if ($latestActivity != 0) {
 				echo '<tr>
