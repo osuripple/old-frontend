@@ -2827,7 +2827,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				$rankButton[4] = "disabled";
 			}
 			echo "<tr class='$rowClass'>
-				<td><a href='http://m.zxq.co/$bsid.osz'>$req[type]/$req[bid]</a></td>
+				<td><a href='http://storage.ripple.moe/$bsid.osz'>$req[type]/$req[bid]</a></td>
 				<td>$song</td>
 				<td>$req[username]</td>
 				<td>".timeDifference(time(), $req["time"])."</td>
