@@ -489,7 +489,7 @@ function printPage($p) {
 		}
 	} else {
 		// Userpage
-		P::UserPage($_GET["u"], (int)@$_GET['m']);
+		P::UserPage($_GET["u"], isset($_GET['m']) ? $_GET['m'] : -1);
 	}
 }
 /*

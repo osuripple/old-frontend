@@ -46,7 +46,7 @@ class Leaderboard {
 		$leaderboard = $GLOBALS['db']->fetchAll("
 SELECT
 	$tb.*,
-	users_stats.username, users_stats.country, users_stats.show_country,
+	users_stats.username, users_stats.country,
 	users_stats.ranked_score_" . $modeForDB . ", users_stats.pp_" . $modeForDB . ",
 	users_stats.avg_accuracy_" . $modeForDB . ", users_stats.playcount_" . $modeForDB . ",
 	users_stats.level_" . $modeForDB . ", users_stats.id
@@ -99,11 +99,7 @@ LIMIT $offset, 100;");
 			// Draw table row for this user
 			echo '<tr class="'.$tc.'">
 			<td><b>'.$rankSymbol.$offset.'</b></td>';
-			if ($lbUser['country'] != 'XX' && $lbUser['show_country'] == 1) {
-				$country = strtolower($lbUser['country']);
-			} else {
-				$country = 'xx';
-			}
+			$country = strtolower($lbUser['country']);
 			echo '<td><img src="./images/flags/'.$country.'.png"/>	<a href="index.php?u='.$lbUser['id'].'&m='.$m.'">'.$lbUser['username'].'</a></td>
 			<td>'.$score.'</td>
 			<td>'.(is_numeric($lbUser['avg_accuracy_'.$modeForDB]) ? accuracy($lbUser['avg_accuracy_'.$modeForDB]) : '0.00').'%</td>
