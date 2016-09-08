@@ -584,7 +584,7 @@ function printNavbar() {
 						<li class="divider"></li>
 						<li class="dropdown-submenu"><a href="index.php?p=5"><i class="fa fa-picture-o"></i> Change avatar</a></li>
 						<li class="dropdown-submenu"><a href="index.php?p=7"><i class="fa fa-lock"></i>	Change password</a></li>
-						<li class="dropdown-submenu"><a href="index.php?p=8"><i class="fa fa-pencil"></i> Edit userpage 	<span class="label label-info">Beta</span></a></li>
+						<li class="dropdown-submenu"><a href="index.php?p=8"><i class="fa fa-pencil"></i> Edit userpage</a></li>
 						<li class="dropdown-submenu"><a href="index.php?p=6"><i class="fa fa-cog"></i>	User settings</a></li>
 						<li class="divider"></li>
 						<li class="dropdown-submenu"><a href="index.php?p=30"><i class="fa fa-ticket"></i>	Two-Factor Auth	';
