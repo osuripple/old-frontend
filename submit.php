@@ -62,9 +62,6 @@ try {
 		case 'changeAvatar':
 			D::ChangeAvatar();
 		break;
-		case 'sendReport':
-			D::SendReport();
-		break;
 		case 'addRemoveFriend':
 			D::AddRemoveFriend();
 		break;
@@ -150,14 +147,6 @@ try {
 		case 'resetAvatar':
 			sessionCheckAdmin(Privileges::AdminManageUsers);
 			D::ResetAvatar();
-		break;
-		case 'openCloseReport':
-			sessionCheckAdmin(Privileges::AdminManageReports);
-			D::OpenCloseReport();
-		break;
-		case 'saveEditReport':
-			sessionCheckAdmin(Privileges::AdminManageReports);
-			D::SaveEditReport();
 		break;
 		case 'wipeAccount':
 			sessionCheckAdmin(Privileges::AdminWipeUsers);

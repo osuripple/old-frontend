@@ -144,10 +144,7 @@ function setTitle($p) {
 			17 =>  'Changelog',
 			18 =>  'Recover your password',
 			21 =>  'About',
-			22 =>  'Report a bug/Request a feature',
 			23 =>  'Rules',
-			24 =>  'My report',
-			25 =>  'Report',
 			26 =>  'Friends',
 			41 =>  'Elmo! Stop!',
 			'u' => 'Userpage',
@@ -165,9 +162,6 @@ function setTitle($p) {
 			109 => 'Edit Badge',
 			110 => 'Edit user badges',
 			111 => 'Bancho settings',
-			112 => 'Chat log',
-			113 => 'Reports',
-			114 => 'Read report',
 			116 => 'Admin Logs',
 			117 => 'Rank requests',
 			118 => 'Privilege Groups',
@@ -294,28 +288,10 @@ function printPage($p) {
 			case 21:
 				P::AboutPage();
 			break;
-				// Bug report/feature request page
-
-			case 22:
-				sessionCheck();
-				P::ReportPage();
-			break;
 				// Rules page
 
 			case 23:
 				P::RulesPage();
-			break;
-				// My reports page
-
-			case 24:
-				sessionCheck();
-				P::MyReportsPage();
-			break;
-				// My report view page
-
-			case 25:
-				sessionCheck();
-				P::MyReportViewPage();
 			break;
 				// Friendlist page
 
@@ -392,24 +368,6 @@ function printPage($p) {
 			case 111:
 				sessionCheckAdmin(Privileges::AdminManageSettings);
 				P::AdminBanchoSettings();
-			break;
-				// Admin panel - Chatlog
-
-			case 112:
-				sessionCheckAdmin();
-				P::AdminChatlog();
-			break;
-				// Admin panel - Reports
-
-			case 113:
-				sessionCheckAdmin(Privileges::AdminManageReports);
-				P::AdminReports();
-			break;
-				// Admin panel - Read report
-
-			case 114:
-				sessionCheckAdmin(Privileges::AdminManageReports);
-				P::AdminViewReport();
 			break;
 
 			// Admin panel - Admin logs
@@ -548,9 +506,6 @@ function printNavbar() {
 						<li class="dropdown-submenu"><a href="http://status.ripple.moe"><i class="fa fa-cogs"></i>	Server status</a></li>
 						<li class="dropdown-submenu"><a href="https://mu.nyodev.xyz/upd.php?id=18"><i class="fa fa-server"></i>	Server switcher</a></li>
 						<li class="divider"></li>';
-						//<li class="dropdown-submenu"><a href="index.php?p=22&type=0"><i class="fa fa-bug"></i> '.($trollerino ? 'Request' : 'Report').' a bug</a></li>
-						//<li class="dropdown-submenu"><a href="index.php?p=22&type=1"><i class="fa fa-plus-circle"></i>	'.($trollerino ? 'Report' : 'Request').' a feature</a></li>
-						//<li class="divider"></li>
 						echo '<li class="dropdown-submenu"><a href="https://git.zxq.co/ripple/ripple"><i class="fa fa-git"></i>	Git</a></li>
 						<li class="dropdown-submenu"><a href="'.$discordConfig["invite_url"].'"><i class="fa fa-comment"></i>	Discord</a></li>
 						<li class="dropdown-submenu"><a href="https://reddit.com/r/osuripple"><i class="fa fa-reddit"></i>	Reddit</a></li>
@@ -587,7 +542,6 @@ function printNavbar() {
 						if (hasPrivilege(Privileges::UserDonor)) {
 							echo '<li class="dropdown-submenu"><a href="index.php?p=40"><i class="fa fa-comments"></i>	Discord Donor';
 						}
-						//<li class="dropdown-submenu"><a href="index.php?p=24"><i class="fa fa-paper-plane"></i>	My reports</a></li>
 						echo '<li class="dropdown-submenu"><a href="submit.php?action=forgetEveryCookie"><i class="fa fa-chain-broken"></i>	Delete all login tokens</a></li>
 						<li class="divider"></li>
 						<li class="dropdown-submenu"><a href="submit.php?action=logout"><i class="fa fa-sign-out"></i>	Logout</a></li>
@@ -627,9 +581,6 @@ function printAdminSidebar() {
 
 						if (hasPrivilege(Privileges::AdminManageDocs))
 							echo '<li><a href="index.php?p=106"><i class="fa fa-question-circle"></i>	Documentation</a></li>';
-
-						if (hasPrivilege(Privileges::AdminManageReports))
-							echo '<li><a href="index.php?p=113"><i class="fa fa-paper-plane"></i>	Reports</a></li>';
 
 						if (hasPrivilege(Privileges::AdminManageBeatmaps))
 							echo '<li><a href="index.php?p=117"><i class="fa fa-music"></i>	Rank requests</a></li>';
