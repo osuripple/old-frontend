@@ -1420,35 +1420,6 @@ class P {
 	}
 
 	/*
-	 * AdminIPLogsMain
-	 * Prints the admin ip logs main page
-	*/
-	public static function AdminIPLogsMain() {
-		// Get data
-		$reports = $GLOBALS['db']->fetchAll('SELECT * FROM reports ORDER BY id DESC');
-		// Print sidebar and template stuff
-		echo '<div id="wrapper">';
-		printAdminSidebar();
-		echo '<div id="page-content-wrapper">';
-		// Maintenance check
-		self::MaintenanceStuff();
-		// Print Success if set
-		if (isset($_GET['s']) && !empty($_GET['s'])) {
-			self::SuccessMessage($_GET['s']);
-		}
-		// Print Exception if set
-		if (isset($_GET['e']) && !empty($_GET['e'])) {
-			self::ExceptionMessage($_GET['e']);
-		}
-		// Header
-		echo '<span align="center"><h2><i class="fa fa-user-secret"></i>	IP Logs</h2></span>';
-		// Main page content here
-		echo '<div align="center"><br><br><h4><i class="fa fa-cog fa-spin fa-2x"></i>	Coming soonTM</h4></div>';
-		// Template end
-		echo '</div>';
-	}
-
-	/*
 	 * AdminLog
 	 * Prints the admin log page
 	*/

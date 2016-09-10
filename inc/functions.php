@@ -168,7 +168,6 @@ function setTitle($p) {
 			112 => 'Chat log',
 			113 => 'Reports',
 			114 => 'Read report',
-			115 => 'IP Logs',
 			116 => 'Admin Logs',
 			117 => 'Rank requests',
 			118 => 'Privilege Groups',
@@ -413,12 +412,6 @@ function printPage($p) {
 				P::AdminViewReport();
 			break;
 
-			// Admin panel - IP logs main page
-			case 115:
-				sessionCheckAdmin(Privileges::AdminManageUsers);
-				P::AdminIPLogsMain();
-			break;
-
 			// Admin panel - Admin logs
 			case 116:
 				sessionCheckAdmin(Privileges::AdminViewRAPLogs);
@@ -622,8 +615,7 @@ function printAdminSidebar() {
 						}
 
 						if (hasPrivilege(Privileges::AdminManageUsers)) {
-							echo '<li><a href="index.php?p=102"><i class="fa fa-user"></i>	Users</a></li>
-						<li><a href="index.php?p=115"><i class="fa fa-user-secret"></i>	IP Logs</a></li>';
+							echo '<li><a href="index.php?p=102"><i class="fa fa-user"></i>	Users</a></li>';
 						}
 
 						if (hasPrivilege(Privileges::AdminManagePrivileges)) {
