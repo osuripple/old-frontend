@@ -66,7 +66,7 @@ class Login {
 			}
 			// Ban check
 			if (!hasPrivilege(Privileges::UserNormal, $us["id"]) && !hasPrivilege(Privileges::UserPublic, $us["id"])) {
-				throw new Exception('<b>You are banned.</b> You can appeal after one month since your\'ban by sending an email to <b>support@ripple.moe</b> from the email address you\'ve used to sign up.');
+				throw new Exception('<b>You are banned.</b> You can appeal after one month since your ban by sending an email to <b>support@ripple.moe</b> from the email address you\'ve used to sign up.');
 			}
 			// Lock check
 			if (!hasPrivilege(Privileges::UserNormal, $us["id"]) && hasPrivilege(Privileges::UserPublic, $us["id"])) {
