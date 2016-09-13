@@ -1529,4 +1529,33 @@ class D {
 			redirect('index.php?p=102&e='.$e->getMessage());
 		}
 	}
+
+
+	public static function lockUnlockUser() {
+		try {
+			if (!isset($_GET["id"]) || empty($_GET["id"]))
+				throw new Exception("Invalid user");
+			$userData = $GLOBALS["db"]->fetch("SELECT id, privileges, username FROM users WHERE id = ? LIMIT 1", [$_GET["id"]]);
+			if (!$userData) {
+				throw new Exception("That user doesn't exist");
+			}
+			// Check if we can edit this user
+			if ( ($userData["privileges"] & Privileges::AdminManageUsers) > 0) {
+				throw new Exception("You don't have enough permissions to lock this account");
+			}
+			// Make sure the user is not banned/restricted
+			if (!hasPrivilege(Privileges::UserPublic, $_GET["id"])) {
+				throw new Exception("The user is banned or restricted. You can't lock an account if it's banned or restricted. Only normal accounts can be locked.");
+			}
+
+			// Grant/revoke custom badge privilege
+			$lockUnlock = (hasPrivilege(Privileges::UserNormal, $_GET["id"])) ? "locked" : "unlocked";
+			$GLOBALS["db"]->execute("UPDATE users SET privileges = privileges ^ 2 WHERE id = ? LIMIT 1", [$_GET["id"]]);
+
+			rapLog(sprintf("has %s %s's account", $grantRevoke, $userData["username"]), $_SESSION["userid"]);
+			redirect("index.php?p=102&s=User locked/unlocked!");
+		} catch(Exception $e) {
+			redirect('index.php?p=102&e='.$e->getMessage());
+		}
+	}
 }

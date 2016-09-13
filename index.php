@@ -227,19 +227,24 @@ if ($p < 100) {
 		//$(".slider").slider()
 
         // Are you sure window
-        function sure($redirect)
+        function sure(redr, pre)
         {
-            var r = confirm("Are you sure?");
-            if (r == true) window.location.replace($redirect);
+        	var msg = ""
+        	if (typeof pre !== "undefined") {
+        		msg += pre+"\n";
+        	}
+        	msg += "Are you sure?";
+            var r = confirm(msg);
+            if (r == true) window.location.replace(redr);
         }
 
-        function reallysure($redirect)
+        function reallysure(redr)
         {
             var r = confirm("This action cannot be undone. Are you sure you want to continue?");
             if (r == true)
                 r = confirm("Are you REALLY sure?");
                 if (r == true)
-                    window.location.replace($redirect);
+                    window.location.replace(redr);
         }
 
 		function play(id) {

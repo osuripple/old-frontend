@@ -65,8 +65,12 @@ class Login {
 				redirect("index.php?p=38&u=".$us["id"]);
 			}
 			// Ban check
-			if (!hasPrivilege(Privileges::UserNormal, $us["id"])) {
-				throw new Exception('You are banned.');
+			if (!hasPrivilege(Privileges::UserNormal, $us["id"]) && !hasPrivilege(Privileges::UserPublic, $us["id"])) {
+				throw new Exception('<b>You are banned.</b> You can appeal after one month since your\'ban by sending an email to <b>support@ripple.moe</b> from the email address you\'ve used to sign up.');
+			}
+			// Lock check
+			if (!hasPrivilege(Privileges::UserNormal, $us["id"]) && hasPrivilege(Privileges::UserPublic, $us["id"])) {
+				throw new Exception('<b>Your account is locked.</b> You can\'t log in, but your profile and scores are still visible from the website. If you want to unlock your account, send an email to <b>support@ripple.moe</b> from the email address you\'ve used to sign up.');
 			}
 			// Get username with right case
 			$username = $us['username'];

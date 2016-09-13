@@ -183,7 +183,7 @@ class P {
 			} else if (($user["privileges"] & Privileges::UserPublic) > 0 && ($user["privileges"] & Privileges::UserNormal) == 0) {
 				// Visible but not active, disabled (not supported yet)
 				$allowedColor = "default";
-				$allowedText = "Disabled";
+				$allowedText = "Locked";
 			}
 
 			// Print row
@@ -466,6 +466,8 @@ class P {
 				echo "Banned";
 			} else if (isRestricted($userData["id"])) {
 				echo "Restricted";
+			} else if (!hasPrivilege(Privileges::UserNormal, $userData["id"])) {
+				echo "Locked";
 			} else {
 				echo "Ok";
 			}
@@ -622,6 +624,7 @@ class P {
 					if (hasPrivilege(Privileges::AdminBanUsers)) {
 						echo '	<a onclick="sure(\'submit.php?action=banUnbanUser&id='.$_GET['id'].'\')" class="btn btn-danger">(Un)ban user</a>';
 						echo '	<a onclick="sure(\'submit.php?action=restrictUnrestrictUser&id='.$_GET['id'].'\')" class="btn btn-danger">(Un)restrict user</a>';
+						echo '	<a onclick="sure(\'submit.php?action=lockUnlockUser&id='.$_GET['id'].'\', \'Restrictions and bans will be removed from this account if you lock it. Make sure to lock only accounts that are not banned or restricted.\')" class="btn btn-danger">(Un)lock user</a>';
 					}
 					echo '	<a onclick="sure(\'submit.php?action=toggleCustomBadge&id='.$_GET['id'].'\');" class="btn btn-danger">'.(($userStatsData["can_custom_badge"] == 1) ? "Revoke" : "Grant").' custom badge</a>';
 					echo '<br>

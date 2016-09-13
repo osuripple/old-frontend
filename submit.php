@@ -195,6 +195,10 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageUsers);
 			D::ToggleCustomBadge();
 		break;
+		case 'lockUnlockUser':
+			sessionCheckAdmin(Privileges::AdminBanUsers);
+			D::LockUnlockUser();
+		break;
 	}
 }
 catch(Exception $e) {

@@ -65,6 +65,11 @@ class RequestRankedBeatmap {
 	public function DoGetData() {
 		global $ScoresConfig;
 		try {
+			// Make sure the user is not banned/restricted
+			if (!hasPrivilege(Privileges::UserPublic)) {
+				throw new Exception("You can't submit beatmap ranking requests while you're restricted.");
+			}
+
 			// Make sure the user hasn't requested too many maps
 			$myRequests = $GLOBALS["db"]->fetch("SELECT COUNT(*) AS count FROM rank_requests WHERE time > ? AND userid = ? LIMIT ".$ScoresConfig["rankRequestsPerUser"], [time()-(24*3600), $_SESSION["userid"]]);
 			if ($myRequests["count"] >= $ScoresConfig["rankRequestsPerUser"]) {
