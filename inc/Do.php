@@ -959,83 +959,6 @@ class D {
 	}
 
 	/*
-	 * SendReport
-	 * Send report function
-	*/
-	public static function SendReport() {
-		try {
-			// NOTE: report/requests are disabled
-			die();
-
-			// Check if we are logged in
-			sessionCheck();
-			// Check if everything is set
-			if (!isset($_POST['t']) || !isset($_POST['n']) || !isset($_POST['c']) || empty($_POST['n']) || empty($_POST['c'])) {
-				throw new Exception(0);
-			}
-			// Restricted check
-			if (isRestricted()) {
-				throw new Exception(1);
-			}
-			// Add report
-			$GLOBALS['db']->execute('INSERT INTO reports (id, name, from_username, content, type, open_time, update_time, status, response) VALUES (NULL, ?, ?, ?, ?, ?, ?, 1, \'\')', [$_POST['n'], $_SESSION['username'], $_POST['c'], $_POST['t'], time(), time()]);
-			// Webhook stuff
-			global $WebHookReport;
-			global $KeyAkerino;
-			$type = $_POST['t'];
-			switch ($type) {
-				case 0:
-					$type = 'bug';
-				break;
-				case 1:
-					$type = 'feature';
-				break;
-			}
-			post_content_http($WebHookReport, ['key' => $KeyAkerino, 'title' => $_POST['n'], 'content' => $_POST['c'], 'id' => $GLOBALS['db']->lastInsertId(), 'type' => $type, 'username' => $_SESSION['username']]);
-			// Done, redirect to success page
-			redirect('index.php?p=22&s=ok');
-		}
-		catch(Exception $e) {
-			// Redirect to Exception page
-			redirect('index.php?p=22&e='.$e->getMessage());
-		}
-	}
-
-	/*
-	 * OpenCloseReport
-	 * Open/Close a report (ADMIN CP)
-	*/
-	public static function OpenCloseReport() {
-		try {
-			// Check if everything is set
-			if (!isset($_GET['id']) || empty($_GET['id'])) {
-				throw new Exception('Invalid request');
-			}
-			// Get current report status from db
-			$reportStatus = $GLOBALS['db']->fetch('SELECT status FROM reports WHERE id = ?', [$_GET['id']]);
-			// Make sure the report exists
-			if (!$reportStatus) {
-				throw new Exception("That report doesn't exist");
-			}
-			// Get report status
-			$reportStatus = current($reportStatus);
-			// Get new report status
-			$newReportStatus = $reportStatus == 1 ? 0 : 1;
-			// Edit report status
-			$GLOBALS['db']->execute('UPDATE reports SET status = ?, update_time = ? WHERE id = ?', [$newReportStatus, time(), $_GET['id']]);
-			// RAP log
-			$name = $GLOBALS['db']->fetch("SELECT name FROM reports WHERE id = ?", [$_GET["id"]]);
-			rapLog(sprintf("has %s report \"%s\"", $newReportStatus == 0 ? "closed" : "opened", current($name)));
-			// Done, redirect to success page
-			redirect('index.php?p=113&s=Report status changed!');
-		}
-		catch(Exception $e) {
-			// Redirect to Exception page
-			redirect('index.php?p=113&e='.$e->getMessage());
-		}
-	}
-
-	/*
 	 * WipeAccount
 	 * Wipes an account
 	*/
@@ -1085,49 +1008,6 @@ class D {
 		}
 		catch(Exception $e) {
 			redirect('index.php?p=102&e='.$e->getMessage());
-		}
-	}
-
-	/*
-	 * SaveEditReport
-	 * Saves an edited report (ADMIN CP)
-	*/
-	public static function SaveEditReport() {
-		try {
-			// Check if everything is set
-			if (!isset($_POST['id']) || !isset($_POST['s']) || !isset($_POST['r']) || empty($_POST['id'])) {
-				throw new Exception('Invalid request');
-			}
-			// Get current report status from db
-			$reportData = $GLOBALS['db']->fetch('SELECT reports.id, reports.name, users.email, users.username FROM reports LEFT JOIN users ON reports.from_username = users.username WHERE reports.id = ?', [$_POST['id']]);
-			// Make sure the report exists
-			if (!$reportData) {
-				throw new Exception("That report doesn't exist");
-			}
-			// Edit report status
-			$GLOBALS['db']->execute('UPDATE reports SET status = ?, response = ?, update_time = ? WHERE id = ?', [$_POST['s'], $_POST['r'], time(), $_POST['id']]);
-			// Send notification email
-			global $MailgunConfig;
-			$mailer = new SimpleMailgun($MailgunConfig);
-			$mailer->Send(
-				'Ripple <noreply@'.$MailgunConfig['domain'].'>', $reportData['email'],
-				'Response to your report "' . $reportData['name'] . '" ',
-				sprintf(
-					"Hey %s! The Ripple support team replied to your report.<br><blockquote>%s</blockquote><br>Current status of the report: <b>%s</b>.",
-					$reportData['username'],
-					str_replace("\n", "<br>", htmlspecialchars($_POST['r'])),
-					($_POST['s'] == 1 ? "Open" : "Closed")
-				)
-			);
-			// RAP log
-			$name = $GLOBALS["db"]->fetch("SELECT name FROM reports WHERE id = ?", [$_POST["id"]]);
-			rapLog(sprintf("has edited/replied to report \"%s\"", current($name)));
-			// Done, redirect to success page
-			redirect('index.php?p=113&s=Report updated!');
-		}
-		catch(Exception $e) {
-			// Redirect to Exception page
-			redirect('index.php?p=113&e='.$e->getMessage());
 		}
 	}
 

@@ -330,44 +330,6 @@ switch ($p) {
                 </script>
                 ';
 	break;
-	case 114:
-		echo '
-				<script type="text/javascript">
-					function quickReportResponse(i)
-					{
-						var c;
-						switch(i)
-						{
-							case 0: c = "Thank you for your bug report! That bug is now on our tasklist, we\'ll fix it as soon as possible. The status will change to \'closed\' when the bug will be fixed."; break;
-							case 1: c = "Thank you for your bug report! That bugfix was already on our tasklist, we\'ll fix it as soon as possible."; break;
-							case 2: c = "That bug is now fixed, you have contributed to make Ripple better! Thank you!"; break;
-							case 3: c = "Thank you for your feature request! That feature is now on our tasklist and it\'ll be added as soon as possible. The status will change to \'closed\' when the feature will be added."; break;
-							case 4: c = "Thank you for your feature request! A similar feature was already on our tasklist, we\'ll add it as soon as possible."; break;
-							case 5: c = "Your feature has been added! You have contributed to make Ripple better! Thank you!"; break;
-							case 6: c = "Please do not abuse our report system. If you keep sending fake/spam reports, your account will be banned."; break;
-						}
-						document.getElementsByName("r")[0].value = c;
-					}
-				</script>';
-	break;
-	case 22:
-		echo '
-				<script type="text/javascript">
-					function changeTitlePlaceholder()
-					{
-						var c;
-						if (document.getElementsByName("t")[0].value == 0)
-							c = "Bug name";
-						else
-							c = "Feature request name";
-
-						document.getElementsByName("n")[0].placeholder = c;
-					}
-
-					// Update title when the page is loaded
-					window.onload = changeTitlePlaceholder;
-				</script>';
-	break;
 
 	// Supporter page
 	case 34:
