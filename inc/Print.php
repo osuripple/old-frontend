@@ -1756,7 +1756,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 	 * @param (string) ($e) The custom message (exception) to display.
 	*/
 	public static function ExceptionMessage($e, $ret = false) {
-		$p = '<div class="container alert alert-danger" role="alert" style="width: 100%;"><p align="center"><b>An error occurred:<br></b>'.$e.'</p></div>';
+		$p = '<div class="container alert alert-danger" role="alert" style="width: 100%;"><p align="center"><b>An error occurred:<br></b>'.htmlspecialchars($e).'</p></div>';
 		if ($ret) {
 			return $p;
 		}
@@ -1770,7 +1770,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 	 * @param (string) ($s) The custom message to display.
 	*/
 	public static function SuccessMessage($s, $ret = false) {
-		$p = '<div class="container alert alert-success" role="alert" style="width:100%;"><p align="center">'.$s.'</p></div>';
+		$p = '<div class="container alert alert-success" role="alert" style="width:100%;"><p align="center">'.htmlspecialchars($s).'</p></div>';
 		if ($ret) {
 			return $p;
 		}
