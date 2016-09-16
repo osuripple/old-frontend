@@ -133,11 +133,11 @@ class P {
 		self::MaintenanceStuff();
 		// Print Success if set
 		if (isset($_GET['s']) && !empty($_GET['s'])) {
-			self::SuccessMessage($_GET['s']);
+			self::SuccessMessageStaccah($_GET['s']);
 		}
 		// Print Exception if set
 		if (isset($_GET['e']) && !empty($_GET['e'])) {
-			self::ExceptionMessage($_GET['e']);
+			self::ExceptionMessageStaccah($_GET['e']);
 		}
 		// Stats panels
 		echo '<div class="row">';
@@ -402,11 +402,11 @@ class P {
 			self::MaintenanceStuff();
 			// Print Success if set
 			if (isset($_GET['s']) && !empty($_GET['s'])) {
-				self::SuccessMessage($_GET['s']);
+				self::SuccessMessageStaccah($_GET['s']);
 			}
 			// Print Exception if set
 			if (isset($_GET['e']) && !empty($_GET['e'])) {
-				self::ExceptionMessage($_GET['e']);
+				self::ExceptionMessageStaccah($_GET['e']);
 			}
 			// Selected values stuff 1
 			//$selected[0] = [1 => '', 2 => '', 3 => '', 4 => ''];
@@ -664,11 +664,11 @@ class P {
 			self::MaintenanceStuff();
 			// Print Success if set
 			if (isset($_GET['s']) && !empty($_GET['s'])) {
-				self::SuccessMessage($_GET['s']);
+				self::SuccessMessageStaccah($_GET['s']);
 			}
 			// Print Exception if set
 			if (isset($_GET['e']) && !empty($_GET['e'])) {
-				self::ExceptionMessage($_GET['e']);
+				self::ExceptionMessageStaccah($_GET['e']);
 			}
 			echo '<p align="center"><font size=5><i class="fa fa-refresh"></i>	Change identity</font></p>';
 			echo '<table class="table table-striped table-hover table-50-center">';
@@ -709,11 +709,11 @@ class P {
 		self::MaintenanceStuff();
 		// Print Success if set
 		if (isset($_GET['s']) && !empty($_GET['s'])) {
-			self::SuccessMessage($_GET['s']);
+			self::SuccessMessageStaccah($_GET['s']);
 		}
 		// Print Exception if set
 		if (isset($_GET['e']) && !empty($_GET['e'])) {
-			self::ExceptionMessage($_GET['e']);
+			self::ExceptionMessageStaccah($_GET['e']);
 		}
 		// Get values
 		$wm = current($GLOBALS['db']->fetch("SELECT value_int FROM system_settings WHERE name = 'website_maintenance'"));
@@ -803,11 +803,11 @@ class P {
 		self::MaintenanceStuff();
 		// Print Success if set
 		if (isset($_GET['s']) && !empty($_GET['s'])) {
-			self::SuccessMessage($_GET['s']);
+			self::SuccessMessageStaccah($_GET['s']);
 		}
 		// Print Exception if set
 		if (isset($_GET['e']) && !empty($_GET['e'])) {
-			self::ExceptionMessage($_GET['e']);
+			self::ExceptionMessageStaccah($_GET['e']);
 		}
 		echo '<p align="center"><font size=5><i class="fa fa-book"></i>	Documentation</font></p>';
 		echo '<table class="table table-striped table-hover table-50-center">';
@@ -863,11 +863,11 @@ class P {
 		self::MaintenanceStuff();
 		// Print Success if set
 		if (isset($_GET['s']) && !empty($_GET['s'])) {
-			self::SuccessMessage($_GET['s']);
+			self::SuccessMessageStaccah($_GET['s']);
 		}
 		// Print Exception if set
 		if (isset($_GET['e']) && !empty($_GET['e'])) {
-			self::ExceptionMessage($_GET['e']);
+			self::ExceptionMessageStaccah($_GET['e']);
 		}
 		echo '<p align="center"><font size=5><i class="fa fa-certificate"></i>	Badges</font></p>';
 		echo '<table class="table table-striped table-hover table-50-center">';
@@ -1107,11 +1107,11 @@ class P {
 		self::MaintenanceStuff();
 		// Print Success if set
 		if (isset($_GET['s']) && !empty($_GET['s'])) {
-			self::SuccessMessage($_GET['s']);
+			self::SuccessMessageStaccah($_GET['s']);
 		}
 		// Print Exception if set
 		if (isset($_GET['e']) && !empty($_GET['e'])) {
-			self::ExceptionMessage($_GET['e']);
+			self::ExceptionMessageStaccah($_GET['e']);
 		}
 		// Get values
 		$bm = current($GLOBALS['db']->fetch("SELECT value_int FROM bancho_settings WHERE name = 'bancho_maintenance'"));
@@ -1227,11 +1227,11 @@ class P {
 		self::MaintenanceStuff();
 		// Print Success if set
 		if (isset($_GET['s']) && !empty($_GET['s'])) {
-			self::SuccessMessage($_GET['s']);
+			self::SuccessMessageStaccah($_GET['s']);
 		}
 		// Print Exception if set
 		if (isset($_GET['e']) && !empty($_GET['e'])) {
-			self::ExceptionMessage($_GET['e']);
+			self::ExceptionMessageStaccah($_GET['e']);
 		}
 		// Header
 		echo '<span align="center"><h2><i class="fa fa-calendar"></i>	Admin Log</h2></span>';
@@ -1756,11 +1756,14 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 	 * @param (string) ($e) The custom message (exception) to display.
 	*/
 	public static function ExceptionMessage($e, $ret = false) {
-		$p = '<div class="container alert alert-danger" role="alert" style="width: 100%;"><p align="center"><b>An error occurred:<br></b>'.htmlspecialchars($e).'</p></div>';
+		$p = '<div class="container alert alert-danger" role="alert" style="width: 100%;"><p align="center"><b>An error occurred:<br></b>'.$e.'</p></div>';
 		if ($ret) {
 			return $p;
 		}
 		echo $p;
+	}
+	public static function ExceptionMessageStaccah($s, $ret = false) {
+		return P::ExceptionMessage(htmlspecialchars($s), $ret);
 	}
 
 	/*
@@ -1770,11 +1773,14 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 	 * @param (string) ($s) The custom message to display.
 	*/
 	public static function SuccessMessage($s, $ret = false) {
-		$p = '<div class="container alert alert-success" role="alert" style="width:100%;"><p align="center">'.htmlspecialchars($s).'</p></div>';
+		$p = '<div class="container alert alert-success" role="alert" style="width:100%;"><p align="center">'.$s.'</p></div>';
 		if ($ret) {
 			return $p;
 		}
 		echo $p;
+	}
+	public static function SuccessMessageStaccah($s, $ret = false) {
+		return P::SuccessMessage(htmlspecialchars($s), $ret);
 	}
 
 	/*
@@ -2306,11 +2312,11 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		self::MaintenanceStuff();
 		// Print Success if set
 		if (isset($_GET['s']) && !empty($_GET['s'])) {
-			self::SuccessMessage($_GET['s']);
+			self::SuccessMessageStaccah($_GET['s']);
 		}
 		// Print Exception if set
 		if (isset($_GET['e']) && !empty($_GET['e'])) {
-			self::ExceptionMessage($_GET['e']);
+			self::ExceptionMessageStaccah($_GET['e']);
 		}
 		// Header
 		echo '<span align="center"><h2><i class="fa fa-music"></i>	Beatmap rank requests</h2></span>';
@@ -2397,11 +2403,11 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		self::MaintenanceStuff();
 		// Print Success if set
 		if (isset($_GET['s']) && !empty($_GET['s'])) {
-			self::SuccessMessage($_GET['s']);
+			self::SuccessMessageStaccah($_GET['s']);
 		}
 		// Print Exception if set
 		if (isset($_GET['e']) && !empty($_GET['e'])) {
-			self::ExceptionMessage($_GET['e']);
+			self::ExceptionMessageStaccah($_GET['e']);
 		}
 		// Header
 		echo '<span align="center"><h2><i class="fa fa-group"></i>	Privilege Groups</h2></span>';
