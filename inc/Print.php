@@ -2352,7 +2352,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				$bsid = $b ? $b["beatmapset_id"] : 0;
 
 			$today = !($req["time"] < time()-86400);
-			$beatmaps = $GLOBALS["db"]->fetchAll("SELECT * FROM beatmaps WHERE beatmapset_id = ?", [$bsid]);
+			$beatmaps = $GLOBALS["db"]->fetchAll("SELECT song_name, beatmap_id, ranked FROM beatmaps WHERE beatmapset_id = ?", [$bsid]);
 			$diffs = "";
 			$allUnranked = true;
 			foreach ($beatmaps as $beatmap) {
