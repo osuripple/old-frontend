@@ -2326,9 +2326,9 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		echo '<hr>
 		<h2 style="display: inline;">'.$rankRequestsToday["count"].'</h2><h3 style="display: inline;">/'.$ScoresConfig["rankRequestsQueueSize"].'</h3><br><h4>requests submitted today</h4>
 		<hr>';
-		echo '<table class="table table-striped table-hover" style="width: 75%; margin-left: 15%;">
+		echo '<table class="table table-striped table-hover" style="width: 94%; margin-left: 3%;">
 		<thead>
-		<tr><th><i class="fa fa-music"></i>	ID</th><th>Artist & song</th><th>Current status</th></th><th>When</th><th class="text-center">Actions</th></tr>
+		<tr><th><i class="fa fa-music"></i>	ID</th><th>Artist & song</th><th>Difficulties</th><th>Mode</th><th>From</th><th>When</th><th class="text-center">Actions</th></tr>
 		</thead>';
 		echo '<tbody>';
 		foreach ($rankRequests as $req) {
@@ -2352,21 +2352,40 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				$bsid = $b ? $b["beatmapset_id"] : 0;
 
 			$today = !($req["time"] < time()-86400);
-			$beatmaps = $GLOBALS["db"]->fetchAll("SELECT song_name, beatmap_id, ranked FROM beatmaps WHERE beatmapset_id = ?", [$bsid]);
+			$beatmaps = $GLOBALS["db"]->fetchAll("SELECT song_name, beatmap_id, ranked, difficulty_std, difficulty_taiko, difficulty_ctb, difficulty_mania FROM beatmaps WHERE beatmapset_id = ? LIMIT 15", [$bsid]);
 			$diffs = "";
 			$allUnranked = true;
 			$forceParam = "1";
+			$modes = [];
 			foreach ($beatmaps as $beatmap) {
 				$icon = ($beatmap["ranked"] >= 2) ? "check" : "times";
 				$name = htmlspecialchars("$beatmap[song_name] ($beatmap[beatmap_id])");
 				$diffs .= "<a href='#' data-toggle='popover' data-placement='bottom' data-content=\"$name\" data-trigger='hover'>";
 				$diffs .= "<i class='fa fa-$icon'></i>";
 				$diffs .= "</a>";
+				if ($beatmap["difficulty_std"] > 0 && !in_array("std", $modes)) {
+					$modes[] = "std";
+				} else if ($beatmap["difficulty_std"] == 0) {
+					if ($beatmap["difficulty_taiko"] > 0 && !in_array("taiko", $modes)) {
+						$modes[] = "taiko";
+					} else if ($beatmap["difficulty_ctb"] > 0 && !in_array("ctb", $modes)) {
+						$modes[] = "ctb";
+					} else if ($beatmap["difficulty_mania"] > 0 && !in_array("mania", $modes)) {
+						$modes[] = "mania";
+					}
+				}
 
 				if ($beatmap["ranked"] >= 2) {
 					$allUnranked = false;
 					$forceParam = "0";
 				}
+			}
+
+			$modes = implode(", ", $modes);
+
+			if (count($beatmaps) >= 15) {
+				$diffs .= "...";
+				$modes .= "...";
 			}
 
 			if ($req["blacklisted"] == 1) {
@@ -2376,6 +2395,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			} else {
 				$rowClass = "default";
 			}
+
 			/*if (($bsid & 1073741824) > 0) {
 				$host = "osu!mp";
 			} else if (($bsid & 536870912) > 0) {
@@ -2383,12 +2403,14 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			} else {
 				$host = "osu!";
 			}*/
+
 			echo "<tr class='$rowClass'>
 				<td><a href='http://storage.ripple.moe/$bsid.osz' target='_blank'>$req[type]/$req[bid]</a></td>
 				<td>$song</td>
 				<td>
 					$diffs
 				</td>
+				<td>$modes</td>
 				<td>$req[username]</td>
 				<td>".timeDifference(time(), $req["time"])."</td>
 				<td>
