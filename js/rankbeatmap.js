@@ -88,6 +88,8 @@ $("document").ready(function() {
 				tableHtml += `</tbody></table>`;
 				tableHtml += `<button id="rank-all" type="button" class="btn btn-success"><span class="glyphicon glyphicon-thumbs-up"></span>	Rank everything</button>`;
 				tableHtml += `	<button id="unrank-all" type="button" class="btn btn-warning"><span class="glyphicon glyphicon-thumbs-down"></span>	Unrank everything</button>`;
+				tableHtml += `<div style="margin-bottom: 5px;"></div>`;
+				tableHtml += `<a href="http://storage.ripple.moe/`+escapeHtml(String(bsid))+`.osz" target="_blank" type="button" class="btn btn-info"><span class="glyphicon glyphicon-arrow-down"></span>	Download beatmap set</a>`;
 				tableHtml += `	<a href="`+$(location).attr("href")+`&force=1" type="button" class="btn btn-danger"><span class="glyphicon glyphicon-refresh"></span>	Update set from osu!api</a>`;
 				tableHtml += `<hr><b>Saving changes might take several seconds, especially if you want to update some beatmap from osu!api.<br>Don't close the page until you see the success message to avoid errors.</b>`;
 				tableHtml += `<br><button type="submit" class="btn btn-primary"><b><span class="glyphicon glyphicon-floppy-disk"></span>	Submit</b></button>`;

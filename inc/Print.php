@@ -2355,6 +2355,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			$beatmaps = $GLOBALS["db"]->fetchAll("SELECT song_name, beatmap_id, ranked FROM beatmaps WHERE beatmapset_id = ?", [$bsid]);
 			$diffs = "";
 			$allUnranked = true;
+			$forceParam = "1";
 			foreach ($beatmaps as $beatmap) {
 				$icon = ($beatmap["ranked"] >= 2) ? "check" : "times";
 				$name = htmlspecialchars("$beatmap[song_name] ($beatmap[beatmap_id])");
@@ -2364,6 +2365,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 
 				if ($beatmap["ranked"] >= 2) {
 					$allUnranked = false;
+					$forceParam = "0";
 				}
 			}
 
@@ -2391,7 +2393,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				<td>".timeDifference(time(), $req["time"])."</td>
 				<td>
 					<p class='text-center'>
-						<a title='Edit ranked status' class='btn btn-xs btn-primary' href='index.php?p=124&bsid=$bsid'><span class='glyphicon glyphicon-pencil'></span></a>
+						<a title='Edit ranked status' class='btn btn-xs btn-primary' href='index.php?p=124&bsid=$bsid&force=".$forceParam."'><span class='glyphicon glyphicon-pencil'></span></a>
 						<a title='Toggle blacklist' class='btn btn-xs btn-danger' href='submit.php?action=blacklistRankRequest&id=$req[id]'><span class='glyphicon glyphicon-flag'></span></a>
 					</p>
 				</td>
