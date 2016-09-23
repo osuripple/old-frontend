@@ -1068,3 +1068,11 @@ a.silent {
   margin-right: 3px;
 }
 
+.fa-bullet-list {
+  font-size: 50%;
+  vertical-align: middle;
+}
+
+.small-br {
+  margin-bottom: 1%;
+}
