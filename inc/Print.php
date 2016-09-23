@@ -2356,20 +2356,10 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			$diffs = "";
 			$allUnranked = true;
 			foreach ($beatmaps as $beatmap) {
-				$formattedName = "<b>";
 				$icon = ($beatmap["ranked"] >= 2) ? "check" : "times";
-				if (preg_match("/(.+)(\[.+\])/i", $beatmap["song_name"], $matches)) {
-					// Fix memes for beatmaps with []s in diff/song name
-					foreach (array_slice($matches, 1) as $i => $match) {
-						if ($i == 1)
-							$formattedName .= "</b><br>";
-						$formattedName .= htmlspecialchars($match);
-					}
-					$formattedName .= "<br><i>($beatmap[beatmap_id])</i>";
-				} else {
-					$formattedName = "Wat";
-				}
-				$diffs .= "<a href='#' data-toggle='popover' data-placement='bottom' data-content='$formattedName' data-trigger='hover' data-html='true'>";
+				$name = htmlspecialchars(addslashes($beatmap["song_name"]));
+				$name .= "<br><i>($beatmap[beatmap_id])</i>";
+				$diffs .= "<a href='#' data-toggle='popover' data-placement='bottom' data-content='$name' data-trigger='hover' data-html='true'>";
 				$diffs .= "<i class='fa fa-$icon'></i>";
 				$diffs .= "</a>";
 
