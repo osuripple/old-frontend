@@ -2322,13 +2322,13 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		echo '<span align="center"><h2><i class="fa fa-music"></i>	Beatmap rank requests</h2></span>';
 		// Main page content here
 		echo '<div class="page-content-wrapper">';
-		echo '<div style="width: 50%; margin-left: 25%;" class="alert alert-info" role="alert"><i class="fa fa-info-circle"></i>	Only the requests made in the past 24 hours are shown. <b>Make sure to load every difficulty in-game before ranking a map.</b><br><i>(We\'ll add a system that does it automatically soonTM)</i></div>';
+		//echo '<div style="width: 50%; margin-left: 25%;" class="alert alert-info" role="alert"><i class="fa fa-info-circle"></i>	Only the requests made in the past 24 hours are shown. <b>Make sure to load every difficulty in-game before ranking a map.</b><br><i>(We\'ll add a system that does it automatically soonTM)</i></div>';
 		echo '<hr>
 		<h2 style="display: inline;">'.$rankRequestsToday["count"].'</h2><h3 style="display: inline;">/'.$ScoresConfig["rankRequestsQueueSize"].'</h3><br><h4>requests submitted today</h4>
 		<hr>';
 		echo '<table class="table table-striped table-hover" style="width: 75%; margin-left: 15%;">
 		<thead>
-		<tr><th><i class="fa fa-music"></i>	ID</th><th>Artist & song</th><th>User</th></th><th>When</th><th class="text-center">Actions</th></tr>
+		<tr><th><i class="fa fa-music"></i>	ID</th><th>Artist & song</th><th>Current status</th></th><th>When</th><th class="text-center">Actions</th></tr>
 		</thead>';
 		echo '<tbody>';
 		foreach ($rankRequests as $req) {
@@ -2337,7 +2337,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 
 			if ($b) {
 				$matches = [];
-				if (preg_match("/(.+)(?:\[.+\])/i", $b["song_name"], $matches)) {
+				if (preg_match("/(.+)(\[.+\])/i", $b["song_name"], $matches)) {
 					$song = $matches[1];
 				} else {
 					$song = "Wat";
@@ -2352,35 +2352,57 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				$bsid = $b ? $b["beatmapset_id"] : 0;
 
 			$today = !($req["time"] < time()-86400);
-			if ($b["ranked"] >= 2) {
-				// Unrank
-				$rankButton[0] = "Unrank";
-				$rankButton[1] = "warning";
-				$rankButton[2] = "down";
-				$rankButton[3] = 0;
-				$rowClass = "default";
-			} else {
-				// Rank
-				$rankButton[0] = "Rank";
-				$rankButton[1] = "success";
-				$rankButton[2] = "up";
-				$rankButton[3] = 1;
-				$rowClass = $today ? "success" : "default";
+			$beatmaps = $GLOBALS["db"]->fetchAll("SELECT * FROM beatmaps WHERE beatmapset_id = ?", [$bsid]);
+			$diffs = "";
+			$allUnranked = true;
+			foreach ($beatmaps as $beatmap) {
+				$formattedName = "<b>";
+				$icon = ($beatmap["ranked"] >= 2) ? "check" : "times";
+				if (preg_match("/(.+)(\[.+\])/i", $beatmap["song_name"], $matches)) {
+					// Fix memes for beatmaps with []s in diff/song name
+					foreach (array_slice($matches, 1) as $i => $match) {
+						if ($i == 1)
+							$formattedName .= "</b><br>";
+						$formattedName .= htmlspecialchars($match);
+					}
+					$formattedName .= "<br><i>($beatmap[beatmap_id])</i>";
+				} else {
+					$formattedName = "Wat";
+				}
+				$diffs .= "<a href='#' data-toggle='popover' data-placement='bottom' data-content='$formattedName' data-trigger='hover' data-html='true'>";
+				$diffs .= "<i class='fa fa-$icon'></i>";
+				$diffs .= "</a>";
+
+				if ($beatmap["ranked"] >= 2) {
+					$allUnranked = false;
+				}
 			}
 
-			$rankButton[4] = "";
 			if ($req["blacklisted"] == 1) {
 				$rowClass = "danger";
-				$rankButton[4] = "disabled";
+			} else if ($allUnranked) {
+				$rowClass = $today ? "success" : "default";
+			} else {
+				$rowClass = "default";
 			}
+			/*if (($bsid & 1073741824) > 0) {
+				$host = "osu!mp";
+			} else if (($bsid & 536870912) > 0) {
+				$host = "ripple";
+			} else {
+				$host = "osu!";
+			}*/
 			echo "<tr class='$rowClass'>
 				<td><a href='http://storage.ripple.moe/$bsid.osz'>$req[type]/$req[bid]</a></td>
 				<td>$song</td>
+				<td>
+					$diffs
+				</td>
 				<td>$req[username]</td>
 				<td>".timeDifference(time(), $req["time"])."</td>
 				<td>
 					<p class='text-center'>
-						<a title='$rankButton[0]' class='btn btn-xs btn-$rankButton[1]' href='submit.php?action=processRankRequest&id=$req[id]&r=$rankButton[3]' $rankButton[4]><span class='glyphicon glyphicon-thumbs-$rankButton[2]'></span></a>
+						<a title='Edit ranked status' class='btn btn-xs btn-primary' href='index.php?p=124&bsid=$bsid'><span class='glyphicon glyphicon-pencil'></span></a>
 						<a title='Toggle blacklist' class='btn btn-xs btn-danger' href='submit.php?action=blacklistRankRequest&id=$req[id]'><span class='glyphicon glyphicon-flag'></span></a>
 					</p>
 				</td>
@@ -2763,6 +2785,79 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			// Redirect to exception page
 			redirect('index.php?p=108&e='.$e->getMessage());
 		}
+	}
+
+
+
+	/*
+	 * AdminRankBeatmap
+	 * Prints the admin rank beatmap page
+	*/
+	public static function AdminRankBeatmap() {
+		try {
+			// Check if id is set
+			if (!isset($_GET['bsid']) || empty($_GET['bsid'])) {
+				throw new Exception('Invalid beatmap set id');
+			}
+			echo '<div id="wrapper">';
+			printAdminSidebar();
+			echo '<div id="page-content-wrapper">';
+			// Maintenance check
+			self::MaintenanceStuff();
+			echo '<p align="center"><h2><i class="fa fa-music"></i>	Rank beatmap</h2></p>';
+
+			echo '<br><br>';
+
+			echo '<div id="main-content">
+				<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
+				<h3>Loading beatmap data from osu!api...</h3>
+				<h5>This might take a while</h5>
+			</div>';
+			echo '</div>';
+			echo '</div>';
+		}
+		catch(Exception $e) {
+			// Redirect to exception page
+			redirect('index.php?p=117&e='.$e->getMessage());
+		}
+	}
+
+	/*
+	 * AdminRankBeatmap
+	 * Prints the admin rank beatmap page
+	*/
+	public static function AdminRankBeatmapManually() {
+		echo '<div id="wrapper">';
+		printAdminSidebar();
+		echo '<div id="page-content-wrapper">';
+		// Maintenance check
+		self::MaintenanceStuff();
+		// Print Exception if set
+		if (isset($_GET['e']) && !empty($_GET['e'])) {
+			self::ExceptionMessageStaccah($_GET['e']);
+		}
+		echo '<p align="center"><h2><i class="fa fa-level-up"></i>	Rank beatmap manually</h2></p>';
+
+		echo '<br>';
+
+		echo '
+		<div id="narrow-content">
+			<form action="submit.php" method="POST">
+				<input name="action" value="redirectRankBeatmap" hidden>
+				<input name="id" type="text" class="form-control" placeholder="Beatmap(set) id" style="width: 40%; display: inline;">
+				<div style="width: 1%; display: inline-block;"></div>
+				<select name="type" class="selectpicker bs-select-hidden" data-width="25%">
+					<option value="bid" selected="">Beatmap ID</option>
+					<option value="bsid">Beatmap Set ID</option>
+				</select>
+				<hr>
+				<button type="submit" class="btn btn-primary">Edit ranked status</button>
+			</form>
+
+		</div>';
+
+		echo '</div>';
+		echo '</div>';
 	}
 }
 

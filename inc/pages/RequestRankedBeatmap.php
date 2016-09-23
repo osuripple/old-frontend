@@ -118,7 +118,7 @@ class RequestRankedBeatmap {
 			Schiavo::Bunk("**".$_SESSION["username"]."** has sent a rank request for beatmap **".$_POST["url"]."**");
 
 			// Set success message
-			$ret["success"] = "Your beatmap ranking request has been submitted successfully! Our Community Managers will check your request and eventually rank it.";
+			$ret["success"] = "Your beatmap ranking request has been submitted successfully! Our BATs will check your request and eventually rank it.";
 		} catch (Exception $e) {
 			$ret["error"] = $e->getMessage();
 		}

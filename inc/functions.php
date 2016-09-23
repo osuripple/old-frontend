@@ -170,6 +170,8 @@ function setTitle($p) {
 			121 => 'Give Donor',
 			122 => 'Rollback user',
 			123 => 'Wipe user',
+			124 => 'Rank beatmap',
+			125 => 'Rank beatmap manually',
 		];
 		if (isset($namesRipple[$p])) {
 			return __maketitle('Ripple', $namesRipple[$p]);
@@ -418,8 +420,19 @@ function printPage($p) {
 				P::AdminWipe();
 			break;
 
-				// 404 page
+			// Admin panel - Rank beatmap
+			case 124:
+				sessionCheckAdmin(Privileges::AdminManageBeatmaps);
+				P::AdminRankBeatmap();
+			break;
 
+			// Admin panel - Rank beatmap manually
+			case 125:
+				sessionCheckAdmin(Privileges::AdminManageBeatmaps);
+				P::AdminRankBeatmapManually();
+			break;
+
+			// 404 page
 			default:
 				define('NotFound', '<br><h1>404</h1><p>Page not found. Meh.</p>');
 				if ($p < 100)
@@ -582,8 +595,10 @@ function printAdminSidebar() {
 						if (hasPrivilege(Privileges::AdminManageDocs))
 							echo '<li><a href="index.php?p=106"><i class="fa fa-question-circle"></i>	Documentation</a></li>';
 
-						if (hasPrivilege(Privileges::AdminManageBeatmaps))
+						if (hasPrivilege(Privileges::AdminManageBeatmaps)) {
 							echo '<li><a href="index.php?p=117"><i class="fa fa-music"></i>	Rank requests</a></li>';
+							echo '<li><a href="index.php?p=125"><i class="fa fa-level-up"></i>	Rank beatmap manually</a></li>';
+						}
 
 						if (hasPrivilege(Privileges::AdminViewRAPLogs))
 							echo '<li class="animated infinite pulse"><a href="index.php?p=116"><i class="fa fa-calendar"></i>	Admin log&nbsp;&nbsp;&nbsp;<div class="label label-primary">Free botnets</div></a></li>';
@@ -1365,7 +1380,7 @@ function get_contents_http($url) {
 
 	return $output;
 }
-function post_content_http($url, $content) {
+function post_content_http($url, $content, $timeout=10) {
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $url);
 	// Include header in result? (0 = yes, 1 = no)
@@ -1376,7 +1391,7 @@ function post_content_http($url, $content) {
 	curl_setopt($ch, CURLOPT_POST, true);
 	curl_setopt($ch, CURLOPT_POSTFIELDS, $content);
 	// Timeout in seconds
-	curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+	curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 	// Download the given URL, and return output

@@ -459,6 +459,15 @@ switch ($p) {
 			});
 		</script>';
 	break;
+
+	case 124:
+		$force = (isset($_GET["force"]) && !empty($_GET["force"])) ? '1' : '0';
+		echo '<script type="text/javascript">
+			var bsid='.htmlspecialchars($_GET["bsid"]).';
+			var force='.$force.';
+		</script>
+		<script src="/js/rankbeatmap.js"></script>';
+	break;
 }
 
 // Userpage JS

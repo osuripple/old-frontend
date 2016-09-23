@@ -11,6 +11,7 @@ $URL = [
 	'avatar' => 'https://a.ripple.moe',
 	'server' => 'https://ripple.moe',
 	'bancho' => 'http://c.ripple.moe',
+	'scores' => 'http://127.0.0.1:5002'
 ];
 
 // Changelog config
@@ -102,4 +103,9 @@ $discordConfig = [
 
 	"donor_bot_url" => "http://127.0.0.1:3366",
 	"donor_bot_secret" => "braceaccesa",
+];
+
+// Paypal config
+$paypalConfig = [
+	"email" => "riki.mag97@gmail.com"
 ];

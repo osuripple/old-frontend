@@ -156,10 +156,10 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageDocs);
 			D::SetRulesPage();
 		break;
-		case 'processRankRequest':
+		/*case 'processRankRequest':
 			sessionCheckAdmin(Privileges::AdminManageBeatmaps);
 			D::ProcessRankRequest();
-		break;
+		break;*/
 		case 'blacklistRankRequest':
 			sessionCheckAdmin(Privileges::AdminManageBeatmaps);
 			D::BlacklistRankRequest();
@@ -187,6 +187,14 @@ try {
 		case 'lockUnlockUser':
 			sessionCheckAdmin(Privileges::AdminBanUsers);
 			D::LockUnlockUser();
+		break;
+		case 'rankBeatmapNew':
+			sessionCheckAdmin(Privileges::AdminManageBeatmaps);
+			D::RankBeatmapNew();
+		break;
+		case 'redirectRankBeatmap':
+			sessionCheckAdmin(Privileges::AdminManageBeatmaps);
+			D::RedirectRankBeatmap();
 		break;
 	}
 }

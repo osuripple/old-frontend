@@ -1438,4 +1438,106 @@ class D {
 			redirect('index.php?p=102&e='.$e->getMessage());
 		}
 	}
+
+	public static function RankBeatmapNew() {
+		try {			
+			if (!isset($_POST["beatmaps"])) {
+				throw new Exception("Invalid form data");
+			}
+
+			$bsid = -1;
+			$result = "";
+			$updateCache = false;
+
+			// Do stuff for each beatmap
+			foreach ($_POST["beatmaps"] as $beatmapID => $status) {
+				$logToRap = true;
+
+				// Get beatmap set id if not set yet
+				if ($bsid == -1) {
+					$bsid = $GLOBALS["db"]->fetch("SELECT beatmapset_id FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
+					if (!$bsid) {
+						throw new Exception("Beatmap set not found! Please load one diff from this set ingame and try again.");
+					}
+					$bsid = current($bsid);
+				}
+
+				// Change beatmap status
+				switch ($status) {
+					// Rank beatmap
+					case "rank":
+						$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 2, ranked_status_freezed = 1 WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
+						$result .= "$beatmapID has been ranked. | ";
+					break;
+
+					// Force osu!api update (unfreeze)
+					case "update":
+						$updateCache = true;
+						$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 0, ranked_status_freezed = 0 WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
+						$result .= "$beatmapID's ranked status is the same from official osu!. | ";
+					break;
+
+					// No changes
+					case "no":
+						$logToRap = false;
+						$result .= "$beatmapID's ranked status has not been edited!. | ";
+					break;
+					
+					// EH! VOLEVI!
+					default:
+						throw new Exception("Unknown ranked status value.");
+					break;
+				}
+
+				// RAP Log
+				if ($logToRap)
+					rapLog(sprintf("has %s beatmap set %s", $status == "rank" ? "ranked" : "unranked", $bsid), $_SESSION["userid"]);
+			}
+
+			// Update beatmap set from osu!api if
+			// at least one diff has been unfrozen
+			if ($updateCache) {
+				global $URL;
+				post_content_http($URL["scores"]."/api/v1/cacheBeatmap", [
+					"sid" => $bsid,
+					"refresh" => 1
+				], 30);
+			}
+
+			// Send a message to #announce
+			$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
+			$msg = "[http://storage.ripple.moe/" . $bsid . ".osz " . $bm["song_name"] . "] is now ranked!";
+			$to = "#announce";
+			$requesturl = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=" . urlencode($to) . "&msg=" . urlencode($msg);
+			$resp = getJsonCurl($requesturl);
+			if ($resp["message"] != "ok") {
+				rapLog("Failed to send FokaBot message :( err: " . var_dump($resp["message"]));
+			}
+
+			// Done
+			redirect("index.php?p=117&s=".$result);
+		} catch (Exception $e) {
+			redirect('index.php?p=117&e='.$e->getMessage());
+		}
+	}
+
+	public static function RedirectRankBeatmap() {
+		try {
+			if (!isset($_POST["id"]) || empty($_POST["id"]) || !isset($_POST["type"]) || empty($_POST["type"])) {
+				throw new Exception("Invalid beatmap id or type");
+			}
+			if ($_POST["type"] == "bsid") {
+				$bsid = htmlspecialchars($_POST["id"]);
+			} else {
+				$bsid = $GLOBALS["db"]->fetch("SELECT beatmapset_id FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$_POST["id"]]);
+				if (!$bsid) {
+					throw new Exception("Beatmap set not found in ripple's database. Please use beatmap set id or load at least one difficulty in game before trying to rank a beatmap by its id.");
+				}
+				$bsid = current($bsid);				
+			}
+			redirect("index.php?p=124&bsid=".$bsid);
+		} catch (Exception $e) {
+			redirect('index.php?p=125&e='.$e->getMessage());	
+		}
+	}
 }
