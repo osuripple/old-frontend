@@ -2358,8 +2358,8 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			foreach ($beatmaps as $beatmap) {
 				$icon = ($beatmap["ranked"] >= 2) ? "check" : "times";
 				$name = htmlspecialchars(addslashes($beatmap["song_name"]));
-				$name .= "<br><i>($beatmap[beatmap_id])</i>";
-				$diffs .= "<a href='#' data-toggle='popover' data-placement='bottom' data-content='$name' data-trigger='hover' data-html='true'>";
+				$name .= "($beatmap[beatmap_id])";
+				$diffs .= "<a href='#' data-toggle='popover' data-placement='bottom' data-content='$name' data-trigger='hover'>";
 				$diffs .= "<i class='fa fa-$icon'></i>";
 				$diffs .= "</a>";
 
