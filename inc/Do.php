@@ -1496,8 +1496,8 @@ class D {
 
 			// Update beatmap set from osu!api if
 			// at least one diff has been unfrozen
+			global $URL;
 			if ($updateCache) {
-				global $URL;
 				post_content_http($URL["scores"]."/api/v1/cacheBeatmap", [
 					"sid" => $bsid,
 					"refresh" => 1
