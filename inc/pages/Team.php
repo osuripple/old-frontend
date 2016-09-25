@@ -46,7 +46,11 @@ class Team {
 					<i class="fa fa-circle fa-bullet-list"></i>	<b>jrosdahl</b>, for <a href="https://github.com/jrosdahl/miniircd" target="_blank">miniircd</a>, used as a base for our IRC server.<br>
 					miniircd is licensed under GPL v2. Our implementation can be found <a href="https://git.zxq.co/ripple/pep.py/src/master/irc/ircserver.py" target="_blank">here</a>.<br>
 					<div class="small-br"></div>
-					<i class="fa fa-circle fa-bullet-list"></i>	<b>Angela Guerra</b>, for Ripple\'s logo.';
+					<i class="fa fa-circle fa-bullet-list"></i>	<b>Avail</b>, for hosting Ripple on its server.
+					<div class="small-br"></div>
+					<i class="fa fa-circle fa-bullet-list"></i>	<b>Angela Guerra</b>, for Ripple\'s logo.
+					<div class="small-br"></div>
+					<i class="fa fa-circle fa-bullet-list"></i>	<b>Everyone</b> who has supported the Ripple project by donating or inviting other people.<br><b><i>Without you, Ripple would not have become what it is now.</b></i>';
 				echo '<hr><h3><i class="fa fa-reply"></i>	How to contact the team</h3>
 				You can find every member of the team in our Discord server. If you want to speak privately with us, you can send an email to support@ripple.moe and a Community Manager will reply as soon as possible. If you want to contact a specific member of the team, you can click on the envelope button under their name in this page to send him an email. Remember that Developers cannot help you with bans, silences and such. Developers are able to help you only if you have technical questions or issues.<br>
 				If you want to appeal your ban/restriction or report someone, send an email to support@ripple.moe (which is managed by CMs) instead.';
