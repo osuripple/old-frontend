@@ -64,7 +64,7 @@ class Team {
 						</div>
 						<div class="modal-body">
 							<div class="container" style="width: 100%">';
-							$donors = $GLOBALS["db"]->fetchAll("SELECT id, username FROM users WHERE privileges & 4 > 0 ORDER BY donor_expire DESC");
+							$donors = $GLOBALS["db"]->fetchAll("SELECT id, username FROM users WHERE privileges & 3 > 0 AND donor_expire > 0 ORDER BY donor_expire DESC LIMIT 60");
 							foreach ($donors as $i => $donor) {
 								if ($i % 3 == 0)
 									echo "</div>";
@@ -74,7 +74,15 @@ class Team {
 									<a href='index.php?u=$donor[id]' target='_blank'><img src='//a.ripple.moe/$donor[id]' class='img-circle' style='width: 25px; height: 25px; float: left; margin-right: 5px;'></img><span style='float: left;'>$donor[username]</span></a>
 								</div>";
 							}
-						echo '<br><hr><b>Do you want to be in this list?<br><a href="index.php?p=34">Support us with a donation!</b></a><br><i>(You get other cool perks too)</i>.</div>
+							if (count($donors) % 3 != 0) {
+								echo "</div>";
+							}
+							$donorsCount = $GLOBALS["db"]->fetch("SELECT COUNT(*) as count FROM users WHERE privileges & 3 > 0 AND donor_expire > 0");
+							if ($donorsCount["count"] > 60) {
+								$c = $donorsCount["count"]-60;
+								echo "<div class='row' style='margin-top: 30px;'><b>...and $c more people</b></div>";
+							}
+						echo '<hr><b>Do you want to be in this list?<br><a href="index.php?p=34">Support us with a donation!</b></a><br><i>(You get other cool perks too)</i>.</div>
 						</div>
 					</div>
 				</div>
