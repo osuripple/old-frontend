@@ -50,11 +50,35 @@ class Team {
 					<div class="small-br"></div>
 					<i class="fa fa-circle fa-bullet-list"></i>	<b>Angela Guerra</b>, for Ripple\'s logo.
 					<div class="small-br"></div>
-					<i class="fa fa-circle fa-bullet-list"></i>	<b>Everyone</b> who has supported the Ripple project by donating or inviting other people.<br><b><i>Without you, Ripple would not have become what it is now.</b></i>';
+					<i class="fa fa-circle fa-bullet-list"></i>	<b><a href="#" data-toggle="modal" data-target="#donorsModal">Everyone</a></b> who has supported the Ripple project by donating or inviting other people.<br><b><i>Without you, Ripple would not have become what it is now.</b></i>';
 				echo '<hr><h3><i class="fa fa-reply"></i>	How to contact the team</h3>
 				You can find every member of the team in our Discord server. If you want to speak privately with us, you can send an email to support@ripple.moe and a Community Manager will reply as soon as possible. If you want to contact a specific member of the team, you can click on the envelope button under their name in this page to send him an email. Remember that Developers cannot help you with bans, silences and such. Developers are able to help you only if you have technical questions or issues.<br>
 				If you want to appeal your ban/restriction or report someone, send an email to support@ripple.moe (which is managed by CMs) instead.';
 
+		echo '<div class="modal fade" id="donorsModal" tabindex="-1" role="dialog" aria-labelledby="donorsModalLabel">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<h4 class="modal-title" id="donorsModalLabel"><i class="fa fa-heart"></i>	Thanks to those who supported us</h4>
+						</div>
+						<div class="modal-body">
+							<div class="container" style="width: 100%">';
+							$donors = $GLOBALS["db"]->fetchAll("SELECT id, username FROM users WHERE privileges & 4 > 0 ORDER BY donor_expire DESC");
+							foreach ($donors as $i => $donor) {
+								if ($i % 3 == 0)
+									echo "</div>";
+								if ($i % 3 == 0 || $i == 0)
+									echo "<div class='row' style='margin-bottom: 7px;'>";
+								echo "<div class='col-sm-4'>
+									<a href='index.php?u=$donor[id]' target='_blank'><img src='//a.ripple.moe/$donor[id]' class='img-circle' style='width: 25px; height: 25px; float: left; margin-right: 5px;'></img><span style='float: left;'>$donor[username]</span></a>
+								</div>";
+							}
+						echo '<br><hr><b>Do you want to be in this list?<br><a href="index.php?p=34">Support us with a donation!</b></a><br><i>(You get other cool perks too)</i>.</div>
+						</div>
+					</div>
+				</div>
+			</div>';
 				echo '<div style="margin-bottom: 10%;"></div>';
 			echo '</div>
 		</div>';
