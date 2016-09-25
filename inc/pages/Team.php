@@ -46,7 +46,7 @@ class Team {
 					<i class="fa fa-circle fa-bullet-list"></i>	<b>jrosdahl</b>, for <a href="https://github.com/jrosdahl/miniircd" target="_blank">miniircd</a>, used as a base for our IRC server.<br>
 					miniircd is licensed under GPL v2. Our implementation can be found <a href="https://git.zxq.co/ripple/pep.py/src/master/irc/ircserver.py" target="_blank">here</a>.<br>
 					<div class="small-br"></div>
-					<i class="fa fa-circle fa-bullet-list"></i>	<b>Avail</b>, for hosting Ripple on its server.
+					<i class="fa fa-circle fa-bullet-list"></i>	<b>Avail</b>, for hosting Ripple on his server.
 					<div class="small-br"></div>
 					<i class="fa fa-circle fa-bullet-list"></i>	<b>Angela Guerra</b>, for Ripple\'s logo.
 					<div class="small-br"></div>
