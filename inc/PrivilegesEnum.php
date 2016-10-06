@@ -23,4 +23,5 @@ class Privileges {
 	const AdminChatMod			= 2 << 17;
 	const AdminKickUsers		= 2 << 18;
 	const UserPendingVerification = 2 << 19;
+	const UserTournamentStaff 	= 2 << 20;
 }
