@@ -993,8 +993,12 @@ class D {
 				}
 			}
 
-			// Delete all scores
-			$GLOBALS['db']->execute('DELETE FROM scores WHERE userid = ?', [$_POST['id']]);
+			// Delete scores
+			if ($_POST["gm"] == -1) {
+				$GLOBALS['db']->execute('DELETE FROM scores WHERE userid = ?', [$_POST['id']]);
+			} else {
+				$GLOBALS['db']->execute('DELETE FROM scores WHERE userid = ? AND play_mode = ?', [$_POST['id'], $_POST["gm"]]);
+			}
 			// Reset mode stats
 			foreach ($modes as $k) {
 				$GLOBALS['db']->execute('UPDATE users_stats SET ranked_score_'.$k.' = 0, total_score_'.$k.' = 0, replays_watched_'.$k.' = 0, playcount_'.$k.' = 0, avg_accuracy_'.$k.' = 0.0, total_hits_'.$k.' = 0, level_'.$k.' = 0, pp_'.$k.' = 0 WHERE id = ?', [$_POST['id']]);
