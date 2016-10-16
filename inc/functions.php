@@ -1937,3 +1937,7 @@ function unsetCookie($name) {
 	unset($_COOKIE[$name]);
 	setcookie($name, "", time()-3600);
 }
+
+function safeUsername($name) {
+	return str_replace(" ", "_", strtolower($name));
+}

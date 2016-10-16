@@ -45,7 +45,7 @@ class PasswordHelper {
 		if (!$is_already_md5) {
 			$pass = md5($pass);
 		}
-		$uPass = $GLOBALS['db']->fetch('SELECT password_md5, salt, password_version FROM users WHERE username = ?', [$u]);
+		$uPass = $GLOBALS['db']->fetch('SELECT password_md5, salt, password_version FROM users WHERE username_safe = ?', [safeUsername($u)]);
 		// Check it exists
 		if ($uPass === false) {
 			return false;
@@ -69,7 +69,7 @@ class PasswordHelper {
 			}
 			// password is good. convert it to new password
 			$newPass = password_hash($pass, PASSWORD_DEFAULT);
-			$GLOBALS['db']->execute("UPDATE users SET password_md5=?, salt='', password_version='2' WHERE username = ?", [$newPass, $u]);
+			$GLOBALS['db']->execute("UPDATE users SET password_md5=?, salt='', password_version='2' WHERE username_safe = ?", [$newPass, safeUsername($u)]);
 			Schiavo::Bunk("Login request from **" . getIP() . "** for user **" . $u . "** (success)");				
 
 			return true;

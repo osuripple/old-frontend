@@ -45,9 +45,8 @@ class D {
 				throw new Exception('Usernames with both spaces and underscores are not supported.');
 			}
 			// Check if username is already in db
-			$spaceToUnderscore = str_replace(" ", "_", $_POST["u"]);
-			$underscoreToSpace = str_replace("_", " ", $_POST["u"]);
-			if ($GLOBALS['db']->fetch('SELECT * FROM users WHERE username = ? OR username = ?', [$spaceToUnderscore, $underscoreToSpace])) {	
+			$safe = safeUsername($_POST["u"]);
+			if ($GLOBALS['db']->fetch('SELECT * FROM users WHERE username_safe = ?', [$safe])) {
 				throw new Exception('That username was already found in the database! Perhaps someone stole it from you? Those bastards!');
 			}
 			// Check if email is already in db
@@ -89,8 +88,9 @@ class D {
 			// Create password
 			$md5Password = password_hash(md5($_POST['p1']), PASSWORD_DEFAULT);
 			// Put some data into the db
-			$GLOBALS['db']->execute("INSERT INTO `users`(username, password_md5, salt, email, register_datetime, privileges, password_version)
-			                                     VALUES (?,        ?,            '',   ?,     ?,                 ?, 2);", [$_POST['u'], $md5Password, $_POST['e'], time(true), Privileges::UserPendingVerification]);
+			$GLOBALS['db']->execute("INSERT INTO `users`(username, username_safe, password_md5, salt, email, register_datetime, privileges, password_version)
+			                                     VALUES (?,        ?,             ?,            '',   ?,     ?,                 ?, 2);",
+												 		[$_POST['u'], $safe,      $md5Password,       $_POST['e'], time(true), Privileges::UserPendingVerification]);
 			// Get user ID
 			$uid = $GLOBALS['db']->lastInsertId();
 			// Put some data into users_stats
@@ -510,13 +510,12 @@ class D {
 				throw new Exception('Usernames with both spaces and underscores are not supported.');
 			}
 			// Check if username is already in db
-			$spaceToUnderscore = str_replace(" ", "_", $_POST["newu"]);
-			$underscoreToSpace = str_replace("_", " ", $_POST["newu"]);
-			if ($GLOBALS['db']->fetch('SELECT * FROM users WHERE username = ? OR username = ? AND id != ?', [$spaceToUnderscore, $underscoreToSpace, $_POST["id"]])) {	
+			$safe = safeUsername($_POST["newu"]);
+			if ($GLOBALS['db']->fetch('SELECT * FROM users WHERE username = ? AND id != ?', [$safe, $_POST["id"]])) {	
 				throw new Exception('Username already used by another user. No changes have been made.');
 			}
 			// Change stuff
-			$GLOBALS['db']->execute('UPDATE users SET username = ? WHERE id = ?', [$_POST['newu'], $_POST['id']]);
+			$GLOBALS['db']->execute('UPDATE users SET username = ?, username_safe = ? WHERE id = ?', [$_POST['newu'], $safe, $_POST['id']]);
 			$GLOBALS['db']->execute('UPDATE users_stats SET username = ? WHERE id = ?', [$_POST['newu'], $_POST['id']]);
 			// rap log
 			rapLog(sprintf("has changed %s's username to %s", $_POST["oldu"], $_POST["newu"]));

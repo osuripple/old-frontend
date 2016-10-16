@@ -57,7 +57,7 @@ class Login {
 				users.username, users_stats.country
 			FROM users
 			LEFT JOIN users_stats ON users_stats.id = users.id
-			WHERE users.username = ?', [$_POST['u']]);
+			WHERE users.username_safe = ?', [safeUsername($_POST['u'])]);
 			// Set multiacc identity token
 			setYCookie($us["id"]);
 			// Make sure the user has been verified
