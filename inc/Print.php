@@ -9,7 +9,7 @@ class P {
 		// Get admin dashboard data
 		$totalScores = number_format(current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM scores LIMIT 1')));
 		$betaKeysLeft = "∞";
-		$totalPPQuery = $GLOBALS['db']->fetch("SELECT SUM(pp) FROM scores WHERE completed = 3");
+		$totalPPQuery = $GLOBALS['db']->fetch("SELECT SUM(pp) FROM scores WHERE completed = 3 LIMIT 1");
 		$totalPP = 0;
 		foreach ($totalPPQuery as $pp) {
 			$totalPP += $pp;
@@ -25,7 +25,8 @@ class P {
 		LEFT JOIN users ON users.id = scores.userid
 		ORDER BY scores.id DESC
 		LIMIT 10');
-		$topPlays = $GLOBALS['db']->fetchAll('SELECT
+		$topPlays = [];
+		/*$topPlays = $GLOBALS['db']->fetchAll('SELECT
 			beatmaps.song_name, scores.beatmap_md5, users.username,
 			scores.userid, scores.time, scores.score, scores.pp,
 			scores.play_mode, scores.mods
@@ -33,7 +34,7 @@ class P {
 		LEFT JOIN beatmaps ON beatmaps.beatmap_md5 = scores.beatmap_md5
 		LEFT JOIN users ON users.id = scores.userid
 		WHERE users.privileges & 1 > 0
-		ORDER BY scores.pp DESC LIMIT 30');
+		ORDER BY scores.pp DESC LIMIT 30');*/
 		$onlineUsers = getJsonCurl("http://127.0.0.1:5001/api/v1/onlineUsers");
 		if ($onlineUsers == false) {
 			$onlineUsers = 0;
@@ -87,6 +88,7 @@ class P {
 		<tr><th class="text-left"><i class="fa fa-trophy"></i>	Top plays</th><th>Beatmap</th></th><th>Mode</th><th>Sent</th><th class="text-right">PP</th></tr>
 		</thead>
 		<tbody>';
+		echo '<tr class="danger"><td colspan=5>Disabled</td></tr>';
 		foreach ($topPlays as $play) {
 			// set $bn to song name by default. If empty or null, replace with the beatmap md5.
 			$bn = $play['song_name'];
