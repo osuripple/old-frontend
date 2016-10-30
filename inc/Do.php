@@ -662,6 +662,8 @@ class D {
 			}
 			// Delete badge
 			$GLOBALS['db']->execute('DELETE FROM badges WHERE id = ?', $_GET['id']);
+			// delete badge from relationships table
+			$GLOBALS['db']->execute('DELETE FROM user_badges WHERE badge = ?', $_GET['id']);
 			// RAP log
 			rapLog(sprintf("has deleted badge %s", current($name)));
 			// Done, redirect to success page

@@ -1391,7 +1391,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			
 			$badges = $GLOBALS["db"]->fetchAll("SELECT b.id, b.icon, b.name
 			FROM user_badges ub
-			LEFT JOIN badges b ON b.id = ub.badge
+			INNER JOIN badges b ON b.id = ub.badge
 			WHERE ub.user = ?", [$userID]);
 			foreach ($badges as $key => $badge) {
 				$badgeID[$key] = $badge["id"];
