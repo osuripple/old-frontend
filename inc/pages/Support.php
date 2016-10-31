@@ -119,11 +119,11 @@ class Support {
 
 								echo '<select name="os0" id="paypal-supporter-period">';
 								for ($i=0; $i < $maxDonor; $i++) { 
-									echo '<option value="'.($i+1).' months">'.($i+1).' months €'.getDonorPrice($i+1).' EUR</option>';
+									echo '<option value="'.($i+1).' months">'.($i+1).' months - €'.getDonorPrice($i+1).'</option>';
 								}
 								echo '</select>';
 
-								echo '<input type="hidden" name="option_index" value="0">';
+								//echo '<input type="hidden" name="option_index" value="0">';
 								for ($i=0; $i < $maxDonor; $i++) { 
 									echo '<input type="hidden" name="option_select'.$i.'" value="'.($i+1).' months">';
 									echo '<input type="hidden" name="option_amount'.$i.'" value="'.getDonorPrice($i+1).'">';
@@ -132,13 +132,13 @@ class Support {
 								echo '</td></tr>
 								<tr><td><input type="hidden" name="on1" value="Ripple user to give donor">Ripple user to give donor</td></tr><tr><td><input type="text" name="os1" maxlength="200" value="'.$_SESSION["username"].'"></td></tr>
 								</table>
-								<input type="hidden" name="currency_code" value="EUR">
+								<!-- <input type="hidden" name="currency_code" value="EUR"> -->
 								<input type="hidden" name="business" value="'.$paypalConfig["email"].'">
 								<input type="hidden" name="cmd" value="_xclick">
-								<input type="hidden" name="display" value="0">
+								<!-- <input type="hidden" name="display" value="0"> -->
 
 								<input type="hidden" name="lc" value="GB">
-								<input type="hidden" name="button_subtype" value="services">
+								<!-- <input type="hidden" name="button_subtype" value="services"> -->
 								<input type="hidden" name="no_note" value="0">
 								<input type="hidden" name="currency_code" value="EUR">
 								<br>
