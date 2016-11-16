@@ -1542,7 +1542,20 @@ class D {
 			}
 			redirect("index.php?p=124&bsid=".$bsid);
 		} catch (Exception $e) {
-			redirect('index.php?p=125&e='.$e->getMessage());	
+			redirect('index.php?p=125&e='.$e->getMessage());
+		}
+	}
+
+	public static function ClearHWIDMatches() {
+		try {
+			if (!isset($_GET["id"]) || empty($_GET["id"])) {
+				throw new Exception("Invalid user ID");
+			}
+			$GLOBALS["db"]->execute("DELETE FROM hw_user WHERE userid = ?", [$_GET["id"]]);
+			rapLog(sprintf("has cleared %s's HWID matches.", getUserUsername($_GET["id"])));
+			redirect('index.php?p=102&s=HWID matches cleared! Make sure to clear multiaccounts\' HWID too, or the user might get restricted for multiaccounting!');
+		} catch (Exception $e) {
+			redirect('index.php?p=102&e='.$e->getMessage());
 		}
 	}
 }

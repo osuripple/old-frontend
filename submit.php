@@ -196,6 +196,10 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageBeatmaps);
 			D::RedirectRankBeatmap();
 		break;
+		case 'clearHWID':
+			sessionCheckAdmin(Privileges::AdminBanUsers);
+			D::ClearHWIDMatches();
+		break;
 	}
 }
 catch(Exception $e) {

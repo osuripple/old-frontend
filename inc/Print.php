@@ -626,8 +626,9 @@ class P {
 						echo '	<a onclick="sure(\'submit.php?action=banUnbanUser&id='.$_GET['id'].'\')" class="btn btn-danger">(Un)ban user</a>';
 						echo '	<a onclick="sure(\'submit.php?action=restrictUnrestrictUser&id='.$_GET['id'].'\')" class="btn btn-danger">(Un)restrict user</a>';
 						echo '	<a onclick="sure(\'submit.php?action=lockUnlockUser&id='.$_GET['id'].'\', \'Restrictions and bans will be removed from this account if you lock it. Make sure to lock only accounts that are not banned or restricted.\')" class="btn btn-danger">(Un)lock user</a>';
+						echo '	<a onclick="sure(\'submit.php?action=clearHWID&id='.$_GET['id'].'\');" class="btn btn-danger">Clear HWID matches</a>';
 					}
-					echo '	<a onclick="sure(\'submit.php?action=toggleCustomBadge&id='.$_GET['id'].'\');" class="btn btn-danger">'.(($userStatsData["can_custom_badge"] == 1) ? "Revoke" : "Grant").' custom badge</a>';
+					echo '<br><br><a onclick="sure(\'submit.php?action=toggleCustomBadge&id='.$_GET['id'].'\');" class="btn btn-danger">'.(($userStatsData["can_custom_badge"] == 1) ? "Revoke" : "Grant").' custom badge</a>';
 					echo '<br>
 						</li>
 					</ul>';

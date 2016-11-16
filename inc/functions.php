@@ -997,7 +997,7 @@ function getUserID($u) {
  * @return (string) username
 */
 function getUserUsername($uid) {
-	$username = $GLOBALS['db']->fetch('SELECT username FROM users WHERE id = ?', $uid);
+	$username = $GLOBALS['db']->fetch('SELECT username FROM users WHERE id = ? LIMIT 1', $uid);
 	if ($username) {
 		return current($username);
 	} else {
