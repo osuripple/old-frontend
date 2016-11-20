@@ -151,6 +151,8 @@ class P {
 		// Quick edit/silence/kick user button
 		echo '<br><p align="center"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#quickEditUserModal">Quick edit user (username)</button>';
 		echo '&nbsp;&nbsp; <button type="button" class="btn btn-info" data-toggle="modal" data-target="#quickEditEmailModal">Quick edit user (email)</button>';
+		echo '&nbsp;&nbsp; <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#silenceUserModal">Silence user</button>';
+		echo '&nbsp;&nbsp; <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#kickUserModal">Kick user from Bancho</button>';
 		echo '</p>';
 		// Users plays table
 		echo '<table class="table table-striped table-hover table-50-center">
@@ -303,12 +305,12 @@ class P {
 
 		<div class="input-group">
 		<span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-comment" aria-hidden="true"></span></span>
-		<input type="text" name="r" class="form-control" placeholder="Reason" aria-describedby="basic-addon1" required>
+		<input type="text" name="r" class="form-control" placeholder="Reason" aria-describedby="basic-addon1">
 		</div>
 
 		<p style="line-height: 15px"></p>
 
-		We recommend silencing the user from bancho. If you silence someone using this form, they won\'t see the silence ingame until they login again. During the silence period, their client will be locked. <b>Max silence time is 7 days.</b>
+		During the silence period, user client will be locked. <b>Max silence time is 7 days.</b> Set remov length to 0 to remove the silence.
 
 		</form>
 		</p>
@@ -335,6 +337,12 @@ class P {
 		<div class="input-group">
 		<span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></span>
 		<input type="text" name="u" class="form-control" placeholder="Username" aria-describedby="basic-addon1" required>
+		</div>
+		</p>
+		<p>
+		<div class="input-group">
+		<span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-asterisk" aria-hidden="true"></span></span>
+		<input type="text" name="r" class="form-control" placeholder="Reason" aria-describedby="basic-addon1" value="You have been kicked from the server. Please login again." required>
 		</div>
 		</form>
 		</p>
@@ -1196,7 +1204,7 @@ class P {
 		<td><p class="text-center"><input type="text" value="'.$cmd5.'" name="cmd5" class="form-control"></td>
 		</tr>';
 		echo '<tr class="success">
-		<td colspan=2><p align="center"><b>Type <i>!system reload</i> in chat after updating the settings from RAP to reload bancho settings.</b></p></td>
+		<td colspan=2><p align="center"><b>Settings are automatically reloaded on Bancho when you press "Save settings".</b> There\'s no need to do <i>!system reload</i> manually anymore.</p></td>
 		</tr>';
 		echo '</tbody><table>
 		<div class="text-center"><button type="submit" class="btn btn-primary">Save settings</button></div></form>';

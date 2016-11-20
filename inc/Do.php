@@ -278,14 +278,17 @@ class D {
 				$cmd5 = '';
 			}
 			// Save new values
-			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_int = ? WHERE name = 'bancho_maintenance'", [$bm]);
-			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_int = ? WHERE name = 'free_direct'", [$od]);
-			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_int = ? WHERE name = 'restricted_joke'", [$rm]);
-			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_string = ? WHERE name = 'menu_icon'", [$mi]);
-			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_string = ? WHERE name = 'login_messages'", [$lm]);
-			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_string = ? WHERE name = 'login_notification'", [$ln]);
-			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_string = ? WHERE name = 'osu_versions'", [$cv]);
-			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_string = ? WHERE name = 'osu_md5s'", [$cmd5]);
+			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_int = ? WHERE name = 'bancho_maintenance' LIMIT 1", [$bm]);
+			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_int = ? WHERE name = 'free_direct' LIMIT 1", [$od]);
+			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_int = ? WHERE name = 'restricted_joke' LIMIT 1", [$rm]);
+			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_string = ? WHERE name = 'menu_icon' LIMIT 1", [$mi]);
+			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_string = ? WHERE name = 'login_messages' LIMIT 1", [$lm]);
+			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_string = ? WHERE name = 'login_notification' LIMIT 1", [$ln]);
+			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_string = ? WHERE name = 'osu_versions' LIMIT 1", [$cv]);
+			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_string = ? WHERE name = 'osu_md5s' LIMIT 1", [$cmd5]);
+			// Pubsub
+			redisConnect();
+			$GLOBALS["redis"]->publish("peppy:reload_settings", "reload");
 			// Rap log
 			rapLog("has updated bancho settings");
 			// Done, redirect to success page
@@ -349,6 +352,7 @@ class D {
 			// Edit privileges if we can
 			if (hasPrivilege(Privileges::AdminManagePrivileges) && ($_POST["id"] != $_SESSION["userid"])) {
 				$GLOBALS['db']->execute('UPDATE users SET privileges = ? WHERE id = ?', [$_POST['priv'], $_POST['id']]);
+				updateBanBancho($_GET["id"]);
 			}
 			// Save new userpage
 			$GLOBALS['db']->execute('UPDATE users_stats SET userpage_content = ? WHERE id = ?', [$_POST['up'], $_POST['id']]);
@@ -424,7 +428,8 @@ class D {
 			}
 			//$newPrivileges = $userData["privileges"] ^ Privileges::UserBasic;
 			// Change privileges
-			$GLOBALS['db']->execute('UPDATE users SET privileges = ?, ban_datetime = ? WHERE id = ?', [$newPrivileges, $banDateTime, $_GET['id']]);
+			$GLOBALS['db']->execute('UPDATE users SET privileges = ?, ban_datetime = ? WHERE id = ? LIMIT 1', [$newPrivileges, $banDateTime, $_GET['id']]);
+			updateBanBancho($_GET["id"]);
 			// Rap log
 			rapLog(sprintf("has %s user %s", ($newPrivileges & Privileges::UserNormal) > 0 ? "unbanned" : "banned", $userData["username"]));
 			// Done, redirect to success page
@@ -511,16 +516,18 @@ class D {
 			}
 			// Check if username is already in db
 			$safe = safeUsername($_POST["newu"]);
-			if ($GLOBALS['db']->fetch('SELECT * FROM users WHERE username = ? AND id != ?', [$safe, $_POST["id"]])) {	
+			if ($GLOBALS['db']->fetch('SELECT * FROM users WHERE username_safe = ? AND id != ? LIMIT 1', [$safe, $_POST["id"]])) {	
 				throw new Exception('Username already used by another user. No changes have been made.');
 			}
-			// Change stuff
-			$GLOBALS['db']->execute('UPDATE users SET username = ?, username_safe = ? WHERE id = ?', [$_POST['newu'], $safe, $_POST['id']]);
-			$GLOBALS['db']->execute('UPDATE users_stats SET username = ? WHERE id = ?', [$_POST['newu'], $_POST['id']]);
+			redisConnect();
+			$GLOBALS["redis"]->publish("peppy:change_username", json_encode([
+				"userID" => intval($_POST["id"]),
+				"newUsername" => $_POST["newu"]
+			]));
 			// rap log
 			rapLog(sprintf("has changed %s's username to %s", $_POST["oldu"], $_POST["newu"]));
 			// Done, redirect to success page
-			redirect('index.php?p=102&s=User identity changed!');
+			redirect('index.php?p=102&s=User identity changed! It might take a while to change the username if the user is online on Bancho.');
 		}
 		catch(Exception $e) {
 			// Redirect to Exception page
@@ -681,14 +688,12 @@ class D {
 	*/
 	public static function silenceUser() {
 		try {
-			throw new Exception("This feature doesn't wory anymore. Use !silence ingame instead.");
-
 			// Check if everything is set
-			if (!isset($_POST['u']) || !isset($_POST['c']) || !isset($_POST['un']) || !isset($_POST['r']) || empty($_POST['u']) || empty($_POST['c']) || empty($_POST['un']) || empty($_POST['r'])) {
+			if (!isset($_POST['u']) || !isset($_POST['c']) || !isset($_POST['un']) || !isset($_POST['r']) || empty($_POST['u']) || empty($_POST['un'])) {
 				throw new Exception('Invalid request');
 			}
 			// Get user id
-			$id = current($GLOBALS['db']->fetch('SELECT id FROM users WHERE username = ?', $_POST['u']));
+			$id = getUserID($_POST["u"]);
 			// Check if that user exists
 			if (!$id) {
 				throw new Exception("That user doesn't exist");
@@ -700,12 +705,16 @@ class D {
 				throw new Exception('Invalid silence length. Maximum silence length is 7 days.');
 			}
 			// Silence and reconnect that user
-			silenceUser($id, time() + $sl, $_POST['r']);
-			//kickUser($id);
-			// RAP log
-			//rapLog(sprintf("has silenced user %s for %s for the following reason: \"%s\"", $_POST['u'], timeDifference(time()+$sl, time()), $_POST["r"]));
-			// Done, redirect to success page
-			redirect('index.php?p=102&s=User silenced!');
+			$GLOBALS["db"]->execute("UPDATE users SET silence_end = ?, silence_reason = ? WHERE id = ? LIMIT 1", [time() + $sl, $_POST["r"], $id]);
+			updateSilenceBancho($id);
+			// RAP log and redirect
+			if ($sl > 0) {
+				rapLog(sprintf("has silenced user %s for %s for the following reason: \"%s\"", $_POST['u'], timeDifference(time() + $sl, time(), false), $_POST["r"]));
+				redirect('index.php?p=102&s=User silenced!');
+			} else {
+				rapLog(sprintf("has removed %s's silence", $_POST['u']));
+				redirect('index.php?p=102&s=User silence removed!');
+			}			
 		}
 		catch(Exception $e) {
 			// Redirect to Exception page
@@ -719,9 +728,8 @@ class D {
 	*/
 	public static function KickUser() {
 		try {
-			throw new Exception("This feature doesn't wory anymore. Use !kick <username> ingame instead.");
 			// Check if everything is set
-			if (!isset($_POST['u']) || empty($_POST['u'])) {
+			if (!isset($_POST['u']) || empty($_POST['u']) || !isset($_POST["r"]) || empty($_POST["r"])) {
 				throw new Exception('Invalid request');
 			}
 			// Get user id
@@ -731,7 +739,11 @@ class D {
 				throw new Exception("That user doesn't exist");
 			}
 			// Kick that user
-			kickUser($id);
+			redisConnect();
+			$GLOBALS["redis"]->publish("peppy:disconnect", json_encode([
+				"userID" => intval($id),
+				"reason" => $_POST["r"]
+			]));
 			// Done, redirect to success page
 			redirect('index.php?p=102&s=User kicked!');
 		}
@@ -1261,6 +1273,7 @@ class D {
 			}
 			// Change privileges
 			$GLOBALS['db']->execute('UPDATE users SET privileges = ?, ban_datetime = ? WHERE id = ?', [$newPrivileges, $banDateTime, $_GET['id']]);
+			updateBanBancho($_GET["id"]);
 			// Rap log
 			rapLog(sprintf("has %s user %s", ($newPrivileges & Privileges::UserPublic) > 0 ? "removed restrictions on" : "restricted", $userData["username"]));
 			// Done, redirect to success page
@@ -1436,7 +1449,6 @@ class D {
 			// Grant/revoke custom badge privilege
 			$lockUnlock = (hasPrivilege(Privileges::UserNormal, $_GET["id"])) ? "locked" : "unlocked";
 			$GLOBALS["db"]->execute("UPDATE users SET privileges = privileges ^ 2 WHERE id = ? LIMIT 1", [$_GET["id"]]);
-
 			rapLog(sprintf("has %s %s's account", $grantRevoke, $userData["username"]), $_SESSION["userid"]);
 			redirect("index.php?p=102&s=User locked/unlocked!");
 		} catch(Exception $e) {

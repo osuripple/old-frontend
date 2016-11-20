@@ -72,6 +72,11 @@ $isBday = date("dm") == "1208";
 /****************************************
  **			GENERAL FUNCTIONS 		   **
  ****************************************/
+function redisConnect() {
+	if (!isset($_GLOBALS["redis"])) {
+		$GLOBALS["redis"] = new Predis\Client();
+	}
+}
 /*
  * redirect
  * Redirects to a URL.
@@ -602,8 +607,9 @@ function printAdminSidebar() {
 
 						if (hasPrivilege(Privileges::AdminViewRAPLogs))
 							echo '<li class="animated infinite pulse"><a href="index.php?p=116"><i class="fa fa-calendar"></i>	Admin log&nbsp;&nbsp;&nbsp;<div class="label label-primary">Free botnets</div></a></li>';
-				echo '</ul>
-				</div>';
+
+						echo "</ul>
+				</div>";
 }
 /*
  * printAdminPanel
@@ -1940,4 +1946,14 @@ function unsetCookie($name) {
 
 function safeUsername($name) {
 	return str_replace(" ", "_", strtolower($name));
+}
+
+function updateBanBancho($userID) {
+	redisConnect();
+	$GLOBALS["redis"]->publish("peppy:ban", $userID);
+}
+
+function updateSilenceBancho($userID) {
+	redisConnect();
+	$GLOBALS["redis"]->publish("peppy:silence", $userID);
 }
