@@ -44,23 +44,8 @@ require_once $df.'/pages/Welcome.php';
 require_once $df.'/pages/Discord.php';
 $pages = [
 	new Login(),
-	new Leaderboard(),
-	new PasswordFinishRecovery(),
-	new ServerStatus(),
-	new UserLookup(),
 	new TwoFA(),
-	new TwoFASetup(),
-	new RequestRankedBeatmap(),
-	new MyAPIApplications(),
-	new EditApplication(),
-	new DeleteApplication(),
-	new Support(),
-	new Team(),
-	new IRC(),
 	new Beatmaps(),
-	new Verify(),
-	new Welcome(),
-	new Discord(),
 ];
 // Set timezone to UTC
 date_default_timezone_set('Europe/Rome');
@@ -231,87 +216,8 @@ function printPage($p) {
 			case 1:
 				P::HomePage();
 			break;
-				// Register page (guest)
 
-			case 3:
-				if (!checkLoggedIn()) {
-					P::RegisterPage();
-				} else {
-					P::LoggedInAlert();
-				}
-			break;
-				// Edit avatar (protected)
-
-			case 5:
-				sessionCheck();
-				P::ChangeAvatarPage();
-			break;
-				// Edit userpage (protected)
-
-			case 8:
-				sessionCheck();
-				P::UserpageEditorPage();
-			break;
-				// Edit user settings (protected)
-
-			case 6:
-				sessionCheck();
-				P::userSettingsPage();
-			break;
-				// Change password (protected)
-
-			case 7:
-				sessionCheck();
-				P::ChangePasswordPage();
-			break;
-				// List documentation files
-
-			case 14:
-				listDocumentationFiles();
-			break;
-				// Show documentation file (check if f is set to avoid errors and stuff)
-			break;
-				// Show documentation, v2 with database
-
-			case 16:
-				if (isset($_GET['id']) && intval($_GET['id'])) {
-					getDocPageAndParse(intval($_GET['id']));
-				} else {
-					getDocPageAndParse(null);
-				}
-			break;
-				// Show changelog
-
-			case 17:
-				P::ChangelogPage();
-			break;
-				// Password recovery
-
-			case 18:
-				P::PasswordRecovery();
-			break;
-				// About page
-
-			case 21:
-				P::AboutPage();
-			break;
-				// Rules page
-
-			case 23:
-				P::RulesPage();
-			break;
-				// Friendlist page
-
-			case 26:
-				sessionCheck();
-				P::FriendlistPage();
-			break;
-
-			case 41:
-				P::StopSign();
-			break;
 				// Admin panel (> 100 pages are admin ones)
-
 			case 100:
 				sessionCheckAdmin();
 				P::AdminDashboard();
@@ -457,8 +363,12 @@ function printPage($p) {
 			break;
 		}
 	} else {
-		// Userpage
-		P::UserPage($_GET["u"], isset($_GET['m']) ? $_GET['m'] : -1);
+		if (hasPrivilege(Privileges::AdminAccessRAP)) {
+			// Userpage
+			P::UserPage($_GET["u"], isset($_GET['m']) ? $_GET['m'] : -1);
+		} else {
+			echo "how did i get here?";
+		}
 	}
 }
 /*
@@ -488,50 +398,14 @@ function printNavbar() {
 					echo '</div>
 					<div class="navbar-collapse collapse">';
 	// Left elements
-	echo '<ul class="nav navbar-nav navbar-left">';
 	// Not logged left elements
+	echo '<ul class="nav navbar-nav navbar-left">';
 	if (!checkLoggedIn()) {
 		echo '<li><a href="index.php?p=2"><i class="fa fa-sign-in"></i>	Login</a></li>';
-		echo '<li><a href="index.php?p=3"><i class="fa fa-plus-circle"></i>	Sign up</a></li>';
-		if ($isBday) echo '<li><a href="/blog"><b><i class="fa fa-birthday-cake" ></i>	Happy birthday!</a></b></li>';
-		echo '<li class="dropdown">
-					<a data-toggle="dropdown"><i class="fa fa-question-circle"></i>	Help & Info<span class="caret"></span></a>
-					<ul class="dropdown-menu">
-						<li class="dropdown-submenu"><a href="index.php?p=23"><i class="fa fa-gavel"></i>	Rules</a></li>
-						<li class="dropdown-submenu"><a href="index.php?p=14"><i class="fa fa-question-circle"></i>	Help</a></li>
-						'.(file_exists(dirname(__FILE__).'/../blog/anchor/config/db.php') ? '<li class="dropdown-submenu"><a href="blog/"><i class="fa fa-anchor"></i>	Blog</a></li>' : '').'
-						<li class="divider"></li>
-						<li class="dropdown-submenu"><a href="https://git.zxq.co/ripple/ripple"><i class="fa fa-git"></i>	Git</a></li>
-						<li class="dropdown-submenu"><a href="index.php?p=21"><i class="fa fa-info-circle"></i>	About</a></li>
-					</ul>
-				</li>';
 	}
 	// Logged in left elements
 	if (checkLoggedIn()) {
 		// Just an easter egg that you'll probably never notice, unless you do it on purpose.
-		//$trollerino = mt_rand(1, 100) == 1;
-		echo '<li><a href="index.php?p=13"><i class="fa fa-trophy"></i>	Leaderboard</a></li>';
-		echo '<li class="dropdown">
-					<a data-toggle="dropdown"><i class="fa fa-question-circle"></i>	Help & Info<span class="caret"></span></a>
-					<ul class="dropdown-menu">
-						<li class="dropdown-submenu"><a href="index.php?p=23"><i class="fa fa-gavel"></i> Rules</a></li>
-						<li class="dropdown-submenu"><a href="index.php?p=35"><i class="fa fa-star"></i> Ripple Team</a></li>
-						<li class="dropdown-submenu"><a href="index.php?p=14"><i class="fa fa-question-circle"></i>	Help</a></li>
-						'.(file_exists(dirname(__FILE__).'/../blog/anchor/config/db.php') ? '<li class="dropdown-submenu"><a href="blog/"><i class="fa fa-anchor"></i>	Blog</a></li>' : '').'
-						<li class="dropdown-submenu"><a href="index.php?p=31"><i class="fa fa-music"></i>	Request beatmap ranking</a></li>
-						<li class="divider"></li>
-						<li class="dropdown-submenu"><a href="index.php?p=17"><i class="fa fa-code"></i> Changelog</a></li>
-						<li class="dropdown-submenu"><a href="http://status.ripple.moe"><i class="fa fa-cogs"></i>	Server status</a></li>
-						<li class="dropdown-submenu"><a href="https://mu.nyodev.xyz/upd.php?id=18"><i class="fa fa-server"></i>	Server switcher</a></li>
-						<li class="divider"></li>';
-						echo '<li class="dropdown-submenu"><a href="https://git.zxq.co/ripple/ripple"><i class="fa fa-git"></i>	Git</a></li>
-						<li class="dropdown-submenu"><a href="'.$discordConfig["invite_url"].'"><i class="fa fa-comment"></i>	Discord</a></li>
-						<li class="dropdown-submenu"><a href="https://reddit.com/r/osuripple"><i class="fa fa-reddit"></i>	Reddit</a></li>
-						<li class="dropdown-submenu"><a href="index.php?p=21"><i class="fa fa-info-circle"></i>	About</a></li>
-					</ul>
-				</li>';
-		echo '<li><a class="support-color" href="index.php?p=34"><b><i class="fa fa-heart" ></i>	Support us</a></b></li>';
-		if ($isBday) echo '<li><a href="/blog"><b><i class="fa fa-birthday-cake" ></i>	Happy birthday!</a></b></li>';
 		if (hasPrivilege(Privileges::AdminAccessRAP)) {
 			echo '<li><a href="index.php?p=100"><i class="fa fa-cog"></i>	<b>Admin Panel</b></a></li>';
 		}
@@ -546,22 +420,6 @@ function printNavbar() {
 					<a data-toggle="dropdown"><img src="'.URL::Avatar().'/'.getUserID($_SESSION['username']).'" height="22" width="22" />	<b>'.$_SESSION['username'].'</b><span class="caret"></span></a>
 					<ul class="dropdown-menu">
 						<li class="dropdown-submenu"><a href="index.php?u='.getUserID($_SESSION['username']).'"><i class="fa fa-user"></i> My profile</a></li>
-						<li class="dropdown-submenu"><a href="index.php?p=26"><i class="fa fa-star"></i>	Friends</a></li>
-						<li class="divider"></li>
-						<li class="dropdown-submenu"><a href="index.php?p=5"><i class="fa fa-picture-o"></i> Change avatar</a></li>
-						<li class="dropdown-submenu"><a href="index.php?p=7"><i class="fa fa-lock"></i>	Change password</a></li>
-						<li class="dropdown-submenu"><a href="index.php?p=8"><i class="fa fa-pencil"></i> Edit userpage</a></li>
-						<li class="dropdown-submenu"><a href="index.php?p=6"><i class="fa fa-cog"></i>	User settings</a></li>
-						<li class="divider"></li>
-						<li class="dropdown-submenu"><a href="index.php?p=30"><i class="fa fa-ticket"></i>	Two-Factor Auth	';
-						if (is2FAEnabled($_SESSION["userid"], false)) echo '<span class="label label-warning">!</span>';
-						echo '</a></li>
-						<li class="dropdown-submenu"><a href="index.php?p=36"><i class="fa fa-link"></i>	IRC Token';
-						if (hasPrivilege(Privileges::UserDonor)) {
-							echo '<li class="dropdown-submenu"><a href="index.php?p=40"><i class="fa fa-comments"></i>	Discord Donor';
-						}
-						echo '<li class="dropdown-submenu"><a href="submit.php?action=forgetEveryCookie"><i class="fa fa-chain-broken"></i>	Delete all login tokens</a></li>
-						<li class="divider"></li>
 						<li class="dropdown-submenu"><a href="submit.php?action=logout"><i class="fa fa-sign-out"></i>	Logout</a></li>
 					</ul>
 				</li>';

@@ -160,6 +160,7 @@ if ($p < 100) {
 	echo '
         <div class="container">
             <div class="row">
+				<marquee scrollamount="30"><h1>Zio peppe is watching you</h1></marquee>
                 <div class="col-lg-12 text-center">';
                 	
                     echo '<div id="content">';
