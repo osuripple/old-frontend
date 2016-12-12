@@ -200,6 +200,18 @@ try {
 			sessionCheckAdmin(Privileges::AdminBanUsers);
 			D::ClearHWIDMatches();
 		break;
+		case 'takeReport':
+			sessionCheckAdmin(Privileges::AdminManageReports);
+			D::TakeReport();
+		break;
+		case 'solveUnsolveReport':
+			sessionCheckAdmin(Privileges::AdminManageReports);
+			D::SolveUnsolveReport();
+		break;
+		case 'uselessUsefulReport':
+			sessionCheckAdmin(Privileges::AdminManageReports);
+			D::UselessUsefulReport();
+		break;
 	}
 }
 catch(Exception $e) {

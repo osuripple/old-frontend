@@ -310,7 +310,7 @@ class P {
 
 		<p style="line-height: 15px"></p>
 
-		During the silence period, user client will be locked. <b>Max silence time is 7 days.</b> Set remov length to 0 to remove the silence.
+		During the silence period, user\'s client will be locked. <b>Max silence time is 7 days.</b> Set length to 0 to remove the silence.
 
 		</form>
 		</p>
@@ -2882,6 +2882,234 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 
 		echo '</div>';
 		echo '</div>';
+	}
+	
+	
+
+	public static function AdminViewReports() {
+		echo '<div id="wrapper">';
+		printAdminSidebar();
+		echo '<div id="page-content-wrapper">';
+		self::MaintenanceStuff();
+		if (isset($_GET['e']) && !empty($_GET['e'])) {
+			self::ExceptionMessageStaccah($_GET['e']);
+		}
+		echo '<p align="center"><h2><i class="fa fa-flag"></i>	Reports</h2></p>';
+
+		echo '<br>';
+		
+		$reports = $GLOBALS["db"]->fetchAll("SELECT * FROM reports ORDER BY id DESC LIMIT 50;");
+		echo '<table class="table table-striped table-hover table-75-center">
+		<thead>
+		<tr><th class="text-center"><i class="fa fa-flag"></i>	ID</th><th class="text-center">From</th><th class="text-center">Target</th><th class="text-l">Reason</th><th class="text-center">When</th><th class="text-center">Assignee</th><th class="text-center">Actions</th></tr>
+		</thead>';
+		echo '<tbody>';
+		foreach ($reports as $report) {
+			if ($report['assigned'] == 0) {
+				$rowClass = "danger";
+				$assignee = "No one";
+			} else if ($report['assigned'] == -1) {
+				$rowClass = "success";
+				$assignee = "Solved";
+			} else if ($report["assigned"] == -2) {
+				$rowClass = "warning";
+				$assignee = "Useless";
+			} else {
+				$rowClass = "";
+				$assignee = '<img class="circle" style="width: 30px; height: 30px; margin-top: 0px;" src="https://a.ripple.moe/' . $report['assigned'] . '"> ' . getUserUsername($report['assigned']);
+			}
+			echo '<tr class="' . $rowClass . '">
+			<td><p class="text-center">'.$report['id'].'</p></td>
+			<td><p class="text-center"><a href="index.php?u=' . $report["from_uid"] . '" target="_blank">'.getUserUsername($report['from_uid']).'</a></p></td>
+			<td><p class="text-center"><b><a href="index.php?u=' . $report["from_uid"] . '" target="_blank">'.getUserUsername($report['to_uid']).'</a></b></p></td>
+			<td><p>'.htmlspecialchars(substr($report['reason'], 0, 40)).'</p></td>
+			<td><p>'.timeDifference(time(), $report['time']).'</p></td>
+			<td><p class="text-center">' . $assignee . '</p></td>
+			<td><p class="text-center">
+			<a title="View/Edit report" class="btn btn-xs btn-primary" href="index.php?p=127&id='.$report['id'].'"><span class="glyphicon glyphicon-zoom-in"></span></a>
+			<!-- <a title="Set as solved" class="btn btn-xs btn-success"><span class="glyphicon glyphicon-ok"></span></a>-->
+			</p></td>
+			</tr>';
+		}
+		echo '</tbody>';
+		echo '</table>';
+
+		echo '</div>';
+		echo '</div>';
+	}
+
+	public static function AdminViewReport() {
+		try {
+			if (!isset($_GET["id"]) || empty($_GET["id"])) {
+				throw new Exception("Missing report id");
+			}
+			$report = $GLOBALS["db"]->fetch("SELECT * FROM reports WHERE id = ? LIMIT 1", [$_GET["id"]]);
+			if (!$report) {
+				throw new Exception("Invalid report id");
+			}
+			$statusRowClass = "";
+			if ($report["assigned"] == 0) {
+				$status = "Unassigned";
+			} else if ($report["assigned"] == -1) {
+				$status = "Solved";
+				$statusRowClass = "info";
+			} else if ($report["assigned"] == -2) {
+				$status = "Useless";
+				$statusRowClass = "warning";
+			} else {
+				$status = "Assigned to " . getUserUsername($report["assigned"]);
+				if ($report["assigned"] == $_SESSION["userid"]) {
+					$statusRowClass = "success";
+				}
+			}
+			$reportedCount = $GLOBALS["db"]->fetch("SELECT COUNT(*) AS count FROM reports WHERE to_uid = ? AND time >= ? LIMIT 1", [$report["to_uid"], time() - 86400 * 30])["count"];
+			$uselessCount = $GLOBALS["db"]->fetch("SELECT COUNT(*) AS count FROM reports WHERE from_uid = ? AND assigned = -2 AND time >= ? LIMIT 1", [$report["from_uid"], time() - 86400 * 30])["count"];
+
+			$takeButtonText = $report["assigned"] == 0 || $report["assigned"] != $_SESSION["userid"] ? "Take" : "Leave";
+			$takeButtonDisabled = $report["assigned"] < 0  ? "disabled" : "";
+
+			$solvedButtonText = $report["assigned"] != -1 ? "Mark as solved" : "Mark as unsolved";
+			$solvedButtonDisabled = $report["assigned"] < 0 && $report["assigned"] != -1 ? "disabled" : "";
+
+			$uselessButtonText = $report["assigned"] != -2 ? "Mark as useless" : "Mark as useful";
+			$uselessButtonDisabled = $report["assigned"] < 0 && $report["assigned"] != -2 ? "disabled" : "";
+
+			echo '<div id="wrapper">';
+			printAdminSidebar();
+			echo '<div id="page-content-wrapper">';
+			self::MaintenanceStuff();
+			if (isset($_GET['e']) && !empty($_GET['e'])) {
+				self::ExceptionMessageStaccah($_GET['e']);
+			}
+			if (isset($_GET['s']) && !empty($_GET['s'])) {
+				self::SuccessMessageStaccah($_GET['s']);
+			}
+			echo '<p align="center">
+				<h2><i class="fa fa-flag"></i>	View report</h2>
+				<h4><a href="index.php?p=126"><i class="fa fa-chevron-left"></i>&nbsp;&nbsp;Back</a></h4>
+			</p>';
+
+			echo '<br>';
+
+			echo '
+			<div id="narrow-content">
+				<table class="table table-striped table-hover table-100-center"><tbody>
+					<tr>
+						<td><b>From</b></td>
+						<td>' . getUserUsername($report["from_uid"]) . '</td>
+					</tr>
+					<tr>
+						<td><b>Reported user</b></td>
+						<td><b>' . getUserUsername($report["to_uid"]) . '</b></td>
+					</tr>
+					<tr>
+						<td><b>Reason</b></td>
+						<td><b>' . htmlspecialchars($report["reason"]) . '</b></td>
+					</tr>
+					<tr>
+						<td><b>When</b></td>
+						<td>' . timeDifference(time(), $report["time"]) . '</td>
+					</tr>
+					<tr>
+						<td><b>Chatlog*</b></td>
+						<td>' . str_replace("\n", "<br>", $report["chatlog"]) .  '</td>
+					</tr>
+					<tr class="' . $statusRowClass . '">
+						<td><b>Status</b></td>
+						<td>' . $status . '</td>
+					</tr>
+					<tr class="info">
+						<td colspan=2><b>' . getUserUsername($report["to_uid"]) . '</b> has been reported <b>' . $reportedCount . '</b> times in the last month</td>
+					</tr>
+					<tr class="info">
+						<td colspan=2><b>' . getUserUsername($report["from_uid"]) . '</b> has sent <b>' . $uselessCount . '</b> useless reports in the last month</td>
+					</tr>
+				</table>
+
+				<ul class="list-group">
+					<li class="list-group-item list-group-item-warning">Ticket actions</li>
+					<li class="list-group-item">
+						<a class="btn btn-warning ' . $takeButtonDisabled . '" href="submit.php?action=takeReport&id=' . $report["id"] . '"><i class="fa fa-bolt"></i> ' . $takeButtonText .' ticket</a>
+						<a class="btn btn-success ' . $solvedButtonDisabled . '" href="submit.php?action=solveUnsolveReport&id=' . $report["id"] . '"><i class="fa fa-check"></i> ' . $solvedButtonText . '</a>
+						<a class="btn btn-danger ' . $uselessButtonDisabled . '" href="submit.php?action=uselessUsefulReport&id=' . $report["id"] . '"><i class="fa fa-trash"></i> ' . $uselessButtonText . '</a>
+					</li>
+				</ul>
+
+				<ul class="list-group">
+					<li class="list-group-item list-group-item-danger">Quick actions</li>
+					<li class="list-group-item">
+						<a class="btn btn-primary" href="index.php?p=103&id=' . $report["to_uid"] . '"><i class="fa fa-expand"></i> View reported user in RAP</a>
+						<div class="btn btn-warning" data-toggle="modal" data-target="#silenceUserModal" data-who="' . getUserUsername($report["to_uid"]) . '"><i class="fa fa-microphone-slash"></i> Silence reported user</div>
+						<div class="btn btn-warning" data-toggle="modal" data-target="#silenceUserModal" data-who="' . getUserUsername($report["from_uid"]) . '"><i class="fa fa-microphone-slash"></i> Silence source user</div>
+						';
+						$restrictedDisabled = isRestricted($report["to_uid"]) ? "disabled" : "";
+						echo '<a class="btn btn-danger ' . $restrictedDisabled . '" onclick="sure(\'submit.php?action=restrictUnrestrictUser&id=' . $report["to_uid"] . '&resend=1\')"><i class="fa fa-times"></i> Restrict reported user</a>';
+					echo '</li>
+				</ul>
+
+				<i><b>*</b> Latest 10 public messages sent from reported user before getting reported, trimmed to 50 characters.</i>
+
+			</div>';
+
+			echo '</div>';
+			echo '</div>';
+			// Silence user modal
+			echo '<div class="modal fade" id="silenceUserModal" tabindex="-1" role="dialog" aria-labelledby="silenceUserModal">
+			<div class="modal-dialog">
+			<div class="modal-content">
+			<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			<h4 class="modal-title">Silence user</h4>
+			</div>
+			<div class="modal-body">
+			<p>
+			<form id="silence-user-form" action="submit.php" method="POST">
+			<input name="action" value="silenceUser" hidden>
+			<input name="resend" value="1" hidden>
+
+			<div class="input-group">
+			<span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></span>
+			<input type="text" name="u" class="form-control" placeholder="Username" aria-describedby="basic-addon1" required>
+			</div>
+
+			<p style="line-height: 15px"></p>
+
+			<div class="input-group">
+			<span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-time" aria-hidden="true"></span></span>
+			<input type="number" name="c" class="form-control" placeholder="How long" aria-describedby="basic-addon1" required>
+			<select name="un" class="selectpicker" data-width="30%">
+				<option value="1">Seconds</option>
+				<option value="60">Minutes</option>
+				<option value="3600">Hours</option>
+				<option value="86400">Days</option>
+			</select>
+			</div>
+
+			<p style="line-height: 15px"></p>
+
+			<div class="input-group">
+			<span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-comment" aria-hidden="true"></span></span>
+			<input type="text" name="r" class="form-control" placeholder="Reason" aria-describedby="basic-addon1">
+			</div>
+
+			<p style="line-height: 15px"></p>
+
+			During the silence period, user\'s client will be locked. <b>Max silence time is 7 days.</b> Set length to 0 to remove the silence.
+
+			</form>
+			</p>
+			</div>
+			<div class="modal-footer">
+			<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			<button type="submit" form="silence-user-form" class="btn btn-primary">Silence user</button>
+			</div>
+			</div>
+			</div>
+			</div>';
+		} catch (Exception $e) {
+			redirect("index.php?p=126&e=" . $e->getMessage());
+		}
+		
 	}
 }
 

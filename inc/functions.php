@@ -162,6 +162,8 @@ function setTitle($p) {
 			123 => 'Wipe user',
 			124 => 'Rank beatmap',
 			125 => 'Rank beatmap manually',
+			126 => 'Reports',
+			127 => 'View report',
 		];
 		if (isset($namesRipple[$p])) {
 			return __maketitle('Ripple', $namesRipple[$p]);
@@ -342,6 +344,18 @@ function printPage($p) {
 				sessionCheckAdmin(Privileges::AdminManageBeatmaps);
 				P::AdminRankBeatmapManually();
 			break;
+			
+			// Admin panel - Reports
+			case 126:
+				sessionCheckAdmin(Privileges::AdminManageReports);
+				P::AdminViewReports();
+			break;
+
+			// Admin panel - View report
+			case 127:
+				sessionCheckAdmin(Privileges::AdminManageReports);
+				P::AdminViewReport();
+			break;
 
 			// 404 page
 			default:
@@ -439,18 +453,18 @@ function printAdminSidebar() {
 						</li>
 						<li><a href="index.php?p=100"><i class="fa fa-tachometer"></i>	Dashboard</a></li>';
 
-						if (hasPrivilege(Privileges::AdminManageSettings)) {
+						if (hasPrivilege(Privileges::AdminManageSettings))
 							echo '<li><a href="index.php?p=101"><i class="fa fa-cog"></i>	System settings</a></li>
 							<li><a href="index.php?p=111"><i class="fa fa-server"></i>	Bancho settings</a></li>';
-						}
 
-						if (hasPrivilege(Privileges::AdminManageUsers)) {
+						if (hasPrivilege(Privileges::AdminManageUsers))
 							echo '<li><a href="index.php?p=102"><i class="fa fa-user"></i>	Users</a></li>';
-						}
+						
+						if (hasPrivilege(Privileges::AdminManageReports))
+							echo '<li><a href="index.php?p=126"><i class="fa fa-flag"></i>	Reports</a></li>';
 
-						if (hasPrivilege(Privileges::AdminManagePrivileges)) {
+						if (hasPrivilege(Privileges::AdminManagePrivileges))
 							echo '<li><a href="index.php?p=118"><i class="fa fa-group"></i>	Privilege Groups</a></li>';
-						}
 
 						if (hasPrivilege(Privileges::AdminManageBadges))
 							echo '<li><a href="index.php?p=108"><i class="fa fa-certificate"></i>	Badges</a></li>';
@@ -1814,4 +1828,12 @@ function updateBanBancho($userID) {
 function updateSilenceBancho($userID) {
 	redisConnect();
 	$GLOBALS["redis"]->publish("peppy:silence", $userID);
+}
+
+function stripSuccessError($url) {
+	$parts = parse_url($url);
+	parse_str($parts['query'], $query);
+	unset($query["e"]);
+	unset($query["s"]);
+	return $parts["path"] . "?" .  http_build_query($query);
 }

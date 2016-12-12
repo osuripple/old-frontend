@@ -160,7 +160,6 @@ if ($p < 100) {
 	echo '
         <div class="container">
             <div class="row">
-				<marquee scrollamount="30"><h1>Zio peppe is watching you</h1></marquee>
                 <div class="col-lg-12 text-center">';
                 	
                     echo '<div id="content">';
@@ -468,6 +467,18 @@ switch ($p) {
 			var force='.$force.';
 		</script>
 		<script src="/js/rankbeatmap.js"></script>';
+	break;
+
+	case 127:
+		echo '<script>
+			$(document).ready(function() {
+				$("[data-target=#silenceUserModal]").click(function() {
+					$("#silenceUserModal").find("input[name=u]").val($(this).data("who"));
+					$("#silenceUserModal").find("input[name=c]").val("10");
+					$("#silenceUserModal").find("select[name=un]").selectpicker("val", "60");
+				});
+			});
+		</script>';
 	break;
 }
 

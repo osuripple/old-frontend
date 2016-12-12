@@ -689,7 +689,7 @@ class D {
 	public static function silenceUser() {
 		try {
 			// Check if everything is set
-			if (!isset($_POST['u']) || !isset($_POST['c']) || !isset($_POST['un']) || !isset($_POST['r']) || empty($_POST['u']) || empty($_POST['un'])) {
+			if (!isset($_POST['u']) || !isset($_POST['c']) || !isset($_POST['un']) || !isset($_POST['r']) || !isset($_POST["r"]) || empty($_POST['u']) || empty($_POST['un']) || empty($_POST["r"])) {
 				throw new Exception('Invalid request');
 			}
 			// Get user id
@@ -710,15 +710,24 @@ class D {
 			// RAP log and redirect
 			if ($sl > 0) {
 				rapLog(sprintf("has silenced user %s for %s for the following reason: \"%s\"", $_POST['u'], timeDifference(time() + $sl, time(), false), $_POST["r"]));
-				redirect('index.php?p=102&s=User silenced!');
+				$msg = 'index.php?p=102&s=User silenced!';
 			} else {
 				rapLog(sprintf("has removed %s's silence", $_POST['u']));
-				redirect('index.php?p=102&s=User silence removed!');
-			}			
+				$msg = 'index.php?p=102&s=User silence removed!';
+			}
+			if (isset($_POST["resend"])) {
+				redirect(stripSuccessError($_SERVER["HTTP_REFERER"]) . '&s='.$msg);
+			} else {
+				redirect('index.php?p=102&s='.$msg);
+			}
 		}
 		catch(Exception $e) {
 			// Redirect to Exception page
-			redirect('index.php?p=102&e='.$e->getMessage());
+			if (isset($_POST["resend"])) {
+				redirect(stripSuccessError($_SERVER["HTTP_REFERER"]) . '&e='.$e->getMessage());
+			} else {
+				redirect('index.php?p=102&e='.$e->getMessage());
+			}
 		}
 	}
 
@@ -1277,11 +1286,19 @@ class D {
 			// Rap log
 			rapLog(sprintf("has %s user %s", ($newPrivileges & Privileges::UserPublic) > 0 ? "removed restrictions on" : "restricted", $userData["username"]));
 			// Done, redirect to success page
-			redirect('index.php?p=102&s=User restricted/unrestricted!');
+			if (isset($_GET["resend"])) {
+				redirect(stripSuccessError($_SERVER["HTTP_REFERER"]) . '&s=User restricted/unrestricted!');
+			} else {
+				redirect('index.php?p=102&s=User restricted/unrestricted!');
+			}
 		}
 		catch(Exception $e) {
 			// Redirect to Exception page
-			redirect('index.php?p=102&e='.$e->getMessage());
+			if (isset($_GET["resend"])) {
+				redirect(stripSuccessError($_SERVER["HTTP_REFERER"]) . '&e='.$e->getMessage());
+			} else {
+				redirect('index.php?p=102&e='.$e->getMessage());
+			}
 		}
 	}
 
@@ -1568,6 +1585,80 @@ class D {
 			redirect('index.php?p=102&s=HWID matches cleared! Make sure to clear multiaccounts\' HWID too, or the user might get restricted for multiaccounting!');
 		} catch (Exception $e) {
 			redirect('index.php?p=102&e='.$e->getMessage());
+		}
+	}
+
+	public static function TakeReport() {
+		try {
+			if (!isset($_GET["id"]) || empty($_GET["id"])) {
+				throw new Exception("Missing report id");
+			}
+			$status = $GLOBALS["db"]->fetch("SELECT assigned FROM reports WHERE id = ? LIMIT 1", [$_GET["id"]]);
+			if (!$status) {
+				throw new Exception("Invalid report id");
+			}	
+			if ($status["assigned"] < 0) {
+				throw new Exception("This report is closed");
+			} else if ($status["assigned"] == $_SESSION["userid"]) {
+				// Unassign
+				$GLOBALS["db"]->execute("UPDATE reports SET assigned = 0 WHERE id = ? LIMIT 1", [$_GET["id"]]);
+			} else {
+				// Assign to current user
+				$GLOBALS["db"]->execute("UPDATE reports SET assigned = ? WHERE id = ? LIMIT 1", [$_SESSION["userid"], $_GET["id"]]);
+			}
+			redirect("index.php?p=127&id=" . $_GET["id"] . "&s=Assignee changed!");
+		} catch (Exception $e) {
+			redirect("index.php?p=127&id=" . $_GET["id"] . "&e=" . $e->getMessage());
+		}
+	}
+
+	public static function SolveUnsolveReport() {
+		try {
+			if (!isset($_GET["id"]) || empty($_GET["id"])) {
+				throw new Exception("Missing report id");
+			}
+			$status = $GLOBALS["db"]->fetch("SELECT assigned FROM reports WHERE id = ? LIMIT 1", [$_GET["id"]]);
+			if (!$status) {
+				throw new Exception("Invalid report id");
+			}
+			if ($status["assigned"] < 0 && $status["assigned"] != -1) {
+				throw new Exception("This report is closed or it's marked as useless");
+			}
+			if ($status["assigned"] == -1) {
+				// Unsolve
+				$GLOBALS["db"]->execute("UPDATE reports SET assigned = 0 WHERE id = ? LIMIT 1", [$_GET["id"]]);
+			} else {
+				// Solve
+				$GLOBALS["db"]->execute("UPDATE reports SET assigned = -1 WHERE id = ? LIMIT 1", [$_GET["id"]]);
+			}
+			redirect("index.php?p=127&id=" . $_GET["id"] . "&s=Solved status changed!!");
+		} catch (Exception $e) {
+			redirect("index.php?p=127&id=" . $_GET["id"] . "&e=" . $e->getMessage());
+		}
+	}
+
+	public static function UselessUsefulReport() {
+		try {
+			if (!isset($_GET["id"]) || empty($_GET["id"])) {
+				throw new Exception("Missing report id");
+			}
+			$status = $GLOBALS["db"]->fetch("SELECT assigned FROM reports WHERE id = ? LIMIT 1", [$_GET["id"]]);
+			if (!$status) {
+				throw new Exception("Invalid report id");
+			}
+			if ($status["assigned"] < 0 && $status["assigned"] != -2) {
+				throw new Exception("This report is closed");
+			}
+			if ($status["assigned"] == -2) {
+				// Useful (open)
+				$GLOBALS["db"]->execute("UPDATE reports SET assigned = 0 WHERE id = ? LIMIT 1", [$_GET["id"]]);
+			} else {
+				// Useless
+				$GLOBALS["db"]->execute("UPDATE reports SET assigned = -2 WHERE id = ? LIMIT 1", [$_GET["id"]]);
+			}
+			redirect("index.php?p=127&id=" . $_GET["id"] . "&s=Useful status changed!!");
+		} catch (Exception $e) {
+			redirect("index.php?p=127&id=" . $_GET["id"] . "&e=" . $e->getMessage());
 		}
 	}
 }
