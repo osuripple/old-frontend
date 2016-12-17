@@ -107,5 +107,5 @@ $discordConfig = [
 
 // Paypal config
 $paypalConfig = [
-	"email" => "riki.mag97@gmail.com"
+	"email" => ""
 ];
