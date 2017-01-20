@@ -2921,7 +2921,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			echo '<tr class="' . $rowClass . '">
 			<td><p class="text-center">'.$report['id'].'</p></td>
 			<td><p class="text-center"><a href="index.php?u=' . $report["from_uid"] . '" target="_blank">'.getUserUsername($report['from_uid']).'</a></p></td>
-			<td><p class="text-center"><b><a href="index.php?u=' . $report["from_uid"] . '" target="_blank">'.getUserUsername($report['to_uid']).'</a></b></p></td>
+			<td><p class="text-center"><b><a href="index.php?u=' . $report["to_uid"] . '" target="_blank">'.getUserUsername($report['to_uid']).'</a></b></p></td>
 			<td><p>'.htmlspecialchars(substr($report['reason'], 0, 40)).'</p></td>
 			<td><p>'.timeDifference(time(), $report['time']).'</p></td>
 			<td><p class="text-center">' . $assignee . '</p></td>
