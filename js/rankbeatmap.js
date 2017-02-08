@@ -148,7 +148,9 @@ function updateTriggers() {
 	});
 
 	$("#rank-beatmap-form").submit(function() {
-		$("#rank-beatmap-form").replaceWith(`
+		$("#rank-beatmap-form").hide();
+		$("#main-content").append(`
+			<br><br>
 			<div id="main-content">
 				<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
 				<h3>Saving new data...</h3>

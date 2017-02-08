@@ -1837,3 +1837,10 @@ function stripSuccessError($url) {
 	unset($query["s"]);
 	return $parts["path"] . "?" .  http_build_query($query);
 }
+
+function appendNotes($userID, $notes, $addNl=true) {
+	if ($addNl) {
+		$notes = "\n" . $notes;
+	}
+	$GLOBALS["db"]->execute("UPDATE users SET notes=CONCAT(COALESCE(notes, ''),?) WHERE id = ? LIMIT 1", [$notes, $userID]);
+}
