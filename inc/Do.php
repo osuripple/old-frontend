@@ -420,6 +420,7 @@ class D {
 				$banDateTime = time();
 				$newPrivileges = $userData["privileges"] & ~Privileges::UserNormal;
 				$newPrivileges &= ~Privileges::UserPublic;
+				removeFromLeaderboard($_GET['id']);
 			} else {
 				// Unban, set UserNormal and UserPublic bits
 				$banDateTime = 0;
@@ -1274,6 +1275,7 @@ class D {
 				$banDateTime = time();
 				$newPrivileges = $userData["privileges"] | Privileges::UserNormal;
 				$newPrivileges &= ~Privileges::UserPublic;
+				removeFromLeaderboard($_GET['id']);
 			} else {
 				// Remove restrictions, set both UserPublic and UserNormal
 				$banDateTime = 0;
