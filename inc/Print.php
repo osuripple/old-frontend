@@ -1517,7 +1517,9 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				}
 			}
 			// Get rank
-			$rank = intval(Leaderboard::GetUserRank($u, $modeForDB));
+			//$rank = intval(Leaderboard::GetUserRank($u, $modeForDB));
+			redisConnect();
+			$rank = intval($GLOBALS["redis"]->zrevrank("ripple:leaderboard:".$modeForDB, $u)) + 1;
 			// Set rank char (trophy for top 3, # for everyone else)
 			if ($rank <= 3) {
 				$rankSymbol = '<i class="fa fa-trophy"></i> ';

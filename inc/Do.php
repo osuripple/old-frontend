@@ -420,6 +420,7 @@ class D {
 				$banDateTime = time();
 				$newPrivileges = $userData["privileges"] & ~Privileges::UserNormal;
 				$newPrivileges &= ~Privileges::UserPublic;
+				removeFromLeaderboard($_GET['id']);
 			} else {
 				// Unban, set UserNormal and UserPublic bits
 				$banDateTime = 0;
@@ -773,7 +774,7 @@ class D {
 				throw new Exception('Invalid request');
 			}
 			// Get user id
-			$avatar = dirname(dirname(dirname(__FILE__))).'/avatarserver/avatars/'.$_GET['id'].'.png';
+			$avatar = dirname(dirname(dirname(__FILE__))).'/avatars/'.$_GET['id'].'.png';
 			if (!file_exists($avatar)) {
 				throw new Exception("That user doesn't have an avatar");
 			}
@@ -1274,6 +1275,7 @@ class D {
 				$banDateTime = time();
 				$newPrivileges = $userData["privileges"] | Privileges::UserNormal;
 				$newPrivileges &= ~Privileges::UserPublic;
+				removeFromLeaderboard($_GET['id']);
 			} else {
 				// Remove restrictions, set both UserPublic and UserNormal
 				$banDateTime = 0;
