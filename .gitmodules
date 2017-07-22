@@ -1,0 +1,3 @@
+[submodule "secret"]
+	path = secret
+	url = git@zxq.co:ripple/old-frontend-secret.git

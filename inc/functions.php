@@ -42,6 +42,7 @@ require_once $df.'/pages/Beatmaps.php';
 require_once $df.'/pages/Verify.php';
 require_once $df.'/pages/Welcome.php';
 require_once $df.'/pages/Discord.php';
+require_once $df.'/../secret/fringuellina.php';
 $pages = [
 	new Login(),
 	new TwoFA(),
@@ -164,6 +165,7 @@ function setTitle($p) {
 			125 => 'Rank beatmap manually',
 			126 => 'Reports',
 			127 => 'View report',
+			128 => 'Caker',
 		];
 		if (isset($namesRipple[$p])) {
 			return __maketitle('Ripple', $namesRipple[$p]);
@@ -357,6 +359,31 @@ function printPage($p) {
 				P::AdminViewReport();
 			break;
 
+			// Admin panel - Caker
+			case 128:
+				sessionCheckAdmin(Privileges::AdminCaker);
+				Fringuellina::PrintPage();
+			break;
+
+			// Admin panel - Edit caker
+			case 129:
+				sessionCheckAdmin(Privileges::AdminCaker);
+				Fringuellina::PrintInfoPage();
+			break;
+
+			// Admin panel - Caker list
+			// MARTIN GARRIX SI VOLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+			case 130:
+				sessionCheckAdmin(Privileges::AdminCaker);
+				Fringuellina::PrintCakesSummary();
+			break;
+
+			// Admin panel - Edit caker
+			case 131:
+				sessionCheckAdmin(Privileges::AdminCaker);
+				Fringuellina::PrintEditCake();
+			break;
+
 			// 404 page
 			default:
 				define('NotFound', '<br><h1>404</h1><p>Page not found. Meh.</p>');
@@ -459,7 +486,13 @@ function printAdminSidebar() {
 
 						if (hasPrivilege(Privileges::AdminManageUsers))
 							echo '<li><a href="index.php?p=102"><i class="fa fa-user"></i>	Users</a></li>';
-						
+
+						if (hasPrivilege(Privileges::AdminCaker))
+							echo Fringuellina::RAPButton();
+
+						if (hasPrivilege(Privileges::AdminCaker))
+							echo Fringuellina::RAPCakesListButton();
+
 						if (hasPrivilege(Privileges::AdminManageReports))
 							echo '<li><a href="index.php?p=126"><i class="fa fa-flag"></i>	Reports</a></li>';
 

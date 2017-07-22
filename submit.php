@@ -212,6 +212,18 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageReports);
 			D::UselessUsefulReport();
 		break;
+		case 'toggleCake':
+			sessionCheckAdmin(Privileges::AdminCaker);
+			Fringuellina::ToggleCake();
+		break;
+		case 'removeCake':
+			sessionCheckAdmin(Privileges::AdminCaker);
+			Fringuellina::RemoveCake();
+		break;
+		case 'saveCake':
+			sessionCheckAdmin(Privileges::AdminCaker);
+			Fringuellina::EditCake();
+		break;
 	}
 }
 catch(Exception $e) {

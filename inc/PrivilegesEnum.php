@@ -24,4 +24,5 @@ class Privileges {
 	const AdminKickUsers		= 2 << 18;
 	const UserPendingVerification = 2 << 19;
 	const UserTournamentStaff 	= 2 << 20;
+	const AdminCaker			= 2 << 21;
 }
