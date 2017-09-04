@@ -165,7 +165,10 @@ function setTitle($p) {
 			125 => 'Rank beatmap manually',
 			126 => 'Reports',
 			127 => 'View report',
-			128 => 'Caker',
+			128 => 'Cakes',
+			129 => 'View cake',
+			130 => 'Cake recipes',
+			131 => 'View cake recipe',
 		];
 		if (isset($namesRipple[$p])) {
 			return __maketitle('Ripple', $namesRipple[$p]);
