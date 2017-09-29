@@ -83,7 +83,7 @@ class Login {
 			}
 			// update ip logs only if we don't have 2FA enabled or this ip is allowed
 			// if 2FA is enabled, logIP will be run when this IP has been allowed
-			if (!check2FA($us['id']))
+			if (!check2FA($us['id']) && get2FAType($us['id']) != 2)
 				logIP($us['id']);
 			// Get safe title
 			updateSafeTitle();

@@ -1,42 +1,29 @@
 <?php
 
-class TwoFA {
-	const PageID = 29;
-	const URL = '2fa';
-	const Title = 'Ripple - 2FA';
+class BlockTotpTwoFa {
+	const PageID = 42;
+	const URL = 'blocktotp2fa';
+	const Title = 'Ripple - Nope!';
 	const LoggedIn = true;
-	public $error_messages = [];
-	public $mh_GET = [];
-	public $mh_POST = ["token"];
 
 	public function P() {
-		if (!is2FAEnabled($_SESSION["userid"])) {
+		$ip = getIp();
+		if (get2FAType($_SESSION["userid"]) != 2 || $GLOBALS["db"]->fetch("SELECT * FROM ip_user WHERE userid = ? AND ip = ?", [$_SESSION["userid"], $ip])) {
 			redirect("index.php?p=1");
 		}
 		P::GlobalAlert();
 		echo '
 		<div style="content">
 			<div align="center">
-				<h1><i class="fa fa-hand-paper-o"></i> You shall not pass!</h1>
+				<h1><i class="fa fa-shield"></i> MADUUUUU</h1>
 				<br>
-				You are logging in from a new IP address.<br>Enter the 2FA code you\'ve received on Telegram to continue.
-				<form action="submit.php" method="POST">
-					<div class="input-group" style="width:50%">
-						<input name="action" value="2fa" hidden>
-						<input name="token" type="text" class="form-control" placeholder="2FA Code">
-						<span class="input-group-btn">
-							<button class="btn btn-success" type="submit"><i class="fa fa-unlock"></i></button>
-						</span>
-					</div>
-				</form>
-				<br>
-				You didn\'t receive the code?<br>
-				<a href="submit.php?action=resend2FACode" type="button" class="btn btn-warning">Send 2FA code again</a>
+				<b>You are logging in from a new IP address and you have TOTP 2FA enabled on your account.</b><br>
+				Please, <b>log in to your account from <a href="https://ripple.moe/" target="_blank">hanayo</a></b>, pass the 2FA check to trust this IP and <b><a href="index.php?p=42">reload</a> this page.</b>
 			</div>
 		</div>';
 	}
 
-	public function D() {
+	/*public function D() {
 		startSessionIfNotStarted();
 		$d = $this->DoGetData();
 		if (isset($d["error"])) {
@@ -47,9 +34,9 @@ class TwoFA {
 			logIP($_SESSION["userid"]);
 			redirect("index.php?p=1");
 		}
-	}
+	}*/
 
-	public function DoGetData() {
+	/*public function DoGetData() {
 		try {
 			// Get tokenID
 			$token = $GLOBALS["db"]->fetch("SELECT * FROM 2fa WHERE userid = ? AND ip = ? AND token = ?", [$_SESSION["userid"], getIp(), $_POST["token"]]);
@@ -68,5 +55,5 @@ class TwoFA {
 		}
 
 		return $ret;
-	}
+	}*/
 }
