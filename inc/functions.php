@@ -1695,7 +1695,7 @@ function redirect2FA() {
 			// new ip
 			// force 2fa alert page
 			// Don't redirect to 2FA page if we are on submit.php with resend2FA, 2fa or logout action
-			if ($_SERVER['PHP_SELF'] == "/submit.php" && @$_GET["action"] == "logout"))
+			if ($_SERVER['PHP_SELF'] == "/submit.php" && @$_GET["action"] == "logout")
 				return;
 			if (!isset($_GET["p"]) || $_GET["p"] != 42)
 				redirect("index.php?p=42");
