@@ -22,38 +22,4 @@ class BlockTotpTwoFa {
 			</div>
 		</div>';
 	}
-
-	/*public function D() {
-		startSessionIfNotStarted();
-		$d = $this->DoGetData();
-		if (isset($d["error"])) {
-			addError($d['error']);
-			redirect("index.php?p=29");
-		} else {
-			// No errors, log new IP address
-			logIP($_SESSION["userid"]);
-			redirect("index.php?p=1");
-		}
-	}*/
-
-	/*public function DoGetData() {
-		try {
-			// Get tokenID
-			$token = $GLOBALS["db"]->fetch("SELECT * FROM 2fa WHERE userid = ? AND ip = ? AND token = ?", [$_SESSION["userid"], getIp(), $_POST["token"]]);
-			// Make sure the token exists
-			if (!$token) {
-				throw new Exception("Invalid 2FA code.");
-			}
-			// Make sure the token is not expired
-			if ($token["expire"] < time()) {
-				throw new Exception("Your 2FA token is expired. Please enter the new code you've just received.");
-			}
-			// Everything seems fine, delete 2FA token to allow this session
-			$GLOBALS["db"]->execute("DELETE FROM 2fa WHERE id = ?", [$token["id"]]);
-		} catch (Exception $e) {
-			$ret["error"] = $e->getMessage();
-		}
-
-		return $ret;
-	}*/
 }
