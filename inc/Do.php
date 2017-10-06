@@ -517,7 +517,7 @@ class D {
 			}
 			// Check if username is already in db
 			$safe = safeUsername($_POST["newu"]);
-			if ($GLOBALS['db']->fetch('SELECT * FROM users WHERE username_safe = ? AND id != ? LIMIT 1', [$safe, $_POST["id"]])) {	
+			if ($GLOBALS['db']->fetch('SELECT * FROM users WHERE username_safe = ? AND id != ? LIMIT 1', [$safe, $_POST["id"]])) {
 				throw new Exception('Username already used by another user. No changes have been made.');
 			}
 			redisConnect();
@@ -880,7 +880,7 @@ class D {
 				// (is this even needed...?)
 				$forbiddenClasses = ["fa-lg", "fa-2x", "fa-3x", "fa-4x", "fa-5x", "fa-ul", "fa-li", "fa-border", "fa-pull-right", "fa-pull-left", "fa-stack", "fa-stack-2x", "fa-stack-1x"];
 				$icon = explode(" ", $_POST["badgeIcon"]);
-				for ($i=0; $i < count($icon); $i++) { 
+				for ($i=0; $i < count($icon); $i++) {
 					if (substr($icon[$i], 0, 3) != "fa-" || in_array($icon[$i], $forbiddenClasses)) {
 						$icon[$i] = "";
 					}
@@ -1334,11 +1334,11 @@ class D {
 				// 14 = donor badge
 				$GLOBALS["db"]->execute("INSERT INTO user_badges(user, badge) VALUES (?, ?);", [$_POST["id"], 14]);
 			}
-			// Send email			
+			// Send email
 			// Feelin' peppy-y
 			if ($_POST["m"] >= 20) $TheMoreYouKnow = "Did you know that your donation accounts for roughly one month of keeping the main server up? That's crazy! Thank you so much!";
 			else if ($_POST["m"] >= 15 && $_POST["m"] < 20) $TheMoreYouKnow = "Normally we would say how much of our expenses a certain donation pays for, but your donation is halfway through paying the domain for 1 year and paying the main server for 1 month. So we don't really know what to say here: your donation pays for about 75% of keeping the server up one month... ? I guess? Thank you anyway!";
-			else if ($_POST["m"] >= 10 && $_POST["m"] < 15) $TheMoreYouKnow = "You know what we could do with the amount you donated? We could probably renew the domain for one more year! Although your money is more likely to end up being spent on paying the main server. Thanks anyway!"; 
+			else if ($_POST["m"] >= 10 && $_POST["m"] < 15) $TheMoreYouKnow = "You know what we could do with the amount you donated? We could probably renew the domain for one more year! Although your money is more likely to end up being spent on paying the main server. Thanks anyway!";
 			else if ($_POST["m"] >= 4 && $_POST["m"] < 10) $TheMoreYouKnow = "Your donation will help to keep the beatmap mirror we set up for Ripple up for one month! Thanks a lot!";
 			else if ($_POST["m"] >= 1 && $_POST["m"] < 4) $TheMoreYouKnow =  "With your donation, we can afford to keep up the error logging server, which is a little VPS on which we host an error logging service (Sentry). Thanks a lot!";
 
@@ -1476,7 +1476,7 @@ class D {
 	}
 
 	public static function RankBeatmapNew() {
-		try {			
+		try {
 			if (!isset($_POST["beatmaps"])) {
 				throw new Exception("Invalid form data");
 			}
@@ -1518,7 +1518,7 @@ class D {
 						$logToRap = false;
 						$result .= "$beatmapID's ranked status has not been edited!. | ";
 					break;
-					
+
 					// EH! VOLEVI!
 					default:
 						throw new Exception("Unknown ranked status value.");
@@ -1542,7 +1542,7 @@ class D {
 
 			// Send a message to #announce
 			$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
-			$msg = "[http://storage.ripple.moe/" . $bsid . ".osz " . $bm["song_name"] . "] is now ranked!";
+			$msg = "[http://storage.ripple.moe/d/" . $bsid . " " . $bm["song_name"] . "] is now ranked!";
 			$to = "#announce";
 			$requesturl = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=" . urlencode($to) . "&msg=" . urlencode($msg);
 			$resp = getJsonCurl($requesturl);
@@ -1569,7 +1569,7 @@ class D {
 				if (!$bsid) {
 					throw new Exception("Beatmap set not found in ripple's database. Please use beatmap set id or load at least one difficulty in game before trying to rank a beatmap by its id.");
 				}
-				$bsid = current($bsid);				
+				$bsid = current($bsid);
 			}
 			redirect("index.php?p=124&bsid=".$bsid);
 		} catch (Exception $e) {
@@ -1598,7 +1598,7 @@ class D {
 			$status = $GLOBALS["db"]->fetch("SELECT assigned FROM reports WHERE id = ? LIMIT 1", [$_GET["id"]]);
 			if (!$status) {
 				throw new Exception("Invalid report id");
-			}	
+			}
 			if ($status["assigned"] < 0) {
 				throw new Exception("This report is closed");
 			} else if ($status["assigned"] == $_SESSION["userid"]) {
