@@ -1166,13 +1166,13 @@ class D {
 				// send a message to #announce
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
 
-				$msg = "[http://m.zxq.co/" . $bsid . ".osz " . $bm["song_name"] . "] is now ranked!";
+				$msg = "[https://storage.ripple.moe/" . $bsid . ".osz " . $bm["song_name"] . "] is now ranked!";
 				$to = "#announce";
 				$requesturl = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=" . urlencode($to) . "&msg=" . urlencode($msg);
 				$resp = getJsonCurl($requesturl);
 
 				if ($resp["message"] != "ok") {
-					rapLog("Failed to send FokaBot message :( err: " . var_dump($resp["message"]));
+					rapLog("failed to send FokaBot message :( err: " . print_r($resp["message"], true));
 				}
 			}
 
@@ -1542,12 +1542,12 @@ class D {
 
 			// Send a message to #announce
 			$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
-			$msg = "[http://storage.ripple.moe/d/" . $bsid . " " . $bm["song_name"] . "] is now ranked!";
+			$msg = "[https://storage.ripple.moe/d/" . $bsid . " " . $bm["song_name"] . "] is now ranked!";
 			$to = "#announce";
 			$requesturl = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=" . urlencode($to) . "&msg=" . urlencode($msg);
 			$resp = getJsonCurl($requesturl);
 			if ($resp["message"] != "ok") {
-				rapLog("Failed to send FokaBot message :( err: " . var_dump($resp["message"]));
+				rapLog("failed to send FokaBot message :( err: " . print_r($resp["message"], true));
 			}
 
 			// Done
