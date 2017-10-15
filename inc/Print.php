@@ -1165,7 +1165,7 @@ class P {
 		echo '<table class="table table-striped table-hover table-50-center">';
 		echo '<tbody><form id="system-settings-form" action="submit.php" method="POST"><input name="action" value="saveBanchoSettings" hidden>';
 		echo '<tr>
-		<td>Maintenance mode (bancho)</td>
+		<td>Bancho maintenance mode</td>
 		<td>
 		<select name="bm" class="selectpicker" data-width="100%">
 		<option value="1" '.$selected[0][1].'>On</option>
@@ -1174,42 +1174,12 @@ class P {
 		</td>
 		</tr>';
 		echo '<tr>
-		<td>Restricted mode joke</td>
-		<td>
-		<select name="rm" class="selectpicker" data-width="100%">
-		<option value="1" '.$selected[1][1].'>On</option>
-		<option value="0" '.$selected[1][2].'>Off</option>
-		</select>
-		</td>
-		</tr>';
-		echo '<tr>
-		<td>Free osu!direct</td>
-		<td>
-		<select name="od" class="selectpicker" data-width="100%">
-		<option value="1" '.$selected[2][1].'>On</option>
-		<option value="0" '.$selected[2][2].'>Off</option>
-		</select>
-		</td>
-		</tr>';
-		echo '<tr>
-		<td>Menu bottom icon<br>(imageurl|clickurl)</td>
+		<td>Main menu icon<br>(imageurl|clickurl)<br><a onclick="$(\'input[name=mi]\').val(\'http://i.ppy.sh/logo.png|http://ripple.moe\')">(restore default)</a></td>
 		<td><p class="text-center"><input type="text" value="'.$mi.'" name="mi" class="form-control"></td>
-		</tr>';
-		echo '<tr>
-		<td>Login #osu messages<br>One per line<br>(user|message)</td>
-		<td><textarea type="text" name="lm" class="form-control" maxlength="512" style="overflow:auto;resize:vertical;height:100px">'.$lm.'</textarea></td>
 		</tr>';
 		echo '<tr>
 		<td>Login notification</td>
 		<td><textarea type="text" name="ln" class="form-control" maxlength="512" style="overflow:auto;resize:vertical;height:100px">'.$ln.'</textarea></td>
-		</tr>';
-		echo '<tr>
-		<td>Supported osu! versions<br>(separated by |)</td>
-		<td><p class="text-center"><input type="text" value="'.$cv.'" name="cv" class="form-control"></td>
-		</tr>';
-		echo '<tr>
-		<td>Supported osu!.exe md5s<br>(separated by |)</td>
-		<td><p class="text-center"><input type="text" value="'.$cmd5.'" name="cmd5" class="form-control"></td>
 		</tr>';
 		echo '<tr class="success">
 		<td colspan=2><p align="center"><b>Settings are automatically reloaded on Bancho when you press "Save settings".</b> There\'s no need to do <i>!system reload</i> manually anymore.</p></td>
