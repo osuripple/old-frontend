@@ -531,14 +531,14 @@ function printAdminSidebar() {
  * @bt (string) big text, usually the value
  * @st (string) small text, usually the name of that stat
 */
-function printAdminPanel($c, $i, $bt, $st) {
+function printAdminPanel($c, $i, $bt, $st, $tt="") {
 	echo '<div class="col-lg-3 col-md-6">
 			<div class="panel panel-'.$c.'">
 			<div class="panel-heading">
 			<div class="row">
 			<div class="col-xs-3"><i class="'.$i.'"></i></div>
 			<div class="col-xs-9 text-right">
-				<div class="huge">'.$bt.'</div>
+				<div title="'.$tt.'" class="huge">'.$bt.'</div>
 				<div>'.$st.'</div>
 			</div></div></div></div></div>';
 }

@@ -7,8 +7,11 @@ class P {
 	*/
 	public static function AdminDashboard() {
 		// Get admin dashboard data
-		$totalScores = number_format(current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM scores LIMIT 1')));
-		$betaKeysLeft = "∞";
+		$submittedScoresFull = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM scores LIMIT 1'));
+		$submittedScores = number_format($submittedScoresFull / 1000000, 2) . "m";
+		$totalScoresFull = current($GLOBALS['db']->fetch('SELECT SUM(playcount_std) + SUM(playcount_taiko) + SUM(playcount_ctb) + SUM(playcount_mania) FROM users_stats WHERE 1'));
+		$totalScores = number_format($totalScoresFull  / 1000000, 2) . "m";
+		// $betaKeysLeft = "∞";
 		/*$totalPPQuery = $GLOBALS['db']->fetch("SELECT SUM(pp) FROM scores WHERE completed = 3 LIMIT 1");
 		$totalPP = 0;
 		foreach ($totalPPQuery as $pp) {
@@ -52,9 +55,9 @@ class P {
 		self::GlobalAlert();
 		// Stats panels
 		echo '<div class="row">';
-		printAdminPanel('primary', 'fa fa-gamepad fa-5x', $totalScores, 'Total scores');
-		printAdminPanel('green', 'fa fa-user fa-5x', $onlineUsers, 'Online users');
-		printAdminPanel('red', 'fa fa-gift fa-5x', $betaKeysLeft, 'Beta keys left');
+		printAdminPanel('primary', 'fa fa-gamepad fa-5x', $submittedScores, 'Submitted scores', number_format($submittedScoresFull));
+		printAdminPanel('red', 'fa fa-wheelchair-alt fa-5x', $totalScores, 'Total plays', number_format($totalScoresFull));
+		printAdminPanel('green', 'fa fa-street-view fa-5x', $onlineUsers, 'Online users');
 		printAdminPanel('yellow', 'fa fa-dot-circle-o fa-5x', $totalPP, 'Total PP');
 		echo '</div>';
 		// Recent plays table
