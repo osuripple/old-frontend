@@ -1405,7 +1405,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			$badgeID = [];
 			$badgeIcon = [];
 			$badgeName = [];
-			
+
 			$badges = $GLOBALS["db"]->fetchAll("SELECT b.id, b.icon, b.name
 			FROM user_badges ub
 			INNER JOIN badges b ON b.id = ub.badge
@@ -1425,7 +1425,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			// Set custom badge
 			$showCustomBadge = hasPrivilege(Privileges::UserDonor, $userData['id']) && $userData["show_custom_badge"] == 1 && $userData["can_custom_badge"] == 1;
 			if ($showCustomBadge) {
-				for ($i=0; $i < 6; $i++) { 
+				for ($i=0; $i < 6; $i++) {
 					if (@$badgeID[$i] == 0) {
 						$badgeID[$i] = -1;
 						$badgeIcon[$i] = htmlspecialchars($userData["custom_badge_icon"]);
@@ -1953,7 +1953,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		// Default select stuff
 		$selected[1] = [0 => '', 1 => ''];
 		$selected[2] = [0 => '', 1 => ''];
-		
+
 		$selected[1][isset($_COOKIE['st']) && $_COOKIE['st'] == 1] = 'selected';
 		$selected[2][$data['show_custom_badge']] = 'selected';
 
@@ -2426,7 +2426,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			}*/
 
 			echo "<tr class='$rowClass'>
-				<td><a href='http://storage.ripple.moe/$bsid.osz' target='_blank'>$req[type]/$req[bid]</a></td>
+				<td><a href='https://storage.ripple.moe/d/$bsid' target='_blank'>$req[type]/$req[bid]</a></td>
 				<td>$song</td>
 				<td>
 					$diffs
@@ -2695,7 +2695,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			</select></td>
 			</tr>';
 
-						
+
 			echo '</tbody></form>';
 			echo '</table>';
 			echo '<div class="text-center"><button type="submit" form="edit-user-badges" class="btn btn-primary">Give donor</button></div>';
@@ -2893,8 +2893,8 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		echo '</div>';
 		echo '</div>';
 	}
-	
-	
+
+
 
 	public static function AdminViewReports() {
 		echo '<div id="wrapper">';
@@ -2907,7 +2907,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		echo '<p align="center"><h2><i class="fa fa-flag"></i>	Reports</h2></p>';
 
 		echo '<br>';
-		
+
 		$reports = $GLOBALS["db"]->fetchAll("SELECT * FROM reports ORDER BY id DESC LIMIT 50;");
 		echo '<table class="table table-striped table-hover table-75-center">
 		<thead>
@@ -3119,7 +3119,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		} catch (Exception $e) {
 			redirect("index.php?p=126&e=" . $e->getMessage());
 		}
-		
+
 	}
 }
 
