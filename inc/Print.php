@@ -7,14 +7,18 @@ class P {
 	*/
 	public static function AdminDashboard() {
 		// Get admin dashboard data
-		$totalScores = number_format(current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM scores LIMIT 1')));
-		$betaKeysLeft = "∞";
-		$totalPPQuery = $GLOBALS['db']->fetch("SELECT SUM(pp) FROM scores WHERE completed = 3 LIMIT 1");
+		$submittedScoresFull = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM scores LIMIT 1'));
+		$submittedScores = number_format($submittedScoresFull / 1000000, 2) . "m";
+		$totalScoresFull = current($GLOBALS['db']->fetch('SELECT SUM(playcount_std) + SUM(playcount_taiko) + SUM(playcount_ctb) + SUM(playcount_mania) FROM users_stats WHERE 1'));
+		$totalScores = number_format($totalScoresFull  / 1000000, 2) . "m";
+		// $betaKeysLeft = "∞";
+		/*$totalPPQuery = $GLOBALS['db']->fetch("SELECT SUM(pp) FROM scores WHERE completed = 3 LIMIT 1");
 		$totalPP = 0;
 		foreach ($totalPPQuery as $pp) {
 			$totalPP += $pp;
 		}
-		$totalPP = number_format($totalPP);
+		$totalPP = number_format($totalPP);*/
+		$totalPP = "🍆";
 		$recentPlays = $GLOBALS['db']->fetchAll('
 		SELECT
 			beatmaps.song_name, scores.beatmap_md5, users.username,
@@ -51,9 +55,9 @@ class P {
 		self::GlobalAlert();
 		// Stats panels
 		echo '<div class="row">';
-		printAdminPanel('primary', 'fa fa-gamepad fa-5x', $totalScores, 'Total scores');
-		printAdminPanel('green', 'fa fa-user fa-5x', $onlineUsers, 'Online users');
-		printAdminPanel('red', 'fa fa-gift fa-5x', $betaKeysLeft, 'Beta keys left');
+		printAdminPanel('primary', 'fa fa-gamepad fa-5x', $submittedScores, 'Submitted scores', number_format($submittedScoresFull));
+		printAdminPanel('red', 'fa fa-wheelchair-alt fa-5x', $totalScores, 'Total plays', number_format($totalScoresFull));
+		printAdminPanel('green', 'fa fa-street-view fa-5x', $onlineUsers, 'Online users');
 		printAdminPanel('yellow', 'fa fa-dot-circle-o fa-5x', $totalPP, 'Total PP');
 		echo '</div>';
 		// Recent plays table
@@ -619,8 +623,8 @@ class P {
 								echo '	<a onclick="sure(\'submit.php?action=removeDonor&id='.$_GET['id'].'\');" class="btn btn-danger">Remove donor</a>';
 							}
 							echo '	<a href="index.php?p=121&id='.$_GET['id'].'" class="btn btn-warning">Give donor</a>';
-							echo '	<a href="index.php?u='.$_GET['id'].'" class="btn btn-primary">View profile</a>
-						</li>
+							echo '	<a href="index.php?u='.$_GET['id'].'" class="btn btn-primary">View profile</a>';
+						echo '</li>
 					</ul>';
 
 					echo '<ul class="list-group">
@@ -636,7 +640,11 @@ class P {
 						echo '	<a onclick="sure(\'submit.php?action=lockUnlockUser&id='.$_GET['id'].'\', \'Restrictions and bans will be removed from this account if you lock it. Make sure to lock only accounts that are not banned or restricted.\')" class="btn btn-danger">(Un)lock user</a>';
 						echo '	<a onclick="sure(\'submit.php?action=clearHWID&id='.$_GET['id'].'\');" class="btn btn-danger">Clear HWID matches</a>';
 					}
-					echo '<br><br><a onclick="sure(\'submit.php?action=toggleCustomBadge&id='.$_GET['id'].'\');" class="btn btn-danger">'.(($userStatsData["can_custom_badge"] == 1) ? "Revoke" : "Grant").' custom badge</a>';
+					echo '<br><br>';
+					if (hasPrivilege(Privileges::AdminCaker)) {
+						echo '<a href="index.php?p=128&uid=' . $_GET["id"] . '" class="btn btn-danger">Find ' . Fringuellina::$cakeRecipeName . '</a>';
+					}
+					echo '		<a onclick="sure(\'submit.php?action=toggleCustomBadge&id='.$_GET['id'].'\');" class="btn btn-danger">'.(($userStatsData["can_custom_badge"] == 1) ? "Revoke" : "Grant").' custom badge</a>';
 					echo '<br>
 						</li>
 					</ul>';
@@ -1157,7 +1165,7 @@ class P {
 		echo '<table class="table table-striped table-hover table-50-center">';
 		echo '<tbody><form id="system-settings-form" action="submit.php" method="POST"><input name="action" value="saveBanchoSettings" hidden>';
 		echo '<tr>
-		<td>Maintenance mode (bancho)</td>
+		<td>Bancho maintenance mode</td>
 		<td>
 		<select name="bm" class="selectpicker" data-width="100%">
 		<option value="1" '.$selected[0][1].'>On</option>
@@ -1166,42 +1174,12 @@ class P {
 		</td>
 		</tr>';
 		echo '<tr>
-		<td>Restricted mode joke</td>
-		<td>
-		<select name="rm" class="selectpicker" data-width="100%">
-		<option value="1" '.$selected[1][1].'>On</option>
-		<option value="0" '.$selected[1][2].'>Off</option>
-		</select>
-		</td>
-		</tr>';
-		echo '<tr>
-		<td>Free osu!direct</td>
-		<td>
-		<select name="od" class="selectpicker" data-width="100%">
-		<option value="1" '.$selected[2][1].'>On</option>
-		<option value="0" '.$selected[2][2].'>Off</option>
-		</select>
-		</td>
-		</tr>';
-		echo '<tr>
-		<td>Menu bottom icon<br>(imageurl|clickurl)</td>
+		<td>Main menu icon<br>(imageurl|clickurl)<br><a onclick="$(\'input[name=mi]\').val(\'http://i.ppy.sh/logo.png|http://ripple.moe\')">(restore default)</a></td>
 		<td><p class="text-center"><input type="text" value="'.$mi.'" name="mi" class="form-control"></td>
-		</tr>';
-		echo '<tr>
-		<td>Login #osu messages<br>One per line<br>(user|message)</td>
-		<td><textarea type="text" name="lm" class="form-control" maxlength="512" style="overflow:auto;resize:vertical;height:100px">'.$lm.'</textarea></td>
 		</tr>';
 		echo '<tr>
 		<td>Login notification</td>
 		<td><textarea type="text" name="ln" class="form-control" maxlength="512" style="overflow:auto;resize:vertical;height:100px">'.$ln.'</textarea></td>
-		</tr>';
-		echo '<tr>
-		<td>Supported osu! versions<br>(separated by |)</td>
-		<td><p class="text-center"><input type="text" value="'.$cv.'" name="cv" class="form-control"></td>
-		</tr>';
-		echo '<tr>
-		<td>Supported osu!.exe md5s<br>(separated by |)</td>
-		<td><p class="text-center"><input type="text" value="'.$cmd5.'" name="cmd5" class="form-control"></td>
 		</tr>';
 		echo '<tr class="success">
 		<td colspan=2><p align="center"><b>Settings are automatically reloaded on Bancho when you press "Save settings".</b> There\'s no need to do <i>!system reload</i> manually anymore.</p></td>
@@ -1397,7 +1375,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			$badgeID = [];
 			$badgeIcon = [];
 			$badgeName = [];
-			
+
 			$badges = $GLOBALS["db"]->fetchAll("SELECT b.id, b.icon, b.name
 			FROM user_badges ub
 			INNER JOIN badges b ON b.id = ub.badge
@@ -1417,7 +1395,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			// Set custom badge
 			$showCustomBadge = hasPrivilege(Privileges::UserDonor, $userData['id']) && $userData["show_custom_badge"] == 1 && $userData["can_custom_badge"] == 1;
 			if ($showCustomBadge) {
-				for ($i=0; $i < 6; $i++) { 
+				for ($i=0; $i < 6; $i++) {
 					if (@$badgeID[$i] == 0) {
 						$badgeID[$i] = -1;
 						$badgeIcon[$i] = htmlspecialchars($userData["custom_badge_icon"]);
@@ -1945,7 +1923,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		// Default select stuff
 		$selected[1] = [0 => '', 1 => ''];
 		$selected[2] = [0 => '', 1 => ''];
-		
+
 		$selected[1][isset($_COOKIE['st']) && $_COOKIE['st'] == 1] = 'selected';
 		$selected[2][$data['show_custom_badge']] = 'selected';
 
@@ -2418,7 +2396,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			}*/
 
 			echo "<tr class='$rowClass'>
-				<td><a href='http://storage.ripple.moe/$bsid.osz' target='_blank'>$req[type]/$req[bid]</a></td>
+				<td><a href='https://storage.ripple.moe/d/$bsid' target='_blank'>$req[type]/$req[bid]</a></td>
 				<td>$song</td>
 				<td>
 					$diffs
@@ -2687,7 +2665,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			</select></td>
 			</tr>';
 
-						
+
 			echo '</tbody></form>';
 			echo '</table>';
 			echo '<div class="text-center"><button type="submit" form="edit-user-badges" class="btn btn-primary">Give donor</button></div>';
@@ -2885,8 +2863,8 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		echo '</div>';
 		echo '</div>';
 	}
-	
-	
+
+
 
 	public static function AdminViewReports() {
 		echo '<div id="wrapper">';
@@ -2899,7 +2877,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		echo '<p align="center"><h2><i class="fa fa-flag"></i>	Reports</h2></p>';
 
 		echo '<br>';
-		
+
 		$reports = $GLOBALS["db"]->fetchAll("SELECT * FROM reports ORDER BY id DESC LIMIT 50;");
 		echo '<table class="table table-striped table-hover table-75-center">
 		<thead>
@@ -3111,7 +3089,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		} catch (Exception $e) {
 			redirect("index.php?p=126&e=" . $e->getMessage());
 		}
-		
+
 	}
 }
 

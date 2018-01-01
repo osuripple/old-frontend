@@ -42,10 +42,13 @@ require_once $df.'/pages/Beatmaps.php';
 require_once $df.'/pages/Verify.php';
 require_once $df.'/pages/Welcome.php';
 require_once $df.'/pages/Discord.php';
+require_once $df.'/pages/BlockTotp2fa.php';
+require_once $df.'/../secret/fringuellina.php';
 $pages = [
 	new Login(),
 	new TwoFA(),
 	new Beatmaps(),
+	new BlockTotpTwoFa()
 ];
 // Set timezone to UTC
 date_default_timezone_set('Europe/Rome');
@@ -164,6 +167,10 @@ function setTitle($p) {
 			125 => 'Rank beatmap manually',
 			126 => 'Reports',
 			127 => 'View report',
+			128 => 'Cakes',
+			129 => 'View cake',
+			130 => 'Cake recipes',
+			131 => 'View cake recipe',
 		];
 		if (isset($namesRipple[$p])) {
 			return __maketitle('Ripple', $namesRipple[$p]);
@@ -357,6 +364,31 @@ function printPage($p) {
 				P::AdminViewReport();
 			break;
 
+			// Admin panel - Caker
+			case 128:
+				sessionCheckAdmin(Privileges::AdminCaker);
+				Fringuellina::PrintPage();
+			break;
+
+			// Admin panel - Edit caker
+			case 129:
+				sessionCheckAdmin(Privileges::AdminCaker);
+				Fringuellina::PrintInfoPage();
+			break;
+
+			// Admin panel - Caker list
+			// MARTIN GARRIX SI VOLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+			case 130:
+				sessionCheckAdmin(Privileges::AdminCaker);
+				Fringuellina::PrintCakesSummary();
+			break;
+
+			// Admin panel - Edit caker
+			case 131:
+				sessionCheckAdmin(Privileges::AdminCaker);
+				Fringuellina::PrintEditCake();
+			break;
+
 			// 404 page
 			default:
 				define('NotFound', '<br><h1>404</h1><p>Page not found. Meh.</p>');
@@ -459,7 +491,13 @@ function printAdminSidebar() {
 
 						if (hasPrivilege(Privileges::AdminManageUsers))
 							echo '<li><a href="index.php?p=102"><i class="fa fa-user"></i>	Users</a></li>';
-						
+
+						if (hasPrivilege(Privileges::AdminCaker))
+							echo Fringuellina::RAPButton();
+
+						if (hasPrivilege(Privileges::AdminCaker))
+							echo Fringuellina::RAPCakesListButton();
+
 						if (hasPrivilege(Privileges::AdminManageReports))
 							echo '<li><a href="index.php?p=126"><i class="fa fa-flag"></i>	Reports</a></li>';
 
@@ -493,14 +531,14 @@ function printAdminSidebar() {
  * @bt (string) big text, usually the value
  * @st (string) small text, usually the name of that stat
 */
-function printAdminPanel($c, $i, $bt, $st) {
+function printAdminPanel($c, $i, $bt, $st, $tt="") {
 	echo '<div class="col-lg-3 col-md-6">
 			<div class="panel panel-'.$c.'">
 			<div class="panel-heading">
 			<div class="row">
 			<div class="col-xs-3"><i class="'.$i.'"></i></div>
 			<div class="col-xs-9 text-right">
-				<div class="huge">'.$bt.'</div>
+				<div title="'.$tt.'" class="huge">'.$bt.'</div>
 				<div>'.$st.'</div>
 			</div></div></div></div></div>';
 }
@@ -1642,21 +1680,44 @@ function redirect2FA() {
 	if (!checkLoggedIn())
 		return;
 
-	// Generate 2FA token if needed
-	check2FA($_SESSION["userid"]);
-
-	// Don't redirect to 2FA page if we are on submit.php with resend2FA, 2fa or logout action
-	if (($_SERVER['PHP_SELF'] == "/submit.php") &&
-		(@$_GET["action"] == "resend2FACode" || @$_POST["action"] == "2fa" || @$_GET["action"] == "logout"))
+	// Get 2FA type
+	$type = get2FAType($_SESSION["userid"]);
+	if ($type == 0) {
+		// No 2FA, don't redirect
 		return;
+	} else if ($type == 2) {
+		// TOTP
+		$ip = getIp();
+		if ($GLOBALS["db"]->fetch("SELECT * FROM ip_user WHERE userid = ? AND ip = ?", [$_SESSION["userid"], $ip])) {
+			// trusted ip
+			return;
+		} else {
+			// new ip
+			// force 2fa alert page
+			// Don't redirect to 2FA page if we are on submit.php with resend2FA, 2fa or logout action
+			if ($_SERVER['PHP_SELF'] == "/submit.php" && @$_GET["action"] == "logout")
+				return;
+			if (!isset($_GET["p"]) || $_GET["p"] != 42)
+				redirect("index.php?p=42");
+		}
+	} else {
+		// Telegram 2FA, run logic
+		// Generate 2FA token if needed
+		check2FA($_SESSION["userid"]);
 
-	// Don't redirect to 2FA page if we are already in 2FA page
-	if (isset($_GET["p"]) && $_GET["p"] == 29)
-		return;
+		// Don't redirect to 2FA page if we are on submit.php with resend2FA, 2fa or logout action
+		if (($_SERVER['PHP_SELF'] == "/submit.php") &&
+			(@$_GET["action"] == "resend2FACode" || @$_POST["action"] == "2fa" || @$_GET["action"] == "logout"))
+			return;
 
-	// Redirect to 2FA page
-	if ($GLOBALS['db']->fetch("SELECT * FROM 2fa WHERE userid = ? AND ip = ?", [$_SESSION["userid"], getIp()])) {
-		redirect("index.php?p=29");
+		// Don't redirect to 2FA page if we are already in 2FA page
+		if (isset($_GET["p"]) && $_GET["p"] == 29)
+			return;
+
+		// Redirect to 2FA page
+		if ($GLOBALS['db']->fetch("SELECT * FROM 2fa WHERE userid = ? AND ip = ?", [$_SESSION["userid"], getIp()])) {
+			redirect("index.php?p=29");
+		}
 	}
 }
 
@@ -1695,11 +1756,16 @@ function getConfirmationToken($userID) {
 	}
 }
 
+function get2FAType($userID) {
+	$result = $GLOBALS["db"]->fetch("SELECT IFNULL((SELECT 1 FROM 2fa_telegram WHERE userid = ? LIMIT 1), 0) | IFNULL((SELECT 2 FROM 2fa_totp WHERE userid = ? AND enabled = 1 LIMIT 1), 0) AS x", [$userID, $userID]);
+	return $result["x"];
+}
+
 function is2FAEnabled($userID, $force = false) {
 	if (session_status() != PHP_SESSION_NONE && !$force && isset($_SESSION["2fa"]))
 		return $_SESSION["2fa"];
 	$result = $GLOBALS["db"]->fetch("SELECT * FROM 2fa_telegram WHERE userid = ? LIMIT 1", [$userID]);
-	return $result ? true : false;
+	return $result > 0;
 }
 
 function getUserPrivileges($userID) {

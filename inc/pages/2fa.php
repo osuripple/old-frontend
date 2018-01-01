@@ -10,6 +10,9 @@ class TwoFA {
 	public $mh_POST = ["token"];
 
 	public function P() {
+		if (!is2FAEnabled($_SESSION["userid"])) {
+			redirect("index.php?p=1");
+		}
 		P::GlobalAlert();
 		echo '
 		<div style="content">
