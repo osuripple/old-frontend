@@ -1503,7 +1503,10 @@ class D {
 					// Rank beatmap
 					case "rank":
 						$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 2, ranked_status_freezed = 1 WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
-						$result .= "$beatmapID has been ranked. | ";
+
+						// Restore old scores
+						$GLOBALS["db"]->execute("UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_id = ? GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 3", [$beatmapID]);
+						$result .= "$beatmapID has been ranked and its scores have been restored. | ";
 					break;
 
 					// Force osu!api update (unfreeze)
