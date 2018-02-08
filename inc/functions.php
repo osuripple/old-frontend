@@ -132,8 +132,6 @@ function setTitle($p) {
 			6 =>   'Edit user settings',
 			7 =>   'Change password',
 			8 =>   'Edit userpage',
-			14 =>  'Documentation files',
-			16 =>  'Read documentation',
 			17 =>  'Changelog',
 			18 =>  'Recover your password',
 			21 =>  'About',
@@ -149,8 +147,6 @@ function setTitle($p) {
 			102 => 'Users',
 			103 => 'Edit user',
 			104 => 'Change identity',
-			106 => 'Documentation Pages',
-			107 => 'Edit documentation page',
 			108 => 'Badges',
 			109 => 'Edit Badge',
 			110 => 'Edit user badges',
@@ -255,18 +251,6 @@ function printPage($p) {
 				sessionCheckAdmin(Privileges::AdminManageUsers);
 				P::AdminChangeIdentity();
 			break;
-				// Admin panel - Documentation
-
-			case 106:
-				sessionCheckAdmin(Privileges::AdminManageDocs);
-				P::AdminDocumentation();
-			break;
-				// Admin panel - Edit Documentation file
-
-			case 107:
-				sessionCheckAdmin(Privileges::AdminManageDocs);
-				P::AdminEditDocumentation();
-			break;
 				// Admin panel - Badges
 
 			case 108:
@@ -351,7 +335,7 @@ function printPage($p) {
 				sessionCheckAdmin(Privileges::AdminManageBeatmaps);
 				P::AdminRankBeatmapManually();
 			break;
-			
+
 			// Admin panel - Reports
 			case 126:
 				sessionCheckAdmin(Privileges::AdminManageReports);
@@ -507,16 +491,13 @@ function printAdminSidebar() {
 						if (hasPrivilege(Privileges::AdminManageBadges))
 							echo '<li><a href="index.php?p=108"><i class="fa fa-certificate"></i>	Badges</a></li>';
 
-						if (hasPrivilege(Privileges::AdminManageDocs))
-							echo '<li><a href="index.php?p=106"><i class="fa fa-question-circle"></i>	Documentation</a></li>';
-
 						if (hasPrivilege(Privileges::AdminManageBeatmaps)) {
 							echo '<li><a href="index.php?p=117"><i class="fa fa-music"></i>	Rank requests</a></li>';
 							echo '<li><a href="index.php?p=125"><i class="fa fa-level-up"></i>	Rank beatmap manually</a></li>';
 						}
 
 						if (hasPrivilege(Privileges::AdminViewRAPLogs))
-							echo '<li class="animated infinite pulse"><a href="index.php?p=116"><i class="fa fa-calendar"></i>	Admin log&nbsp;&nbsp;&nbsp;<div class="label label-primary">Free botnets</div></a></li>';
+							echo '<li><a href="index.php?p=116"><i class="fa fa-calendar"></i>	Admin log&nbsp;&nbsp;&nbsp;<div class="label label-primary">Free botnets</div></a></li>';
 
 						echo "</ul>
 				</div>";
@@ -822,63 +803,6 @@ function checkRegistrationsEnabled() {
 		return false;
 	} else {
 		return true;
-	}
-}
-/****************************************
- **	  DOCUMENTATION FUNCTIONS	   **
- ****************************************/
-/*
- * listDocumentationFiles
- * Retrieves all teh files in the folder ../docs/,
- * parses their filenames and then returns them in alphabetical order.
-*/
-function listDocumentationFiles() {
-	// Maintenance alerts
-	P::MaintenanceStuff();
-	// Global alert
-	P::GlobalAlert();
-	echo '<div id="narrow-content"><h1><i class="fa fa-question-circle"></i> Documentation</h1>';
-	$e = "<ul class='text-left'>\n";
-	$data = $GLOBALS['db']->fetchAll("SELECT id, doc_name FROM docs WHERE public = '1'");
-	if (count($data) != 0) {
-		foreach ($data as $value) {
-			$e .= "<li><a href='index.php?p=16&id=".$value['id']."'>".$value['doc_name']."</a></li>\n";
-		}
-	} else {
-		$e .= 'It looks like there are no documentation files! Perhaps try again later?';
-	}
-	$e .= '</ul>';
-	echo $e;
-	echo '</div>';
-}
-/*
- * getDocPageAndParse
- * Gets a page on the documentation.
- *
- * @param (string) ($docid) The document ID.
-*/
-function getDocPageAndParse($docid) {
-	// Maintenance check
-	P::MaintenanceStuff();
-	// Global alert
-	P::GlobalAlert();
-	try {
-		if ($docid === null) {
-			throw new Exception();
-		}
-		$doc = $GLOBALS['db']->fetch('SELECT doc_contents, public FROM docs WHERE id = ? AND is_rule = "0";', $docid);
-		if ($doc['public'] == '0' && !sessionCheckAdmin(-1, 1)) {
-			return;
-		}
-		if ($doc == false) {
-			throw new Exception();
-		}
-		require_once 'parsedown.php';
-		$p = new Parsedown();
-		echo "<div class='text-left'>".$p->text($doc['doc_contents']).'</div>';
-	}
-	catch(Exception $e) {
-		echo '<br>That documentation file could not be found!';
 	}
 }
 // ******** GET USER ID/USERNAME FUNCTIONS *********
@@ -1724,15 +1648,15 @@ function redirect2FA() {
 
 
 
-/* 
+/*
    RIP Documentation and comments from now on.
    Those functions are the last ones that we've added to old-frontend
    Because new frontend is coming soonTM, so I don't want to waste time writing comments and docs.
    You'll also find 20% more memes in these functions.
 
    ...and fuck php
-   -- Nyo 
-   
+   -- Nyo
+
    I'd just like to interject for a moment. You do not just 'fuck' PHP, you 'fuck' PHP with a CACTUS!
    -- Howl
 */

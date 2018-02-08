@@ -537,33 +537,6 @@ class D {
 	}
 
 	/*
-	 * SaveDocFile
-	 * Save doc file function (ADMIN CP)
-	*/
-	public static function SaveDocFile() {
-		try {
-			// Check if everything is set
-			if (!isset($_POST['id']) || !isset($_POST['t']) || !isset($_POST['c']) || !isset($_POST['p']) || empty($_POST['t']) || empty($_POST['c'])) {
-				throw new Exception('Nice troll.');
-			}
-			// Check if we are creating or editing a doc page
-			if ($_POST['id'] == 0) {
-				$GLOBALS['db']->execute('INSERT INTO docs (id, doc_name, doc_contents, public, is_rule) VALUES (NULL, ?, ?, ?, "0")', [$_POST['t'], $_POST['c'], $_POST['p']]);
-			} else {
-				$GLOBALS['db']->execute('UPDATE docs SET doc_name = ?, doc_contents = ?, public = ? WHERE id = ?', [$_POST['t'], $_POST['c'], $_POST['p'], $_POST['id']]);
-			}
-			// RAP log
-			rapLog(sprintf("has %s documentation page \"%s\"", $_POST['id'] == 0 ? "created" : "edited", $_POST["t"]));
-			// Done, redirect to success page
-			redirect('index.php?p=106&s=Documentation page edited!');
-		}
-		catch(Exception $e) {
-			// Redirect to Exception page
-			redirect('index.php?p=106&e='.$e->getMessage());
-		}
-	}
-
-	/*
 	 * SaveBadge
 	 * Save badge function (ADMIN CP)
 	*/
@@ -621,34 +594,6 @@ class D {
 		catch(Exception $e) {
 			// Redirect to Exception page
 			redirect('index.php?p=108&e='.$e->getMessage());
-		}
-	}
-
-	/*
-	 * RemoveDocFile
-	 * Delete doc file function (ADMIN CP)
-	*/
-	public static function RemoveDocFile() {
-		try {
-			// Check if everything is set
-			if (!isset($_GET['id']) || empty($_GET['id'])) {
-				throw new Exception('Nice troll.');
-			}
-			// Check if this doc page exists
-			$name = $GLOBALS['db']->fetch('SELECT doc_name FROM docs WHERE id = ?', $_GET['id']);
-			if (!$name) {
-				throw new Exception("That documentation page doesn't exists");
-			}
-			// Delete doc page
-			$GLOBALS['db']->execute('DELETE FROM docs WHERE id = ?', $_GET['id']);
-			// RAP log
-			rapLog(sprintf("has deleted documentation page \"%s\"", current($name)));
-			// Done, redirect to success page
-			redirect('index.php?p=106&s=Documentation page deleted!');
-		}
-		catch(Exception $e) {
-			// Redirect to Exception page
-			redirect('index.php?p=106&e='.$e->getMessage());
 		}
 	}
 
@@ -1063,26 +1008,6 @@ class D {
 		}
 		catch(Exception $e) {
 			redirect('index.php?p=99&e='.$e->getMessage());
-		}
-	}
-
-	/*
-	 * SetRulesPage
-	 * Set the new rules page
-	 */
-	public static function SetRulesPage() {
-		try {
-			if (!isset($_GET['id']))
-				throw new Exception('no');
-			$GLOBALS['db']->execute('UPDATE docs SET is_rule = "0"');
-			$GLOBALS['db']->execute('UPDATE docs SET is_rule = "1" WHERE id = ?', [$_GET['id']]);
-			// RAP log
-			$name = $GLOBALS["db"]->fetch("SELECT doc_name FROM docs WHERE id = ?", [$_GET["id"]]);
-			rapLog(sprintf("has set \"%s\" as rules page", current($name)));
-			redirect('index.php?p=106&s='.$_GET['id'].' is now the new rules page!');
-		}
-		catch (Exception $e) {
-			redirect('index.php?p=106&e='.$e->getMessage());
 		}
 	}
 
@@ -1505,7 +1430,10 @@ class D {
 					// Rank beatmap
 					case "rank":
 						$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 2, ranked_status_freezed = 1 WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
-						$result .= "$beatmapID has been ranked. | ";
+
+						// Restore old scores
+						$GLOBALS["db"]->execute("UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps WHERE beatmap_id = ? LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 3", [$beatmapID]);
+						$result .= "$beatmapID has been ranked and its scores have been restored. | ";
 					break;
 
 					// Force osu!api update (unfreeze)

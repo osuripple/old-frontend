@@ -808,66 +808,6 @@ class P {
 	}
 
 	/*
-	 * AdminDocumentation
-	 * Prints the admin panel documentation files page
-	*/
-	public static function AdminDocumentation() {
-		// Get data
-		$docsData = $GLOBALS['db']->fetchAll('SELECT id, doc_name, public, is_rule FROM docs');
-		// Print docs stuff
-		echo '<div id="wrapper">';
-		printAdminSidebar();
-		echo '<div id="page-content-wrapper">';
-		// Maintenance check
-		self::MaintenanceStuff();
-		// Print Success if set
-		if (isset($_GET['s']) && !empty($_GET['s'])) {
-			self::SuccessMessageStaccah($_GET['s']);
-		}
-		// Print Exception if set
-		if (isset($_GET['e']) && !empty($_GET['e'])) {
-			self::ExceptionMessageStaccah($_GET['e']);
-		}
-		echo '<p align="center"><font size=5><i class="fa fa-book"></i>	Documentation</font></p>';
-		echo '<table class="table table-striped table-hover table-50-center">';
-		echo '<thead>
-		<tr><th class="text-center"><i class="fa fa-book"></i>	ID</th><th class="text-center">Name</th><th class="text-center">Public</th><th class="text-center">Actions</th></tr>
-		</thead>';
-		echo '<tbody>';
-		foreach ($docsData as $doc) {
-			// Public label
-			if ($doc['public'] == 1) {
-				$publicColor = 'success';
-				$publicText = 'Yes';
-			} else {
-				$publicColor = 'danger';
-				$publicText = 'No';
-			}
-			$ruletxt = "";
-			if ($doc['is_rule'])
-				$ruletxt = " <b>(rules)</b>";
-			// Print row for this doc page
-			echo '<tr>
-			<td><p class="text-center">'.$doc['id'].'</p></td>
-			<td><p class="text-center">'.$doc['doc_name'].$ruletxt.'</p></td>
-			<td><p class="text-center"><span class="label label-'.$publicColor.'">'.$publicText.'</span></p></td>
-			<td><p class="text-center">
-			<a title="Edit page" class="btn btn-xs btn-primary" href="index.php?p=107&id='.$doc['id'].'"><span class="glyphicon glyphicon-pencil"></span></a>
-			<a title="View page" class="btn btn-xs btn-success" href="index.php?p=16&id='.$doc['id'].'"><span class="glyphicon glyphicon-eye-open"></span></a>
-			<a title="Make rules page" class="btn btn-xs btn-warning" href="submit.php?action=setRulesPage&id='.$doc['id'].'"><i class="fa fa-exclamation-circle" aria-hidden="true"></i></a>
-			<a title="Delete page" class="btn btn-xs btn-danger" onclick="sure(\'submit.php?action=removeDoc&id='.$doc['id'].'\');"><span class="glyphicon glyphicon-trash"></span></a>
-			</p></td>
-			</tr>';
-		}
-		echo '</tbody>';
-		echo '</table>';
-		echo '<div class="text-center"><div class="btn-group" role="group">
-		<a href="index.php?p=107&id=0" type="button" class="btn btn-primary">Add documentation page</a>
-		</div></div>';
-		echo '</div>';
-	}
-
-	/*
 	 * AdminBadges
 	 * Prints the admin panel badges page
 	*/
@@ -939,72 +879,6 @@ class P {
 		</div>
 		</div>
 		</div>';
-	}
-
-	/*
-	 * AdminEditDocumentation
-	 * Prints the admin panel edit documentation file page
-	*/
-	public static function AdminEditDocumentation() {
-		try {
-			// Check if id is set
-			if (!isset($_GET['id'])) {
-				throw new Exception('Invalid documentation page id');
-			}
-			// Check if we are editing or creating a new docs page
-			if ($_GET['id'] > 0) {
-				$docData = $GLOBALS['db']->fetch('SELECT * FROM docs WHERE id = ?', $_GET['id']);
-			} else {
-				$docData = ['id' => 0, 'doc_name' => 'New Documentation Page', 'doc_contents' => '', 'public' => 1];
-			}
-			// Check if this doc page exists
-			if (!$docData) {
-				throw new Exception("That documentation page doesn't exist");
-			}
-			// Print edit user stuff
-			echo '<div id="wrapper">';
-			printAdminSidebar();
-			echo '<div id="page-content-wrapper">';
-			// Maintenance check
-			self::MaintenanceStuff();
-			// Selected values stuff
-			$selected[0] = [0 => '', 1 => ''];
-			// Get selected stuff
-			$selected[0][$docData['public']] = 'selected';
-			echo '<p align="center"><font size=5><i class="fa fa-book"></i>	Edit documentation page</font></p>';
-			echo '<table class="table table-striped table-hover table-75-center">';
-			echo '<tbody><form id="edit-doc-form" action="submit.php" method="POST"><input name="action" value="saveDocFile" hidden>';
-			echo '<tr>
-			<td>ID</td>
-			<td><p class="text-center"><input type="number" name="id" class="form-control" value="'.$docData['id'].'" readonly></td>
-			</tr>';
-			echo '<tr>
-			<td>Page Name</td>
-			<td><p class="text-center"><input type="text" name="t" class="form-control" value="'.$docData['doc_name'].'" ></td>
-			</tr>';
-			echo '<tr>
-			<td>Page content</td>
-			<td><textarea type="text" name="c" class="form-control" style="height: 200px;max-width:100%" spellcheck="false">'.$docData['doc_contents'].'</textarea></td>
-			</tr>';
-			echo '<tr class="success"><td></td><td>Tip: You can use markdown syntax instead of HTML syntax</td></tr>';
-			echo '<tr>
-			<td>Public</td>
-			<td>
-			<select name="p" class="selectpicker" data-width="100%">
-			<option value="1" '.$selected[0][1].'>Yes</option>
-			<option value="0" '.$selected[0][0].'>No</option>
-			</select>
-			</td>
-			</tr>';
-			echo '</tbody></form>';
-			echo '</table>';
-			echo '<div class="text-center"><button type="submit" form="edit-doc-form" class="btn btn-primary">Save changes</button></div>';
-			echo '</div>';
-		}
-		catch(Exception $e) {
-			// Redirect to exception page
-			redirect('index.php?p=106&e='.$e->getMessage());
-		}
 	}
 
 	/*
@@ -1706,25 +1580,6 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			return;
 		}
 		echo str_replace("{}", htmlspecialchars($_GET["user"]), file_get_contents('./html_static/elmo_stop.html'));
-	}
-
-	/*
-	 * RulesPage
-	 * Prints the rules page.
-	*/
-	public static function RulesPage() {
-		// Maintenance check
-		self::MaintenanceStuff();
-		// Global alert
-		self::GlobalAlert();
-		$doc = $GLOBALS['db']->fetch('SELECT doc_contents FROM docs WHERE is_rule = "1" LIMIT 1');
-		if (!$doc) {
-			self::ExceptionMessage('Looks like the admins forgot to set a rules page in their documentation file listing. Which means, anarchy reigns here!');
-			return;
-		}
-		require_once 'parsedown.php';
-		$p = new Parsedown();
-		echo "<div class='text-left'>".$p->text($doc['doc_contents']).'</div>';
 	}
 
 	/*
