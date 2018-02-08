@@ -112,14 +112,6 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageUsers);
 			D::ChangeIdentity();
 		break;
-		case 'saveDocFile':
-			sessionCheckAdmin(Privileges::AdminManageDocs);
-			D::SaveDocFile();
-		break;
-		case 'removeDoc':
-			sessionCheckAdmin(Privileges::AdminManageDocs);
-			D::RemoveDocFile();
-		break;
 		case 'removeBadge':
 			sessionCheckAdmin(Privileges::AdminManageBadges);
 			D::RemoveBadge();
@@ -151,10 +143,6 @@ try {
 		case 'wipeAccount':
 			sessionCheckAdmin(Privileges::AdminWipeUsers);
 			D::WipeAccount();
-		break;
-		case 'setRulesPage':
-			sessionCheckAdmin(Privileges::AdminManageDocs);
-			D::SetRulesPage();
 		break;
 		/*case 'processRankRequest':
 			sessionCheckAdmin(Privileges::AdminManageBeatmaps);
