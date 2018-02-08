@@ -497,7 +497,7 @@ function printAdminSidebar() {
 						}
 
 						if (hasPrivilege(Privileges::AdminViewRAPLogs))
-							echo '<li class="animated infinite pulse"><a href="index.php?p=116"><i class="fa fa-calendar"></i>	Admin log&nbsp;&nbsp;&nbsp;<div class="label label-primary">Free botnets</div></a></li>';
+							echo '<li><a href="index.php?p=116"><i class="fa fa-calendar"></i>	Admin log&nbsp;&nbsp;&nbsp;<div class="label label-primary">Free botnets</div></a></li>';
 
 						echo "</ul>
 				</div>";
