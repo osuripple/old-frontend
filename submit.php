@@ -34,12 +34,12 @@ try {
 	}
 	// What shall we do?
 	switch ($action) {
-		case 'register':
-			D::Register();
-		break;
-		case 'changePassword':
-			D::ChangePassword();
-		break;
+		// case 'register':
+		// 	D::Register();
+		// break;
+		// case 'changePassword':
+		// 	D::ChangePassword();
+		// break;
 		case 'logout':
 			D::Logout();
 			redirect('index.php');
@@ -47,30 +47,30 @@ try {
 		case 'u':
 			redirect('../ripple/index.php?u='.$_GET['data'].'&m=0');
 		break;
-		case 'recoverPassword':
-			D::RecoverPassword();
-		break;
-		case 'saveUserSettings':
-			D::saveUserSettings();
-		break;
-		case 'forgetEveryCookie':
-			D::ForgetEveryCookie();
-		break;
-		case 'saveUserpage':
-			D::SaveUserpage();
-		break;
-		case 'changeAvatar':
-			D::ChangeAvatar();
-		break;
-		case 'addRemoveFriend':
-			D::AddRemoveFriend();
-		break;
+		// case 'recoverPassword':
+		// 	D::RecoverPassword();
+		// break;
+		// case 'saveUserSettings':
+		// 	D::saveUserSettings();
+		// break;
+		// case 'forgetEveryCookie':
+		// 	D::ForgetEveryCookie();
+		// break;
+		// case 'saveUserpage':
+		// 	D::SaveUserpage();
+		// break;
+		// case 'changeAvatar':
+		// 	D::ChangeAvatar();
+		// break;
+		// case 'addRemoveFriend':
+		// 	D::AddRemoveFriend();
+		// break;
 		case 'resend2FACode':
 			D::Resend2FACode();
 		break;
-		case 'disable2FA':
-			D::Disable2FA();
-		break;
+		// case 'disable2FA':
+		// 	D::Disable2FA();
+		// break;
 		default:
 			throw new Exception('Invalid action value');
 		break;
