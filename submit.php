@@ -84,10 +84,10 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageSettings);
 			D::SaveBanchoSettings();
 		break;
-		case 'runCron':
-			sessionCheckAdmin(Privileges::AdminManageSettings);
-			D::RunCron();
-		break;
+		// case 'runCron':
+		// 	sessionCheckAdmin(Privileges::AdminManageSettings);
+		// 	D::RunCron();
+		// break;
 		case 'saveEditUser':
 			sessionCheckAdmin(Privileges::AdminManageUsers);
 			D::SaveEditUser();
