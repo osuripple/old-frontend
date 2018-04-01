@@ -2285,7 +2285,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				<td>
 					<p class='text-center'>
 						<a title='Edit ranked status' class='btn btn-xs btn-primary' href='index.php?p=124&bsid=$bsid&force=".$forceParam."'><span class='glyphicon glyphicon-pencil'></span></a>
-						<a title='Toggle blacklist' class='btn btn-xs btn-danger' href='submit.php?action=blacklistRankRequest&id=$req[id]&csrf=".csrfToken()."><span class='glyphicon glyphicon-flag'></span></a>
+						<a title='Toggle blacklist' class='btn btn-xs btn-danger' href='submit.php?action=blacklistRankRequest&id=$req[id]&csrf=".csrfToken()."'><span class='glyphicon glyphicon-flag'></span></a>
 					</p>
 				</td>
 			</tr>";
