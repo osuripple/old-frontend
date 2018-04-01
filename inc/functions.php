@@ -450,7 +450,7 @@ function printNavbar() {
 					<a data-toggle="dropdown"><img src="'.URL::Avatar().'/'.getUserID($_SESSION['username']).'" height="22" width="22" />	<b>'.$_SESSION['username'].'</b><span class="caret"></span></a>
 					<ul class="dropdown-menu">
 						<li class="dropdown-submenu"><a href="index.php?u='.getUserID($_SESSION['username']).'"><i class="fa fa-user"></i> My profile</a></li>
-						<li class="dropdown-submenu"><a href="submit.php?action=logout"><i class="fa fa-sign-out"></i>	Logout</a></li>
+						<li class="dropdown-submenu"><a href="submit.php?action=logout&csrf='.csrfToken().'"><i class="fa fa-sign-out"></i>	Logout</a></li>
 					</ul>
 				</li>';
 	}
@@ -1844,4 +1844,38 @@ function removeFromLeaderboard($userID) {
 			$GLOBALS["redis"]->zrem("ripple:leaderboard:".$value.":".$country, $userID);
 		}
 	}
+}
+
+function generateCsrfToken() {
+	return bin2hex(openssl_random_pseudo_bytes(32));
+}
+
+function csrfToken() {
+	if (!isset($_SESSION['csrf'])) {
+		$_SESSION['csrf'] = generateCsrfToken();
+	}
+	return $_SESSION['csrf'];
+}
+
+function csrfCheck($givenToken=NULL, $regen=true) {
+	if (!isset($_SESSION['csrf'])) {
+		return false;
+	}
+	if ($givenToken === NULL) {
+		if (isset($_POST['csrf'])) {
+			$givenToken = $_POST['csrf'];
+		} else if (isset($_GET['csrf'])) {
+			$givenToken = $_GET['csrf'];
+		} else {
+			return false;
+		}
+	}
+	if (empty($givenToken)) {
+		return false;
+	}
+	$rightToken = $_SESSION['csrf'];
+	if ($regen) {
+		$_SESSION['csrf'] = generateCsrfToken();
+	}
+	return hash_equals($rightToken, $givenToken);
 }

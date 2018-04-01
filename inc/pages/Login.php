@@ -76,6 +76,8 @@ class Login {
 			$_SESSION['password'] = $us['password_md5'];
 			$_SESSION['passwordChanged'] = false;
 			$_SESSION['2fa'] = is2FAEnabled($us["id"], true);
+			$_SESSION['csrf'] = csrfToken();
+			
 			// Check if the user requested to be remembered. If they did, initialise cookies.
 			if (isset($_POST['remember']) && (bool) $_POST['remember']) {
 				$m = new RememberCookieHandler();

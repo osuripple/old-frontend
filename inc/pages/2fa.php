@@ -31,7 +31,7 @@ class TwoFA {
 				</form>
 				<br>
 				You didn\'t receive the code?<br>
-				<a href="submit.php?action=resend2FACode" type="button" class="btn btn-warning">Send 2FA code again</a>
+				<a href="submit.php?action=resend2FACode&csrf='.csrfToken().'" type="button" class="btn btn-warning">Send 2FA code again</a>
 			</div>
 		</div>';
 	}

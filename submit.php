@@ -32,6 +32,10 @@ try {
 			return;
 		}
 	}
+	if (!csrfCheck()) {
+		throw new Exception("csrf token check not passed");	// I'M. HOW. TO. BASIC!!
+	}
+
 	// What shall we do?
 	switch ($action) {
 		// case 'register':
@@ -71,8 +75,6 @@ try {
 		// case 'disable2FA':
 		// 	D::Disable2FA();
 		// break;
-		default:
-			throw new Exception('Invalid action value');
 		break;
 			// Admin functions, need sessionCheckAdmin() because can be performed only by admins
 
@@ -92,11 +94,11 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageUsers);
 			D::SaveEditUser();
 		break;
-		case 'banUnbanUser':
+		case 'banUnbanUser': // TODO
 			sessionCheckAdmin(Privileges::AdminBanUsers);
 			D::BanUnbanUser();
 		break;
-		case 'restrictUnrestrictUser':
+		case 'restrictUnrestrictUser':	// TODO
 			sessionCheckAdmin(Privileges::AdminBanUsers);
 			D::RestrictUnrestrictUser();
 		break;
@@ -112,7 +114,7 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageUsers);
 			D::ChangeIdentity();
 		break;
-		case 'removeBadge':
+		case 'removeBadge':	// TODO
 			sessionCheckAdmin(Privileges::AdminManageBadges);
 			D::RemoveBadge();
 		break;
@@ -136,7 +138,7 @@ try {
 			sessionCheckAdmin(Privileges::AdminSilenceUsers);
 			D::KickUser();
 		break;
-		case 'resetAvatar':
+		case 'resetAvatar':	// TODO
 			sessionCheckAdmin(Privileges::AdminManageUsers);
 			D::ResetAvatar();
 		break;
@@ -148,7 +150,7 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageBeatmaps);
 			D::ProcessRankRequest();
 		break;*/
-		case 'blacklistRankRequest':
+		case 'blacklistRankRequest':	// TODO
 			sessionCheckAdmin(Privileges::AdminManageBeatmaps);
 			D::BlacklistRankRequest();
 		break;
@@ -160,7 +162,7 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageUsers);
 			D::GiveDonor();
 		break;
-		case 'removeDonor':
+		case 'removeDonor':	// TODO
 			sessionCheckAdmin(Privileges::AdminManageUsers);
 			D::RemoveDonor();
 		break;
@@ -168,11 +170,11 @@ try {
 			sessionCheckAdmin(Privileges::AdminWipeUsers);
 			D::Rollback();
 		break;
-		case 'toggleCustomBadge':
+		case 'toggleCustomBadge':	// TODO
 			sessionCheckAdmin(Privileges::AdminManageUsers);
 			D::ToggleCustomBadge();
 		break;
-		case 'lockUnlockUser':
+		case 'lockUnlockUser':	// TODO
 			sessionCheckAdmin(Privileges::AdminBanUsers);
 			D::LockUnlockUser();
 		break;
@@ -184,27 +186,27 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageBeatmaps);
 			D::RedirectRankBeatmap();
 		break;
-		case 'clearHWID':
+		case 'clearHWID':	// TODO
 			sessionCheckAdmin(Privileges::AdminBanUsers);
 			D::ClearHWIDMatches();
 		break;
-		case 'takeReport':
+		case 'takeReport':	// TODO?
 			sessionCheckAdmin(Privileges::AdminManageReports);
 			D::TakeReport();
 		break;
-		case 'solveUnsolveReport':
+		case 'solveUnsolveReport':	// TODO?
 			sessionCheckAdmin(Privileges::AdminManageReports);
 			D::SolveUnsolveReport();
 		break;
-		case 'uselessUsefulReport':
+		case 'uselessUsefulReport':	// TODO?
 			sessionCheckAdmin(Privileges::AdminManageReports);
 			D::UselessUsefulReport();
 		break;
-		case 'toggleCake':
+		case 'toggleCake':	// TODO
 			sessionCheckAdmin(Privileges::AdminCaker);
 			Fringuellina::ToggleCake();
 		break;
-		case 'removeCake':
+		case 'removeCake':	// TODO
 			sessionCheckAdmin(Privileges::AdminCaker);
 			Fringuellina::RemoveCake();
 		break;
@@ -212,6 +214,8 @@ try {
 			sessionCheckAdmin(Privileges::AdminCaker);
 			Fringuellina::EditCake();
 		break;
+		default:
+			throw new Exception('Invalid action value');
 	}
 }
 catch(Exception $e) {
