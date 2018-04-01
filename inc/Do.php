@@ -1563,7 +1563,7 @@ class D {
 				// Solve
 				$GLOBALS["db"]->execute("UPDATE reports SET assigned = -1 WHERE id = ? LIMIT 1", [$_GET["id"]]);
 			}
-			redirect("index.php?p=127&id=" . $_GET["id"] . "&s=Solved status changed!!");
+			redirect("index.php?p=127&id=" . $_GET["id"] . "&s=Solved status changed!");
 		} catch (Exception $e) {
 			redirect("index.php?p=127&id=" . $_GET["id"] . "&e=" . $e->getMessage());
 		}
@@ -1588,7 +1588,7 @@ class D {
 				// Useless
 				$GLOBALS["db"]->execute("UPDATE reports SET assigned = -2 WHERE id = ? LIMIT 1", [$_GET["id"]]);
 			}
-			redirect("index.php?p=127&id=" . $_GET["id"] . "&s=Useful status changed!!");
+			redirect("index.php?p=127&id=" . $_GET["id"] . "&s=Useful status changed!");
 		} catch (Exception $e) {
 			redirect("index.php?p=127&id=" . $_GET["id"] . "&e=" . $e->getMessage());
 		}
