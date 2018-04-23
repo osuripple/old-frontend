@@ -151,7 +151,7 @@ ul.nav li:hover > ul.dropdown-menu {
 	margin: 0 auto;
 }
 
-#narrow-content {
+.narrow-content {
 	width: 50%;
 	margin: 0 auto;
 }
@@ -188,16 +188,20 @@ hr {
 #sidebar-wrapper {
     z-index: 1000;
     position: fixed;
-    margin-top: -20px;
-    left: 250px;
+    left: 0;
     height: 100%;
-    margin-left: -250px;
+    width: 250px;
     overflow-y: auto;
     background-color: #222222;
     text-align: left;
 }
 
-#wrapper.toggled #sidebar-wrapper {
+#sidebar-wrapper.collapse, #sidebar-wrapper.collapse.in {
+    display: block !important;
+}
+
+
+#wrapper.toggled {
     width: 250px;
 }
 
@@ -266,10 +270,6 @@ hr {
 
     #wrapper.toggled {
         padding-left: 0;
-    }
-
-    #sidebar-wrapper {
-        width: 250px;
     }
 
     #wrapper.toggled #sidebar-wrapper {
@@ -1075,4 +1075,175 @@ a.silent {
 
 .small-br {
   margin-bottom: 1%;
+}
+
+.table.edit-user>*>tr>td:first-child {
+    width: 35%;
+}
+
+.chatlog {
+    font-family: monospace;
+    background-color: gainsboro;
+    border: 1px solid black !important;
+    margin-top: 2px;
+}
+
+.badguy {
+    color: red;
+    font-style: italic;
+}
+
+.centered {
+    text-align: center;
+}
+
+.mobile-flex>* {
+    margin: 2px;
+}
+
+.btn-group-justified {
+    width: auto;
+}
+
+.navbar-toggle>.glyphicon {
+    color: white;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar-toggle.with-icon {
+    padding: 5px 13px 5px 13px;
+}
+
+
+.twitter-typeahead>input {
+    margin-top: 10px;
+    width: 230px;
+}
+
+@media only screen and (max-width: 768px) {
+    #wrapper {
+        padding-left: 0;
+    }
+
+    #sidebar-wrapper {
+        width: 100%;
+        position: relative;
+        height: auto;
+        margin-top: 0;
+        overflow-y: visible;
+        position: fixed;
+        top: 0;
+    }
+
+    #sidebar-wrapper.collapse.in {
+        display: block !important;
+    }
+
+    #sidebar-wrapper.collapse {
+        display: none !important;
+    }
+
+    .sidebar-nav {
+        position: relative;
+        width: 100%;
+        padding-bottom: 20px;
+    }
+
+    .table-50-center, .table-75-center {
+        width: 100% !important;
+    }
+
+    .table>tbody>tr>td {
+        display: block;
+        border-top: none;
+    }
+
+    .table>*>tr {
+        display: flex;
+        flex-direction: column;
+        padding-bottom: 5px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    td>p, td {
+        padding: 0 !important;
+        margin: 1px 0 1px 0 !important;
+    }
+
+    td>.btn-group {
+        width: 100%;
+    }
+
+    .table>*>tr>td>p {
+        text-align: center;
+    }
+
+    .table>*>tr>td:first-child {
+        font-weight: 600;
+    }
+
+    .btn-group-justified {
+        width: 50%;
+        margin: 0 auto;
+    }
+
+    .btn-group-justified>.btn {
+        border-radius: 0;
+    }
+
+    .mobile-flex {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .mobile-flex>* {
+        margin: 2px 0 2px 0;
+    }
+
+    .modal-dialog {
+        margin-top: 50%;
+    }
+
+    tr.single-row {
+        display: flex;
+        flex-direction: row;
+    }
+
+    tr.single-row>td {
+        margin-right: 10px !important;
+    }
+
+    .no-mobile {
+        display: none;
+    }
+
+    .bubbles-container {
+        margin: 0;
+        width: 100%;
+    }
+    
+    .bubble {
+        width: 78%;
+    }
+
+    .narrow-content {
+        width: 100%;
+    }
+
+    .btn-group-justified {
+        width: 100%;
+    }
+
+    .table.edit-user>*>tr>td:first-child {
+        width: 100%;
+    }
+    
+    .twitter-typeahead>input {
+        margin-left: 15px;
+    }
+
+    .ripple-logo {
+        width: 90% !important;
+    }
 }

@@ -20,7 +20,7 @@ class Welcome {
 			if (hasPrivilege(Privileges::UserPendingVerification, $_GET["u"]))
 				redirect("index.php?p=38&u=".$_GET["u"]);
 			P::GlobalAlert();
-			echo '<div id="narrow-content">';
+			echo '<div class="narrow-content">';
 
 			if (hasPrivilege(Privileges::UserPublic, $_GET["u"])) {
 				echo '<h1><i class="fa fa-hand-peace-o"></i> Welcome to Ripple!</h1>

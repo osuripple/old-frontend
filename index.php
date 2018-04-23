@@ -217,15 +217,7 @@ if ($p < 100) {
     <script src="./js/jquery.sceditor.bbcode.js"></script>
 
     <!-- Custom JavaScript for every page -->
-    <script type="text/javascript">
-        // Initialize stuff
-        $('.icp-auto').iconpicker();
-        $('.colorpicker').colorpicker({format:"hex"});
-        $('.sceditor').sceditor({plugins: "bbcode", resizeEnabled: false, toolbarExclude: "font,table,code,quote,ltr,rtl" , style: "css/jquery.sceditor.default.css"});
-        $(".spoiler-trigger").click(function() {$(this).parent().next().collapse('toggle');});
-		$("[data-toggle=popover]").popover();
-		//$(".slider").slider()
-
+	<script type="text/javascript">
         // Are you sure window
         function sure(redr, pre)
         {
@@ -265,6 +257,15 @@ if ($p < 100) {
 				$('#icon_'+id)[0].className = "fa fa-play";
 			}
         }
+
+		$(document).ready(function () {
+			// Initialize stuff
+			$('.icp-auto').iconpicker();
+			$('.colorpicker').colorpicker({format:"hex"});
+			$('.sceditor').sceditor({plugins: "bbcode", resizeEnabled: false, toolbarExclude: "font,table,code,quote,ltr,rtl" , style: "css/jquery.sceditor.default.css"});
+			$(".spoiler-trigger").click(function() {$(this).parent().next().collapse('toggle');});
+			$("[data-toggle=popover]").popover();
+		})
     </script>
 
 

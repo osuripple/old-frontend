@@ -17,7 +17,7 @@ class EditApplication {
 			return;
 		}
 		?>
-		<div id="narrow-content" style="width:500px">
+		<div class="narrow-content" style="width:500px">
 			<h1><i class="fa fa-plane"></i> Edit application</h1><br>
 			<p>Here you can change your application's information. This will be shown to users when they are prompted to log in into your application.</p>
 			<form action="submit.php?action=editApplication" method="post">

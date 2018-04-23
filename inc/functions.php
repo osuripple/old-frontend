@@ -423,6 +423,11 @@ function printNavbar() {
 							<span class="icon-bar"></span>
 							<span class="icon-bar"></span>
 						</button>';
+						if (isset($_GET['p']) && $_GET['p'] >= 100) {
+						echo '<button type="button" class="navbar-toggle with-icon" data-toggle="collapse" data-target="#sidebar-wrapper">
+								<span class="glyphicon glyphicon-briefcase">
+							</button>';
+						}
 						global $isBday;
 						echo $isBday ? '<a class="navbar-brand" href="index.php"><i class="fa fa-birthday-cake"></i><img src="images/logos/text.png" style="display: inline; padding-left: 10px;"></a>' : '<a class="navbar-brand" href="index.php"><img src="images/logos/text.png"></a>';
 					echo '</div>
@@ -442,7 +447,7 @@ function printNavbar() {
 	}
 	// Right elements
 	echo '</ul><ul class="nav navbar-nav navbar-right">';
-	echo '<li><input type="text" style="width:200px; margin-top: 10px;" class="form-control" name="query" id="query" placeholder="Search users..."></li>';
+	echo '<li><input type="text" class="form-control" name="query" id="query" placeholder="Search users..."></li>';
 	// Logged in right elements
 	if (checkLoggedIn()) {
 		global $URL;
@@ -462,7 +467,7 @@ function printNavbar() {
  * Prints the admin left sidebar
 */
 function printAdminSidebar() {
-	echo '<div id="sidebar-wrapper">
+	echo '<div id="sidebar-wrapper" class="collapse" aria-expanded="false">
 					<ul class="sidebar-nav">
 						<li class="sidebar-brand">
 							<a href="#"><b>R</b>ipple <b>A</b>dmin <b>P</b>anel</a>

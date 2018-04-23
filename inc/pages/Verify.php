@@ -21,7 +21,7 @@ class Verify {
 			if (!hasPrivilege(Privileges::UserPendingVerification, $_GET["u"]))
 				throw new Exception;
 			P::GlobalAlert();
-			echo '<div id="narrow-content">
+			echo '<div class="narrow-content">
 				<h1><i class="fa fa-bus"></i> Almost there...</h1>
 				<p>
 					<b>Your account has been created, but it\'s not active yet!</b> Please log in to <b>Bancho</b> to activate it.

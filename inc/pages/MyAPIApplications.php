@@ -12,7 +12,7 @@ class MyAPIApplications {
 		$myApps = $GLOBALS['db']
 			->fetchAll("SELECT id, name FROM api_applications WHERE owner = ? LIMIT " . $p * 50 . ",50", [$_SESSION['userid']]);
 		?>
-		<div id="narrow-content" style="width:500px">
+		<div class="narrow-content" style="width:500px">
 			<h1><i class="fa fa-plane"></i> My API applications</h1>
 			<p>The Ripple public API allows developers to easily make applications and utilities that integrate with Ripple. If you don't know what an API is, you probably don't need to do anything on this page.</p>
 			<p><a href="https://en.wikipedia.org/wiki/Application_programming_interface">API (Wikipedia)</a> | <a href="https://git.zxq.co/ripple/api-docs/wiki">Ripple API documentation</a></p>

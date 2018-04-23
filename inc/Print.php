@@ -153,10 +153,10 @@ class P {
 		printAdminPanel('green', 'fa fa-star fa-5x', $modUsers, 'Admins');
 		echo '</div>';
 		// Quick edit/silence/kick user button
-		echo '<br><p align="center"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#quickEditUserModal">Quick edit user (username)</button>';
-		echo '&nbsp;&nbsp; <button type="button" class="btn btn-info" data-toggle="modal" data-target="#quickEditEmailModal">Quick edit user (email)</button>';
-		echo '&nbsp;&nbsp; <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#silenceUserModal">Silence user</button>';
-		echo '&nbsp;&nbsp; <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#kickUserModal">Kick user from Bancho</button>';
+		echo '<br><p align="center" class="mobile-flex"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#quickEditUserModal">Quick edit user (username)</button>';
+		echo '<button type="button" class="btn btn-info" data-toggle="modal" data-target="#quickEditEmailModal">Quick edit user (email)</button>';
+		echo '<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#silenceUserModal">Silence user</button>';
+		echo '<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#kickUserModal">Kick user from Bancho</button>';
 		echo '</p>';
 		// Users plays table
 		echo '<table class="table table-striped table-hover table-50-center">
@@ -200,7 +200,7 @@ class P {
 			echo '<td><p class="text-center"><span class="label label-'.$groupColor.'">'.$groupText.'</span></p></td>';
 			echo '<td><p class="text-center"><span class="label label-'.$allowedColor.'">'.$allowedText.'</span></p></td>';
 			echo '<td><p class="text-center">
-			<div class="btn-group">
+			<div class="btn-group-justified">
 			<a title="Edit user" class="btn btn-xs btn-primary" href="index.php?p=103&id='.$user['id'].'"><span class="glyphicon glyphicon-pencil"></span></a>';
 			if (hasPrivilege(Privileges::AdminBanUsers)) {
 				if (isBanned($user["id"])) {
@@ -436,7 +436,7 @@ class P {
 			//$selected[1][($userData["privileges"] & Privileges::UserBasic) > 0 ? 1 : 0] = 'selected';
 
 			echo '<p align="center"><font size=5><i class="fa fa-user"></i>	Edit user</font></p>';
-			echo '<table class="table table-striped table-hover table-50-center">';
+			echo '<table class="table table-striped table-hover table-75-center edit-user">';
 			echo '<tbody><form id="system-settings-form" action="submit.php" method="POST">
 			<input name="csrf" type="hidden" value="'.csrfToken().'">
 			<input name="action" value="saveEditUser" hidden>';
@@ -510,11 +510,11 @@ class P {
 				</tr>';
 			}
 			echo '<tr>
-			<td>Username color<br><i>(HTML or HEX color)</i></td>
+			<td>Username color<br><i class="no-mobile">(HTML or HEX color)</i></td>
 			<td><p class="text-center"><input type="text" name="c" class="form-control" value="'.$userStatsData['user_color'].'" '.$readonly[1].'></td>
 			</tr>';
 			echo '<tr>
-			<td>Username CSS<br><i>(like fancy gifs as background)</i></td>
+			<td>Username CSS<br><i class="no-mobile">(like fancy gifs as background)</i></td>
 			<td><p class="text-center"><input type="text" name="bg" class="form-control" value="'.$userStatsData['user_style'].'" '.$readonly[1].'></td>
 			</tr>';
 			echo '<tr>
@@ -538,7 +538,7 @@ class P {
 			if (hasPrivilege(Privileges::AdminManagePrivileges)) {
 				$gd = $userData["id"] == $_SESSION["userid"] ? "disabled" : "";
 				echo '<tr>
-				<td>Privileges<br><i>(Don\'t touch<br>UserPublic or UserNormal.<br>Use ban/restricted buttons<br>instead to avoid messing up)</i></td>
+				<td>Privileges<br><i class="no-mobile">(Don\'t touch UserPublic or UserNormal. Use ban/restricted buttons instead to avoid messing up)</i></td>
 				<td>';
 				$refl = new ReflectionClass("Privileges");
 				$privilegesList = $refl->getConstants();
@@ -556,7 +556,7 @@ class P {
 				<td><input class="form-control" id="privileges-value" name="priv" value="'.$userData["privileges"].'" '.$ro.'></td>
 				</tr>';
 				echo '<tr>
-				<td>Privilege group<br><i>(This is basically a preset<br>and will replace every<br>existing privilege)</i></td>
+				<td>Privilege group<i class="no-mobile">(This is basically a preset and will replace every existing privilege)</i></td>
 				<td>
 					<select id="privileges-group" name="privgroup" class="selectpicker" data-width="100%" onchange="groupUpdated();" '.$gd.'>';
 					$groups = $GLOBALS["db"]->fetchAll("SELECT * FROM privileges_groups");
@@ -589,14 +589,13 @@ class P {
 				</td>
 				</tr>';
 			}
-			echo '<tr>
+			echo '<tr class="single-row">
 			<td>Can edit custom badge</td>
 			<td><span class="label label-'.$cbCol.'">'.$cbText.'</span></td>
 			</tr>';
-			echo '<tr>
+			echo '<tr class="single-row">
 			<td>Detected AQN folder
-				<br>
-				<i>(If \'yes\', AQN (hax) folder has been<br>detected on this user, so he is<br>probably cheating).</i></td>
+				<i class="no-mobile">(If \'yes\', AQN (hax) folder has been detected on this user, so he is probably cheating).</i></td>
 			</td>
 			<td><span class="label label-'.$haxCol.'">'.$haxText.'</span></td>
 			</tr>';
@@ -604,7 +603,7 @@ class P {
 			<td>Notes for CMs
 			<br>
 			<i>(visible only from RAP)</i></td>
-			<td><textarea name="ncm" class="form-control" style="overflow:auto;resize:vertical;height:100px">' . $userData["notes"] . '</textarea></td>
+			<td><textarea name="ncm" class="form-control" style="overflow:auto;resize:vertical;height:500px">' . $userData["notes"] . '</textarea></td>
 			</tr>';
 			echo '<tr><td>IPs</td><td><ul>';
 			foreach ($ips as $ip) {
@@ -613,14 +612,12 @@ class P {
 			echo '</ul></td></tr>';
 			echo '</tbody></form>';
 			echo '</table>';
-			echo '<div class="text-center" style="width:50%; margin-left:25%;">
+			echo '<div class="text-center table-50-center">
 					<button type="submit" form="system-settings-form" class="btn btn-primary">Save changes</button><br><br>
-
-					<br><br>
 					<b>If you have made any changes to this user through this page, make sure to save them before using one of the following functions, otherwise unsubmitted changes will be lost.</b>
 					<ul class="list-group">
 						<li class="list-group-item list-group-item-info">Actions</li>
-						<li class="list-group-item">';
+						<li class="list-group-item mobile-flex">';
 							if (hasPrivilege(Privileges::AdminManageBadges)) {
 								echo '<a href="index.php?p=110&id='.$_GET['id'].'" class="btn btn-success">Edit badges</a>';
 							}
@@ -635,7 +632,7 @@ class P {
 
 					echo '<ul class="list-group">
 					<li class="list-group-item list-group-item-danger">Dangerous Zone</li>
-					<li class="list-group-item">';
+					<li class="list-group-item mobile-flex">';
 					if (hasPrivilege(Privileges::AdminWipeUsers)) {
 						echo '	<a href="index.php?p=123&id='.$_GET["id"].'" class="btn btn-danger">Wipe account</a>';
 						echo '	<a href="index.php?p=122&id='.$_GET["id"].'" class="btn btn-danger">Rollback account</a>';
@@ -646,7 +643,6 @@ class P {
 						echo '	<a onclick="sure(\'submit.php?action=lockUnlockUser&id='.$_GET['id'].'&csrf='.csrfToken().'\', \'Restrictions and bans will be removed from this account if you lock it. Make sure to lock only accounts that are not banned or restricted.\')" class="btn btn-danger">(Un)lock user</a>';
 						echo '	<a onclick="sure(\'submit.php?action=clearHWID&id='.$_GET['id'].'&csrf='.csrfToken().'\');" class="btn btn-danger">Clear HWID matches</a>';
 					}
-					echo '<br><br>';
 					if (hasPrivilege(Privileges::AdminCaker)) {
 						echo '<a href="index.php?p=128&uid=' . $_GET["id"] . '" class="btn btn-danger">Find ' . Fringuellina::$cakeRecipeName . '</a>';
 					}
@@ -851,8 +847,10 @@ class P {
 			<td><p class="text-center">'.$badge['name'].'</p></td>
 			<td><p class="text-center"><i class="fa '.$badge['icon'].' fa-2x"></i></p></td>
 			<td><p class="text-center">
+			<div class="btn-group-justified">
 			<a title="Edit badge" class="btn btn-xs btn-primary" href="index.php?p=109&id='.$badge['id'].'"><span class="glyphicon glyphicon-pencil"></span></a>
 			<a title="Delete badge" class="btn btn-xs btn-danger" onclick="sure(\'submit.php?action=removeBadge&id='.$badge['id'].'&csrf='.csrfToken().'\');"><span class="glyphicon glyphicon-trash"></span></a>
+			</div>
 			</p></td>
 			</tr>';
 		}
@@ -1114,7 +1112,7 @@ class P {
 			self::ExceptionMessageStaccah($_GET['e']);
 		}
 		// Header
-		echo '<span align="center"><h2><i class="fa fa-calendar"></i>	Admin Log</h2></span>';
+		echo '<span class="centered"><h2><i class="fa fa-calendar"></i>	Admin Log</h2></span>';
 		// Main page content here
 		echo '<div class="bubbles-container">';
 		if (!$logs) {
@@ -1166,7 +1164,7 @@ class P {
 			}
 		}
 		echo '<p align="center">
-		<object data="images/logos/logo-'.$color.'.svg" type="image/svg+xml" class="animated bounceIn"></object>
+		<object data="images/logos/logo-'.$color.'.svg" type="image/svg+xml" class="animated bounceIn ripple-logo"></object>
 		</p>';
 		global $isBday;
 		if ($isBday) {
@@ -1696,7 +1694,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			self::ExceptionMessage('<b>Registrations are currently disabled.</b>');
 			die();
 		}
-		echo '<br><div id="narrow-content"><h1><i class="fa fa-plus-circle"></i>	Sign up</h1>';
+		echo '<br><div class="narrow-content"><h1><i class="fa fa-plus-circle"></i>	Sign up</h1>';
 
 		$ip = getIp();
 
@@ -1747,7 +1745,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		self::MaintenanceStuff();
 		// Global alert
 		self::GlobalAlert();
-		echo '<div id="narrow-content"><h1><i class="fa fa-lock"></i>	Change password</h1>';
+		echo '<div class="narrow-content"><h1><i class="fa fa-lock"></i>	Change password</h1>';
 		// Print messages
 		self::Messages();
 		// Print default message if we have no exception/success
@@ -1779,7 +1777,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		// Get user settings data
 		$data = $GLOBALS['db']->fetch('SELECT * FROM users_stats WHERE id = ? LIMIT 1', $_SESSION['userid']);
 		// Title
-		echo '<div id="narrow-content"><h1><i class="fa fa-cog"></i>	User settings</h1>';
+		echo '<div class="narrow-content"><h1><i class="fa fa-cog"></i>	User settings</h1>';
 		// Print Exception if set
 		$exceptions = ['Nice troll.', 'You can\'t edit your settings while you\'re restricted.'];
 		if (isset($_GET['e']) && isset($exceptions[$_GET['e']])) {
@@ -1913,7 +1911,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		// Global alert
 		self::GlobalAlert();
 		// Title
-		echo '<div id="narrow-content"><h1><i class="fa fa-picture-o"></i>	Change avatar</h1>';
+		echo '<div class="narrow-content"><h1><i class="fa fa-picture-o"></i>	Change avatar</h1>';
 		// Print Exception if set
 		$exceptions = ['Nice troll.', 'That file is not a valid image.', 'Invalid file format. Supported extensions are .png, .jpg and .jpeg', 'The file is too large. Maximum file size is 1MB.', 'Error while uploading avatar.', "You can't change your avatar while you're restricted."];
 		if (isset($_GET['e']) && isset($exceptions[$_GET['e']])) {
@@ -1991,7 +1989,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		self::MaintenanceStuff();
 		// Global alert
 		self::GlobalAlert();
-		echo '<div id="narrow-content" style="width:500px"><h1><i class="fa fa-exclamation-circle"></i> Recover your password</h1>';
+		echo '<div class="narrow-content" style="width:500px"><h1><i class="fa fa-exclamation-circle"></i> Recover your password</h1>';
 		// Print Exception if set and in array.
 		$exceptions = ['Nice troll.', "That user doesn't exist.", "You are banned from Ripple. We won't let you come back in."];
 		if (isset($_GET['e']) && isset($exceptions[$_GET['e']])) {
@@ -2188,7 +2186,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			self::ExceptionMessageStaccah($_GET['e']);
 		}
 		// Header
-		echo '<span align="center"><h2><i class="fa fa-music"></i>	Beatmap rank requests</h2></span>';
+		echo '<span class="centered"><h2><i class="fa fa-music"></i>	Beatmap rank requests</h2></span>';
 		// Main page content here
 		echo '<div class="page-content-wrapper">';
 		//echo '<div style="width: 50%; margin-left: 25%;" class="alert alert-info" role="alert"><i class="fa fa-info-circle"></i>	Only the requests made in the past 24 hours are shown. <b>Make sure to load every difficulty in-game before ranking a map.</b><br><i>(We\'ll add a system that does it automatically soonTM)</i></div>';
@@ -2314,12 +2312,12 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			self::ExceptionMessageStaccah($_GET['e']);
 		}
 		// Header
-		echo '<span align="center"><h2><i class="fa fa-group"></i>	Privilege Groups</h2></span>';
+		echo '<span class="centered"><h2><i class="fa fa-group"></i>	Privilege Groups</h2></span>';
 		// Main page content here
 		echo '<div align="center">';
 		echo '<table class="table table-striped table-hover table-75-center">
 		<thead>
-		<tr><th class="text-left"><i class="fa fa-group"></i>	ID</th><th class="text-center">Name</th><th class="text-center">Privileges</th><th class="text-center">Action</th></tr>
+		<tr><th class="text-center"><i class="fa fa-group"></i>	ID</th><th class="text-center">Name</th><th class="text-center">Privileges</th><th class="text-center">Action</th></tr>
 		</thead>
 		<tbody>';
 		foreach ($groups as $group) {
@@ -2328,7 +2326,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 					<td style='text-align: center;'>$group[name]</td>
 					<td style='text-align: center;'>$group[privileges]</td>
 					<td style='text-align: center;'>
-						<div class='btn-group'>
+						<div class='btn-group-justified'>
 							<a href='index.php?p=119&id=$group[id]' title='Edit' class='btn btn-xs btn-primary'><span class='glyphicon glyphicon-pencil'></span></a>
 							<a href='index.php?p=119&h=$group[id]' title='Inherit' class='btn btn-xs btn-warning'><span class='glyphicon glyphicon-copy'></span></a>
 							<a href='index.php?p=120&id=$group[id]' title='View users in this group' class='btn btn-xs btn-success'><span class='glyphicon glyphicon-search'></span></a>
@@ -2461,7 +2459,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			// Maintenance check
 			self::MaintenanceStuff();
 			// Header
-			echo '<span align="center"><h2><i class="fa fa-search"></i>	Users in '.$groupData["name"].' group</h2></span>';
+			echo '<span class="centered"><h2><i class="fa fa-search"></i>	Users in '.$groupData["name"].' group</h2></span>';
 			// Main page content here
 			echo '<div align="center">';
 			echo '<table class="table table-striped table-hover table-75-center">
@@ -2731,7 +2729,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		echo '<br>';
 
 		echo '
-		<div id="narrow-content">
+		<div class="narrow-content">
 			<form action="submit.php" method="POST">
 				<input name="csrf" type="hidden" value="'.csrfToken().'">
 				<input name="action" value="redirectRankBeatmap" hidden>
@@ -2859,7 +2857,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			echo '<br>';
 
 			echo '
-			<div id="narrow-content">
+			<div class="narrow-content">
 				<table class="table table-striped table-hover table-100-center"><tbody>
 					<tr>
 						<td><b>From</b></td>
@@ -2867,11 +2865,11 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 					</tr>
 					<tr>
 						<td><b>Reported user</b></td>
-						<td><b>' . getUserUsername($report["to_uid"]) . '</b></td>
+						<td><span class="badguy">' . getUserUsername($report["to_uid"]) . '</span></td>
 					</tr>
 					<tr>
 						<td><b>Reason</b></td>
-						<td><b>' . htmlspecialchars($report["reason"]) . '</b></td>
+						<td><i>' . htmlspecialchars($report["reason"]) . '</i></td>
 					</tr>
 					<tr>
 						<td><b>When</b></td>
@@ -2879,7 +2877,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 					</tr>
 					<tr>
 						<td><b>Chatlog*</b></td>
-						<td>' . str_replace("\n", "<br>", $report["chatlog"]) .  '</td>
+						<td class="chatlog">' . str_replace("\n", "<br>", $report["chatlog"]) .  '</td>
 					</tr>
 					<tr class="' . $statusRowClass . '">
 						<td><b>Status</b></td>
@@ -2895,7 +2893,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 
 				<ul class="list-group">
 					<li class="list-group-item list-group-item-warning">Ticket actions</li>
-					<li class="list-group-item">
+					<li class="list-group-item mobile-flex">
 						<a class="btn btn-warning ' . $takeButtonDisabled . '" href="submit.php?action=takeReport&id=' . $report["id"] .'&csrf='.csrfToken(). '"><i class="fa fa-bolt"></i> ' . $takeButtonText .' ticket</a>
 						<a class="btn btn-success ' . $solvedButtonDisabled . '" href="submit.php?action=solveUnsolveReport&id=' . $report["id"] .'&csrf='.csrfToken(). '"><i class="fa fa-check"></i> ' . $solvedButtonText . '</a>
 						<a class="btn btn-danger ' . $uselessButtonDisabled . '" href="submit.php?action=uselessUsefulReport&id=' . $report["id"] .'&csrf='.csrfToken(). '"><i class="fa fa-trash"></i> ' . $uselessButtonText . '</a>
@@ -2904,7 +2902,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 
 				<ul class="list-group">
 					<li class="list-group-item list-group-item-danger">Quick actions</li>
-					<li class="list-group-item">
+					<li class="list-group-item mobile-flex">
 						<a class="btn btn-primary" href="index.php?p=103&id=' . $report["to_uid"] . '"><i class="fa fa-expand"></i> View reported user in RAP</a>
 						<div class="btn btn-warning" data-toggle="modal" data-target="#silenceUserModal" data-who="' . getUserUsername($report["to_uid"]) . '"><i class="fa fa-microphone-slash"></i> Silence reported user</div>
 						<div class="btn btn-warning" data-toggle="modal" data-target="#silenceUserModal" data-who="' . getUserUsername($report["from_uid"]) . '"><i class="fa fa-microphone-slash"></i> Silence source user</div>

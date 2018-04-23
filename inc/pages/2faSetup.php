@@ -19,7 +19,7 @@ class TwoFASetup {
 			$token = getConfirmationToken($_SESSION["userid"]);
 		}
 		echo '
-		<div id="narrow-content">
+		<div class="narrow-content">
 			<div align="center">
 				<h1><i class="fa fa-ticket"></i> Two-Factor Auth Setup</h1>
 				<br>
