@@ -256,7 +256,11 @@ if ($p < 100) {
 				audio.currentTime = 0;
 				$('#icon_'+id)[0].className = "fa fa-play";
 			}
-        }
+		}
+		
+		function updateResolution () {
+			document.isMobile = window.matchMedia('(max-width: 768px)').matches
+		}
 
 		$(document).ready(function () {
 			// Initialize stuff
@@ -265,6 +269,10 @@ if ($p < 100) {
 			$('.sceditor').sceditor({plugins: "bbcode", resizeEnabled: false, toolbarExclude: "font,table,code,quote,ltr,rtl" , style: "css/jquery.sceditor.default.css"});
 			$(".spoiler-trigger").click(function() {$(this).parent().next().collapse('toggle');});
 			$("[data-toggle=popover]").popover();
+			$(window).resize(function () {
+				updateResolution()
+			})
+			updateResolution()
 		})
     </script>
 
@@ -321,6 +329,14 @@ switch ($p) {
 						}
 						updatePrivileges();
 					}
+					function scheduleSaveReminderFadeOut () {
+						setTimeout(function () {
+							if (document.isMobile) {
+								return
+							}
+							$(".bottom-fixed.enabled>.alert").fadeOut(1000);
+						}, 1500)
+					}
 					$(".getcountry").click(function() {
 						var i = $(this);
 						$.get("https://ip.zxq.co/" + $(this).data("ip") + "/country", function(data) {
@@ -328,6 +344,15 @@ switch ($p) {
 							i.text("(" + data + ")");
 						});
 					});
+					$(".unpin").click(function () {
+						$(".bottom-fixed").toggleClass("enabled")
+						$(".bottom-padded").toggleClass("enabled")
+						$(".bottom-fixed>.alert").fadeIn(250)
+						if ($(".bottom-fixed").hasClass("enabled")) {
+							scheduleSaveReminderFadeOut()
+						}
+					})
+					scheduleSaveReminderFadeOut()
                 </script>
                 ';
 	break;

@@ -612,44 +612,50 @@ class P {
 			echo '</ul></td></tr>';
 			echo '</tbody></form>';
 			echo '</table>';
-			echo '<div class="text-center table-50-center">
+			echo '<div class="text-center table-50-center bottom-padded enabled">
 					<button type="submit" form="system-settings-form" class="btn btn-primary">Save changes</button><br><br>
-					<b>If you have made any changes to this user through this page, make sure to save them before using one of the following functions, otherwise unsubmitted changes will be lost.</b>
-					<ul class="list-group">
-						<li class="list-group-item list-group-item-info">Actions</li>
-						<li class="list-group-item mobile-flex">';
-							if (hasPrivilege(Privileges::AdminManageBadges)) {
-								echo '<a href="index.php?p=110&id='.$_GET['id'].'" class="btn btn-success">Edit badges</a>';
-							}
-							echo '	<a href="index.php?p=104&id='.$_GET['id'].'" class="btn btn-info">Change identity</a>';
-							if (hasPrivilege(Privileges::UserDonor, $_GET["id"])) {
-								echo '	<a onclick="sure(\'submit.php?action=removeDonor&id='.$_GET['id'].'&csrf='.csrfToken().'\');" class="btn btn-danger">Remove donor</a>';
-							}
-							echo '	<a href="index.php?p=121&id='.$_GET['id'].'" class="btn btn-warning">Give donor</a>';
-							echo '	<a href="index.php?u='.$_GET['id'].'" class="btn btn-primary">View profile</a>';
-						echo '</li>
-					</ul>';
+					<div class="bottom-fixed enabled">
+						<div class="alert alert-warning">
+							<i class="fa fa-exclamation-triangle"></i>	<b>Make sure to save before using any of the functions below, or changes will be lost</b>.
+						</div>
+						<ul class="list-group">
+							<li class="list-group-item list-group-item-info">
+							Actions
+							<a title="Pin/Unpin" class="unpin btn btn-xs btn-primary no-mobile"><span class="glyphicon glyphicon-pushpin"></span></a></li>
+							<li class="list-group-item mobile-flex">';
+								if (hasPrivilege(Privileges::AdminManageBadges)) {
+									echo '<a href="index.php?p=110&id='.$_GET['id'].'" class="btn btn-success">Edit badges</a>';
+								}
+								echo '	<a href="index.php?p=104&id='.$_GET['id'].'" class="btn btn-info">Change identity</a>';
+								if (hasPrivilege(Privileges::UserDonor, $_GET["id"])) {
+									echo '	<a onclick="sure(\'submit.php?action=removeDonor&id='.$_GET['id'].'&csrf='.csrfToken().'\');" class="btn btn-danger">Remove donor</a>';
+								}
+								echo '	<a href="index.php?p=121&id='.$_GET['id'].'" class="btn btn-warning">Give donor</a>';
+								echo '	<a href="index.php?u='.$_GET['id'].'" class="btn btn-primary">View profile</a>';
+							echo '</li>
+						</ul>';
 
-					echo '<ul class="list-group">
-					<li class="list-group-item list-group-item-danger">Dangerous Zone</li>
-					<li class="list-group-item mobile-flex">';
-					if (hasPrivilege(Privileges::AdminWipeUsers)) {
-						echo '	<a href="index.php?p=123&id='.$_GET["id"].'" class="btn btn-danger">Wipe account</a>';
-						echo '	<a href="index.php?p=122&id='.$_GET["id"].'" class="btn btn-danger">Rollback account</a>';
-					}
-					if (hasPrivilege(Privileges::AdminBanUsers)) {
-						echo '	<a onclick="sure(\'submit.php?action=banUnbanUser&id='.$_GET['id'].'&csrf=' . csrfToken() . '\')" class="btn btn-danger">(Un)ban user</a>';
-						echo '	<a onclick="sure(\'submit.php?action=restrictUnrestrictUser&id='.$_GET['id'].'&csrf='.csrfToken().'\')" class="btn btn-danger">(Un)restrict user</a>';
-						echo '	<a onclick="sure(\'submit.php?action=lockUnlockUser&id='.$_GET['id'].'&csrf='.csrfToken().'\', \'Restrictions and bans will be removed from this account if you lock it. Make sure to lock only accounts that are not banned or restricted.\')" class="btn btn-danger">(Un)lock user</a>';
-						echo '	<a onclick="sure(\'submit.php?action=clearHWID&id='.$_GET['id'].'&csrf='.csrfToken().'\');" class="btn btn-danger">Clear HWID matches</a>';
-					}
-					if (hasPrivilege(Privileges::AdminCaker)) {
-						echo '<a href="index.php?p=128&uid=' . $_GET["id"] . '" class="btn btn-danger">Find ' . Fringuellina::$cakeRecipeName . '</a>';
-					}
-					echo '		<a onclick="sure(\'submit.php?action=toggleCustomBadge&id='.$_GET['id'].'&csrf='.csrfToken().'\');" class="btn btn-danger">'.(($userStatsData["can_custom_badge"] == 1) ? "Revoke" : "Grant").' custom badge</a>';
-					echo '<br>
-						</li>
-					</ul>';
+						echo '<ul class="list-group">
+						<li class="list-group-item list-group-item-danger">Dangerous Zone</li>
+						<li class="list-group-item mobile-flex">';
+						if (hasPrivilege(Privileges::AdminWipeUsers)) {
+							echo '	<a href="index.php?p=123&id='.$_GET["id"].'" class="btn btn-danger">Wipe account</a>';
+							echo '	<a href="index.php?p=122&id='.$_GET["id"].'" class="btn btn-danger">Rollback account</a>';
+						}
+						if (hasPrivilege(Privileges::AdminBanUsers)) {
+							echo '	<a onclick="sure(\'submit.php?action=banUnbanUser&id='.$_GET['id'].'&csrf=' . csrfToken() . '\')" class="btn btn-danger">(Un)ban user</a>';
+							echo '	<a onclick="sure(\'submit.php?action=restrictUnrestrictUser&id='.$_GET['id'].'&csrf='.csrfToken().'\')" class="btn btn-danger">(Un)restrict user</a>';
+							echo '	<a onclick="sure(\'submit.php?action=lockUnlockUser&id='.$_GET['id'].'&csrf='.csrfToken().'\', \'Restrictions and bans will be removed from this account if you lock it. Make sure to lock only accounts that are not banned or restricted.\')" class="btn btn-danger">(Un)lock user</a>';
+							echo '	<a onclick="sure(\'submit.php?action=clearHWID&id='.$_GET['id'].'&csrf='.csrfToken().'\');" class="btn btn-danger">Clear HWID matches</a>';
+						}
+						if (hasPrivilege(Privileges::AdminCaker)) {
+							echo '<a href="index.php?p=128&uid=' . $_GET["id"] . '" class="btn btn-danger">Find ' . Fringuellina::$cakeRecipeName . '</a>';
+						}
+						echo '		<a onclick="sure(\'submit.php?action=toggleCustomBadge&id='.$_GET['id'].'&csrf='.csrfToken().'\');" class="btn btn-danger">'.(($userStatsData["can_custom_badge"] == 1) ? "Revoke" : "Grant").' custom badge</a>';
+						echo '<br>
+							</li>
+						</ul>
+					</div>';
 
 				echo '</div>
 				</div>';
