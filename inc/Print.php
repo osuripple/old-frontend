@@ -595,7 +595,7 @@ class P {
 			</tr>';
 			echo '<tr class="single-row">
 			<td>Detected AQN folder
-				<i class="no-mobile">(If \'yes\', AQN (hax) folder has been detected on this user, so he is probably cheating).</i></td>
+				<i class="no-mobile">(If \'yes\', AQN (hax) folder has been detected on this user, so he is probably cheating).</i>
 			</td>
 			<td><span class="label label-'.$haxCol.'">'.$haxText.'</span></td>
 			</tr>';
