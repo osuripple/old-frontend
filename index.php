@@ -356,7 +356,7 @@ switch ($p) {
 					})
 					$(document).ready(function () {
 						if (window.localStorage.getItem("editUserPinned") === null) {
-							window.localStorage.setItem("editUserPinned", true)
+							window.localStorage.setItem("editUserPinned", "true")
 						}
 						var pinned = window.localStorage.getItem("editUserPinned") === "true"
 						if (pinned) {
