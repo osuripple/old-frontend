@@ -1143,7 +1143,24 @@ a.silent {
     position: absolute;
 }
 
+.mobile-only {
+    display: none;
+}
+
+tr.text-center > td {
+    text-align: center;
+}
+
+#ranktable {
+    width: 75%;
+    margin-left: 15%;
+}
+
 @media only screen and (max-width: 768px) {
+    .mobile-only {
+        display: initial;
+    }
+
     #wrapper {
         padding-left: 0;
     }
@@ -1274,5 +1291,30 @@ a.silent {
         margin: 0;
         left: 0;
         width: auto;
+    }
+
+    #ranktable {
+        width: 100%;
+        margin: 0 auto 50px auto;
+    }
+
+    #ranktable .mobile-only + * {
+        float: right;
+        margin-right: 10px;
+    }
+
+    #ranktable .mobile-only {
+        float: left;
+        text-align: left !important;
+        margin-left: 10px;
+        font-weight: 600;
+    }
+
+    #ranktable tr {
+        margin-bottom: 10px;
+    }
+    
+    #ranktable td {
+        margin: 0 !important;
     }
 }
