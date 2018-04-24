@@ -612,9 +612,9 @@ class P {
 			echo '</ul></td></tr>';
 			echo '</tbody></form>';
 			echo '</table>';
-			echo '<div class="text-center table-50-center bottom-padded enabled">
+			echo '<div class="text-center table-50-center bottom-padded">
 					<button type="submit" form="system-settings-form" class="btn btn-primary">Save changes</button><br><br>
-					<div class="bottom-fixed enabled">
+					<div class="bottom-fixed">
 						<div class="alert alert-warning">
 							<i class="fa fa-exclamation-triangle"></i>	<b>Make sure to save before using any of the functions below, or changes will be lost</b>.
 						</div>

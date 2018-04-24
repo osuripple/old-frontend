@@ -348,11 +348,20 @@ switch ($p) {
 						$(".bottom-fixed").toggleClass("enabled")
 						$(".bottom-padded").toggleClass("enabled")
 						$(".bottom-fixed>.alert").fadeIn(250)
-						if ($(".bottom-fixed").hasClass("enabled")) {
+						var pinned = $(".bottom-fixed").hasClass("enabled")
+						if (pinned) {
 							scheduleSaveReminderFadeOut()
 						}
+						window.localStorage.setItem("editUserPinned", pinned.toString())
 					})
-					scheduleSaveReminderFadeOut()
+					$(document).ready(function () {
+						var pinned = window.localStorage.getItem("editUserPinned") === "true"
+						if (pinned) {
+							$(".bottom-fixed").addClass("enabled");
+							$(".bottom-padded").addClass("enabled");
+							scheduleSaveReminderFadeOut()
+						}
+					});
                 </script>
                 ';
 	break;
