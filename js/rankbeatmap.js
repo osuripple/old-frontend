@@ -48,7 +48,7 @@ $("document").ready(function() {
 	if (href.indexOf("force=1") === -1) {
 		reload = href.substring(0, href.indexOf("#")) + "&force=1"
 	}
-	$.ajax("https://old.ripple.moe/letsapi/v1/cacheBeatmap", {
+	$.ajax("/letsapi/v1/cacheBeatmap", {
 		method: "POST",
 		data: {
 			sid: bsid,
