@@ -864,6 +864,7 @@ a.silent {
 .badguy {
     color: red;
     font-style: italic;
+    text-decoration: underline;
 }
 
 .centered {

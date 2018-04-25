@@ -2871,7 +2871,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 					</tr>
 					<tr>
 						<td><b>Reported user</b></td>
-						<td><span class="badguy">' . getUserUsername($report["to_uid"]) . '</span></td>
+						<td><a href="index.php?u=' . $report["to_uid"] . '" target="_blank" class="badguy">' . getUserUsername($report["to_uid"]) . '</a></td>
 					</tr>
 					<tr>
 						<td><b>Reason</b></td>
