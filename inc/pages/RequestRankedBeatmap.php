@@ -115,7 +115,7 @@ class RequestRankedBeatmap {
 			$GLOBALS["db"]->execute("INSERT INTO rank_requests (id, userid, bid, type, time, blacklisted) VALUES (NULL, ?, ?, ?, ?, 0)", [$_SESSION["userid"], $matches[2], $matches[1], time()]);
 
 			// Send schiavo message
-			Schiavo::Bunk("**".$_SESSION["username"]."** has sent a rank request for beatmap **".$_POST["url"]."**");
+			@Schiavo::Bunk("**".$_SESSION["username"]."** has sent a rank request for beatmap **".$_POST["url"]."**");
 
 			// Set success message
 			$ret["success"] = "Your beatmap ranking request has been submitted successfully! Our BATs will check your request and eventually rank it.";

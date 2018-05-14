@@ -40,7 +40,7 @@ class SimpleMailgun {
 	 * @param string $content The email content.
 	 */
 	public function Send($from, $to, $subject, $content) {
-		Schiavo::Bunk("Sending mail to $to with subject $subject");
+		@Schiavo::Bunk("Sending mail to $to with subject $subject");
 		$arr = ['from' => $from, 'to' => $to, 'subject' => $subject, 'html' => $content];
 		$data = $this->CurlRequest('/messages', $arr);
 		if (!$data[0]) {

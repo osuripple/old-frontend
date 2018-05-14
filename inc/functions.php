@@ -1738,7 +1738,7 @@ function multiaccCheckIP($ip) {
 	/*$multiUsername = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ?", [$multiUserID]);
 
 	if ($multiUsername) {
-		Schiavo::CM("User **" . current($multiUsername) . "** (https://ripple.moe/?u=$multiUserID) tried to create a multiaccount (**" . $_POST['u'] . "**) from IP **" . $ip . "**");
+		@Schiavo::CM("User **" . current($multiUsername) . "** (https://ripple.moe/?u=$multiUserID) tried to create a multiaccount (**" . $_POST['u'] . "**) from IP **" . $ip . "**");
 	}
 	$GLOBALS["db"]->execute("UPDATE users SET notes=CONCAT(COALESCE(notes, ''),'\n-- Multiacc attempt (".$_POST["u"].") from IP ".$ip."') WHERE id = ?", [$multiUserID]); */
 }
