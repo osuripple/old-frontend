@@ -107,12 +107,13 @@ $discordConfig = [
 
 // Paypal config
 $paypalConfig = [
-	"email" => ""
+	"email" => "",
+	"sandbox" => false
 ];
 
 // Leave empty for ripple clones
 $gooseKey = "";
-$ppTgConfig = [
+$paypalTgConfig = [
 	"token" => "",
 	"recipient" => 0
 ];
