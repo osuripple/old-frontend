@@ -111,6 +111,7 @@ $paypalConfig = [
 ];
 
 // Leave empty for ripple clones
+$gooseKey = "";
 $ppTgConfig = [
 	"token" => "",
 	"recipient" => 0
