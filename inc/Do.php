@@ -1234,52 +1234,8 @@ class D {
 		try {
 			if (!isset($_POST["id"]) || empty($_POST["id"]) || !isset($_POST["m"]) || empty($_POST["m"]))
 				throw new Exception("Invalid user");
-			$userData = $GLOBALS["db"]->fetch("SELECT username, email, donor_expire FROM users WHERE id = ? LIMIT 1", [$_POST["id"]]);
-			if (!$userData) {
-				throw new Exception("That user doesn't exist");
-			}
-			$isDonor = hasPrivilege(Privileges::UserDonor, $_POST["id"]);
-			$username = $userData["username"];
-			if (!$isDonor || $_POST["type"] == 1) {
-				$start = time();
-			} else {
-				$start = $userData["donor_expire"];
-				if ($start < time()) {
-					$start = time();
-				}
-			}
-			$unixPeriod = $start+((30*86400)*$_POST["m"]);
-			$months = round(($unixPeriod-time())/(30*86400));
-			$GLOBALS["db"]->execute("UPDATE users SET privileges = privileges | ".Privileges::UserDonor.", donor_expire = ? WHERE id = ?", [$unixPeriod, $_POST["id"]]);
-
-			// We do the log thing here because the badge part _might_ fail
+			$months = giveDonor($_POST["id"], $_POST["m"], $_POST["type"] == 0);
 			rapLog(sprintf("has given donor for %s months to user %s", $_POST["m"], $username), $_SESSION["userid"]);
-
-			$hasAlready = $GLOBALS["db"]->fetch("SELECT id FROM user_badges WHERE user = ? AND badge = 14 LIMIT 1", [$_POST["id"]]);
-			if (!$hasAlready) {
-				// 14 = donor badge
-				$GLOBALS["db"]->execute("INSERT INTO user_badges(user, badge) VALUES (?, ?);", [$_POST["id"], 14]);
-			}
-			// Send email
-			// Feelin' peppy-y
-			if ($_POST["m"] >= 20) $TheMoreYouKnow = "Did you know that your donation accounts for roughly one month of keeping the main server up? That's crazy! Thank you so much!";
-			else if ($_POST["m"] >= 15 && $_POST["m"] < 20) $TheMoreYouKnow = "Normally we would say how much of our expenses a certain donation pays for, but your donation is halfway through paying the domain for 1 year and paying the main server for 1 month. So we don't really know what to say here: your donation pays for about 75% of keeping the server up one month... ? I guess? Thank you anyway!";
-			else if ($_POST["m"] >= 10 && $_POST["m"] < 15) $TheMoreYouKnow = "You know what we could do with the amount you donated? We could probably renew the domain for one more year! Although your money is more likely to end up being spent on paying the main server. Thanks anyway!";
-			else if ($_POST["m"] >= 4 && $_POST["m"] < 10) $TheMoreYouKnow = "Your donation will help to keep the beatmap mirror we set up for Ripple up for one month! Thanks a lot!";
-			else if ($_POST["m"] >= 1 && $_POST["m"] < 4) $TheMoreYouKnow =  "With your donation, we can afford to keep up the error logging server, which is a little VPS on which we host an error logging service (Sentry). Thanks a lot!";
-
-			global $MailgunConfig;
-			$mailer = new SimpleMailgun($MailgunConfig);
-			$mailer->Send(
-				'Ripple <noreply@'.$MailgunConfig['domain'].'>', $userData['email'],
-				'Thank you for donating!',
-				sprintf(
-					"Hey %s! Thanks for donating to Ripple. It's thanks to the support of people like you that we can afford keeping the service up. Your donation has been processed, and you should now be able to get the donator role on discord, and have access to all the other perks listed on the \"Support us\" page.<br><br>%s<br><br>Your donor expires in %s months. Until then, have fun!<br>The Ripple Team",
-					$username,
-					$TheMoreYouKnow,
-					$months
-				)
-			);
 			redirect("index.php?p=102&s=Donor status changed. Donor for that user now expires in ".$months." months!");
 		}
 		catch(Exception $e) {

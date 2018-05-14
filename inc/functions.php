@@ -1806,6 +1806,10 @@ function getDonorPrice($months) {
 	return number_format(pow($months * 30 * 0.2, 0.70), 2, ".", "");
 }
 
+function getDonorMonths($price) {
+	return round(pow(3.51, (1 / 0.70)) / 30 / 0.2);
+}
+
 function unsetCookie($name) {
 	unset($_COOKIE[$name]);
 	setcookie($name, "", time()-3600);
@@ -1883,4 +1887,54 @@ function csrfCheck($givenToken=NULL, $regen=true) {
 		$_SESSION['csrf'] = generateCsrfToken();
 	}
 	return hash_equals($rightToken, $givenToken);
+}
+
+function giveDonor($userID, $months, $add=true) {
+	$userData = $GLOBALS["db"]->fetch("SELECT username, email, donor_expire FROM users WHERE id = ? LIMIT 1", [$userID]);
+	if (!$userData) {
+		throw new Exception("That user doesn't exist");
+	}
+	$isDonor = hasPrivilege(Privileges::UserDonor, $userID);
+	$username = $userData["username"];
+	if (!$isDonor || !$add) {
+		$start = time();
+	} else {
+		$start = $userData["donor_expire"];
+		if ($start < time()) {
+			$start = time();
+		}
+	}
+	$unixExpire = $start+((30*86400)*$months);
+	$monthsExpire = round(($unixExpire-time())/(30*86400));
+	$GLOBALS["db"]->execute("UPDATE users SET privileges = privileges | ".Privileges::UserDonor.", donor_expire = ? WHERE id = ?", [$unixExpire, $userID]);
+
+	$donorBadge = $GLOBALS["db"]->fetch("SELECT id FROM badges WHERE name = 'Donator' LIMIT 1");
+	if (!$donorBadge) {
+		throw new Exception("There's no Donor badge in the database. Please run bdzr to migrate the database to the latest version.");
+	}
+	$hasAlready = $GLOBALS["db"]->fetch("SELECT id FROM user_badges WHERE user = ? AND badge = ? LIMIT 1", [$userID, $donorBadge["id"]]);
+	if (!$hasAlready) {
+		$GLOBALS["db"]->execute("INSERT INTO user_badges(user, badge) VALUES (?, ?);", [$userID, $donorBadge["id"]]);
+	}
+	// Send email
+	// Feelin' peppy-y
+	if ($months >= 20) $TheMoreYouKnow = "Did you know that your donation accounts for roughly one month of keeping the main server up? That's crazy! Thank you so much!";
+	else if ($months >= 15 && $months < 20) $TheMoreYouKnow = "Normally we would say how much of our expenses a certain donation pays for, but your donation is halfway through paying the domain for 1 year and paying the main server for 1 month. So we don't really know what to say here: your donation pays for about 75% of keeping the server up one month. Thank you so much!";
+	else if ($months >= 10 && $months < 15) $TheMoreYouKnow = "You know what we could do with the amount you donated? We could probably renew the domain for one more year! Although your money is more likely to end up being spent on paying the main server. Thank you so much!";
+	else if ($months >= 4 && $months < 10) $TheMoreYouKnow = "Your donation will help to keep the beatmap mirror we set up for Ripple up for one month! Thanks a lot!";
+	else if ($months >= 1 && $months < 4) $TheMoreYouKnow =  "With your donation, we can afford to keep up the error logging server, which is a little VPS on which we host an error logging service (Sentry). Thanks a lot!";
+	
+	global $MailgunConfig;
+	$mailer = new SimpleMailgun($MailgunConfig);
+	$mailer->Send(
+		'Ripple <noreply@'.$MailgunConfig['domain'].'>', $userData['email'],
+		'Thank you for donating!',
+		sprintf(
+			"Hey %s! Thanks for donating to Ripple. It's thanks to the support of people like you that we can afford keeping the service up. Your donation has been processed, and you should now be able to get the donator role on discord, and have access to all the other perks listed on the \"Support us\" page.<br><br>%s<br><br>Your donor expires in %s months. Until then, have fun!<br>The Ripple Team",
+			$username,
+			$TheMoreYouKnow,
+			$monthsExpire
+		)
+	);
+	return $monthsExpire;
 }

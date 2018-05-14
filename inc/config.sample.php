@@ -109,3 +109,9 @@ $discordConfig = [
 $paypalConfig = [
 	"email" => ""
 ];
+
+// Leave empty for ripple clones
+$ppTgConfig = [
+	"token" => "",
+	"recipient" => 0
+];
