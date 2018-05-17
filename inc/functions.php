@@ -1807,7 +1807,7 @@ function getDonorPrice($months) {
 }
 
 function getDonorMonths($price) {
-	return round(pow(3.51, (1 / 0.70)) / 30 / 0.2);
+	return round(pow($price, (1 / 0.70)) / 30 / 0.2);
 }
 
 function unsetCookie($name) {
