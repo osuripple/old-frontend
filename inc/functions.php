@@ -167,6 +167,8 @@ function setTitle($p) {
 			129 => 'View cake',
 			130 => 'Cake recipes',
 			131 => 'View cake recipe',
+			132 => 'View anticheat reports',
+			133 => 'View anticheat report'
 		];
 		if (isset($namesRipple[$p])) {
 			return __maketitle('Ripple', $namesRipple[$p]);
@@ -373,6 +375,18 @@ function printPage($p) {
 				Fringuellina::PrintEditCake();
 			break;
 
+			// Admin panel - View anticheat reports
+			case 132:
+				sessionCheckAdmin(Privileges::AdminManageUsers);
+				P::AdminViewAnticheatReports();
+			break;
+
+			// Admin panel - View anticheat report
+			case 133:
+				sessionCheckAdmin(Privileges::AdminManageUsers);
+				P::AdminViewAnticheatReport();
+			break;
+
 			// 404 page
 			default:
 				define('NotFound', '<br><h1>404</h1><p>Page not found. Meh.</p>');
@@ -478,8 +492,10 @@ function printAdminSidebar() {
 							echo '<li><a href="index.php?p=101"><i class="fa fa-cog"></i>	System settings</a></li>
 							<li><a href="index.php?p=111"><i class="fa fa-server"></i>	Bancho settings</a></li>';
 
-						if (hasPrivilege(Privileges::AdminManageUsers))
+						if (hasPrivilege(Privileges::AdminManageUsers)) {
 							echo '<li><a href="index.php?p=102"><i class="fa fa-user"></i>	Users</a></li>';
+							echo '<li><a href="index.php?p=132"><i class="fa fa-fire"></i>	Anticheat reports</a></li>';
+						}
 
 						if (hasPrivilege(Privileges::AdminCaker))
 							echo Fringuellina::RAPButton();
@@ -1937,4 +1953,13 @@ function giveDonor($userID, $months, $add=true) {
 		)
 	);
 	return $monthsExpire;
+}
+
+function isJson($string) {
+	json_decode($string);
+	return (json_last_error() == JSON_ERROR_NONE);
+}
+
+function prettyPrintJsonString($s) {
+	return json_encode(json_decode($s), JSON_PRETTY_PRINT);
 }

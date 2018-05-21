@@ -3,6 +3,7 @@
 @import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,600,400italic,600italic,700italic,900,900italic);
 @import url(https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css);
 @import url(https://fonts.googleapis.com/css?family=Raleway:400,700);
+@import url('https://fonts.googleapis.com/css?family=Space+Mono');
 
 body {
 	padding-top: 70px;
@@ -156,7 +157,7 @@ ul.nav li:hover > ul.dropdown-menu {
 	margin: 0 auto;
 }
 
-#wide-content{
+.wide-content{
 	width: 100%;
 	margin: 0 auto;
 }
@@ -854,11 +855,15 @@ a.silent {
     width: 35%;
 }
 
-.chatlog {
-    font-family: monospace;
-    background-color: gainsboro;
-    border: 1px solid black !important;
-    margin-top: 2px;
+.code {
+    white-space: pre-wrap;
+    font-family: 'Space Mono', monospace;
+    background-color: #fcfcfc !important;
+    border: 1px solid gray !important;
+    tab-size: 2;
+    -moz-tab-size: 2;
+    -o-tab-size: 2;
+    -webkit-tab-size: 2;
 }
 
 .badguy {

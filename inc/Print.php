@@ -632,6 +632,9 @@ class P {
 								}
 								echo '	<a href="index.php?p=121&id='.$_GET['id'].'" class="btn btn-warning">Give donor</a>';
 								echo '	<a href="index.php?u='.$_GET['id'].'" class="btn btn-primary">View profile</a>';
+								if (hasPrivilege(Privileges::AdminManageUsers)) {
+									echo '	<a href="index.php?p=132&uid=' . $_GET['id'] . '" class="btn btn-danger">View anticheat reports</a>';
+								}
 							echo '</li>
 						</ul>';
 
@@ -2883,7 +2886,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 					</tr>
 					<tr>
 						<td><b>Chatlog*</b></td>
-						<td class="chatlog">' . str_replace("\n", "<br>", $report["chatlog"]) .  '</td>
+						<td class="code">' . $report["chatlog"] .  '</td>
 					</tr>
 					<tr class="' . $statusRowClass . '">
 						<td><b>Status</b></td>
@@ -2982,6 +2985,192 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			redirect("index.php?p=126&e=" . $e->getMessage());
 		}
 
+	}
+
+	public static function AdminViewAnticheatReports() {
+		$resultsPerPage = 50;
+
+		$all = !isset($_GET["uid"]) || empty($_GET["uid"]);
+		$byScoreID = isset($_GET["sid"]) && !empty($_GET["sid"]);
+		$from = (int)@$_GET["from"];
+
+		echo '<div id="wrapper">';
+		printAdminSidebar();
+		echo '<div id="page-content-wrapper">';
+		self::MaintenanceStuff();
+		if (isset($_GET['s']) && !empty($_GET['s'])) {
+			self::SuccessMessageStaccah($_GET['s']);
+		}
+		if (isset($_GET['e']) && !empty($_GET['e'])) {
+			self::ExceptionMessageStaccah($_GET['e']);
+		}
+		$conditions = [];
+		$params = [];
+		if (!$all) {
+			array_push($conditions, "scores.userid = ?");
+			array_push($params, $_GET["uid"]);
+		} else if ($byScoreID) {
+			array_push($conditions, "scores.id = ?");
+			array_push($params, $_GET["sid"]);
+		}
+		$reports = $GLOBALS["db"]->fetchall(
+			"SELECT anticheat_reports.*, scores.time, scores.play_mode, scores.userid, users.username, scores.pp, scores.mods, anticheats.name, beatmaps.beatmap_id, beatmaps.song_name, beatmaps.beatmap_id
+			FROM anticheat_reports
+			JOIN anticheats ON anticheat_reports.anticheat_id = anticheats.id
+			JOIN scores ON anticheat_reports.score_id = scores.id
+			JOIN beatmaps USING(beatmap_md5)
+			JOIN users ON scores.userid = users.id
+			". ((!$all || $byScoreID) ? ("WHERE " . implode(" AND ", $conditions)) : "") .
+			" ORDER BY scores.id DESC, anticheat_reports.id DESC LIMIT $from, $resultsPerPage",
+			$params
+		);
+		echo '<h2><i class="fa fa-fire"></i> Anticheat reports';
+		if (!$all) {
+			$username = $reports ? $reports[0]["username"] : getUserUsername($_GET["uid"]);
+			echo ' for user ' . $username;
+		}
+		echo '</h2>';
+
+		if (!$reports) {
+			echo "<p>No " . ($from > 0 ? "other" : "")  . " reports.</p>";
+		} else {
+			echo '<table class="table table-striped table-hover table-75-center">
+			<thead>
+			<tr>
+				<th class="text-center"><i class="fa fa-fire"></i>	ID</th>';
+				if ($all) echo '<th class="text-center">User</th>';
+			echo '<th class="text-center">When</th>
+				<th class="text-center">Score ID</th>
+				<th class="text-center">Game mode</th>
+				<th class="text-center">Beatmap</th>
+				<th class="text-center">PP</th>
+				<th class="text-center">Anticheat</th>
+				<th class="text-center">Severity</th>
+				<th class="text-center">Actions</th>
+			</tr>
+			</thead>';
+			echo '<tbody>';
+
+			global $URL;
+			foreach ($reports as $report) {
+				$severityColor = $report["severity"] >= 0.75 ? 'danger' : ($report["severity"] <= 0.25 ? 'primary' : 'warning');
+				echo "<tr class='$severityColor'>
+					<td><p class='text-center'>$report[id]</p></td>";
+					if ($all) echo "<td><p class='text-center'><a href='index.php?u=" . $report["userid"] . "'>$report[username]</a></p></td>";
+					echo "<td><p class='text-center'>" . timeDifference(time(), $report["time"]) . "</p></td>
+					<td><p class='text-center'><a href='" . URL::Server() . "/replays/$report[score_id]'>$report[score_id]	<i class='fa fa-star'></i></a></p></td>
+					<td><p class='text-center'>" . getPlaymodeText($report["play_mode"], true) . "</p></td>
+					<td><p class='text-center'><a href='" . URL::Server() . "/b/$report[beatmap_id]'>$report[song_name] " . getScoreMods($report["mods"]) . "	<i class='fa fa-music'></i> </a></p></td>
+					<td><p class='text-center'>$report[pp] pp</p></td>
+					<td><p class='text-center'>$report[name]</p></td>
+					<td><p class='text-center'><span class='label label-$severityColor'>$report[severity]</span></p></td>
+					<td><p class='text-center'>
+						<a title='View details' class='btn btn-xs btn-primary' href='index.php?p=133&id=$report[id]'><span class='glyphicon glyphicon-search'></span></a>
+					</p></td>
+				</tr>";
+			}
+			echo '</tbody>
+			</table>';
+		}
+		$getargs = "";
+		foreach ($_GET as $key => $value)
+			if ($key !== "from")
+				$getargs .= "&$key=$value";
+		if ($from > 0) {
+			echo "<a href='index.php?from=" . (max(0, $from - $resultsPerPage)) . "$getargs'>&lt; Previous page</a>";
+			echo " |";
+		}
+		if (count($reports) >= $resultsPerPage) {
+			echo "| ";
+			echo "<a href='index.php?from=" . ($from + min($resultsPerPage, count($reports))) . "$getargs'>Next page &gt;</a>";
+		}
+		echo '</div></div>';
+	}
+
+	public static function AdminViewAnticheatReport() {
+		try {
+			if (isset($_GET["sid"]) && !empty($_GET["sid"])) {
+				$rid = $GLOBALS["db"]->fetch("SELECT id FROM anticheat_reports WHERE score_id = ? LIMIT 1", [$_GET["sid"]]);
+				if (!$rid) {
+					throw new Exception("No anticheat reports for this score");
+				}
+				redirect("index.php?p=133&id=$rid");
+			}
+			if (!isset($_GET["id"]) || empty($_GET["id"])) {
+				throw new Exception("Missing anticheat report id id");
+			}
+
+			$report = $GLOBALS["db"]->fetch(
+				"SELECT anticheat_reports.*, scores.time, scores.play_mode, scores.userid, users.username, scores.pp, scores.mods, anticheats.name, beatmaps.beatmap_id, beatmaps.song_name, beatmaps.beatmap_id
+				FROM anticheat_reports
+				JOIN anticheats ON anticheat_reports.anticheat_id = anticheats.id
+				JOIN scores ON anticheat_reports.score_id = scores.id
+				JOIN beatmaps USING(beatmap_md5)
+				JOIN users ON scores.userid = users.id
+				WHERE anticheat_reports.id = ?",
+				[$_GET["id"]]
+			);
+
+			if (!$report) {
+				throw new Exception("Anticheat report not found");
+			}
+
+			echo '<div id="wrapper">';
+			printAdminSidebar();
+			echo '<div id="page-content-wrapper">';
+			self::MaintenanceStuff();
+			echo '<p align="center">
+				<h2><i class="fa fa-search-plus"></i>	View anticheat report</h2>
+			</p>';
+
+			echo '<br>';
+
+			$severityColor = $report["severity"] >= 0.75 ? 'danger' : ($report["severity"] <= 0.25 ? 'primary' : 'warning');
+			echo "
+				<table class='table table-striped table-hover table-75-center'><tbody>
+					<tr>
+						<td>User</td>
+						<td><a href='index.php?u=$report[userid]'>$report[username]</a></td>
+					</tr>
+					<tr>
+						<td>When</td>
+						<td>" . timeDifference(time(), $report["time"]) . "</td>
+					</tr>
+					<tr>
+						<td>Score ID</td>
+						<td><a href='" . URL::Server() . "/replays/$report[score_id]'>$report[score_id]	<i class='fa fa-star'></i></a></td>
+					</tr>
+					<tr>
+					<td>Beatmap</td>
+						<td><a href='" . URL::Server() . "/b/$report[beatmap_id]'>$report[song_name] " . getScoreMods($report["mods"]) . "	<i class='fa fa-music'></i> </a></td>
+					</tr>
+					<tr>
+						<td>Game mode</td>
+						<td>" . getPlaymodeText($report["play_mode"], true) . "</td>
+					</tr>
+					<tr>
+						<td>PP</td>
+						<td>$report[pp] pp</td>
+					</tr>
+					<tr>
+						<td>Anticheat</td>
+						<td>$report[name]</td>
+					</tr>
+					<tr class='$severityColor'>
+						<td>Severity</td>
+						<td><span class='label label-$severityColor'>$report[severity]</span></td>
+					</tr>
+					<tr class='$severityColor'>
+						<td>Anticheat data</td>
+						<td class='code'>" . (isJson($report["data"]) ? htmlspecialchars(prettyPrintJsonString($report["data"])) : $report["data"]) .  "</td>
+					</tr>
+				</table>";
+
+			echo '</div>';
+			echo '</div>';
+		} catch (Exception $e) {
+			redirect("index.php?p=132&e=" . $e->getMessage());
+		}
 	}
 }
 
