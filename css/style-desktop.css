@@ -935,6 +935,22 @@ tr.text-center > td {
     margin-left: 15%;
 }
 
+.datetimecontainer>input {
+    display: inline-block;
+}
+
+.datetimecontainer>input:first-child {
+    width: 40%;
+}
+
+.datetimecontainer>input:last-child {
+    width: 20%;
+}
+
+.datetimecontainer>span {
+    margin: 0 10px 0 10px;
+}
+
 @media only screen and (max-width: 768px) {
     .mobile-only {
         display: initial;

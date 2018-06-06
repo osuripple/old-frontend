@@ -214,6 +214,14 @@ try {
 			sessionCheckAdmin(Privileges::AdminCaker);
 			Fringuellina::EditCake();
 		break;
+		case 'restoreScoresSearchUser':
+			sessionCheckAdmin(Privileges::AdminWipeUsers);
+			D::RestoreScoresSearchUser();
+		break;
+		case 'restoreScores':
+			sessionCheckAdmin(Privileges::AdminWipeUsers);
+			D::RestoreScores();
+		break;
 		default:
 			throw new Exception('Invalid action value');
 	}

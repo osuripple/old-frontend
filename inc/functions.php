@@ -168,7 +168,8 @@ function setTitle($p) {
 			130 => 'Cake recipes',
 			131 => 'View cake recipe',
 			132 => 'View anticheat reports',
-			133 => 'View anticheat report'
+			133 => 'View anticheat report',
+			134 => 'Restore scores'
 		];
 		if (isset($namesRipple[$p])) {
 			return __maketitle('Ripple', $namesRipple[$p]);
@@ -387,6 +388,12 @@ function printPage($p) {
 				P::AdminViewAnticheatReport();
 			break;
 
+			// Admin panel - Restore scores
+			case 134:
+				sessionCheckAdmin(Privileges::AdminWipeUsers);
+				P::AdminRestoreScores();
+			break;
+
 			// 404 page
 			default:
 				define('NotFound', '<br><h1>404</h1><p>Page not found. Meh.</p>');
@@ -495,6 +502,10 @@ function printAdminSidebar() {
 						if (hasPrivilege(Privileges::AdminManageUsers)) {
 							echo '<li><a href="index.php?p=102"><i class="fa fa-user"></i>	Users</a></li>';
 							echo '<li><a href="index.php?p=132"><i class="fa fa-fire"></i>	Anticheat reports</a></li>';
+						}
+
+						if (hasPrivilege(Privileges::AdminWipeUsers)) {
+							echo '<li><a href="index.php?p=134"><i class="fa fa-undo"></i>	Restore scores</a></li>';
 						}
 
 						if (hasPrivilege(Privileges::AdminCaker))
@@ -1962,4 +1973,12 @@ function isJson($string) {
 
 function prettyPrintJsonString($s) {
 	return json_encode(json_decode($s), JSON_PRETTY_PRINT);
+}
+
+function getTimestampFromStr($str, $fmt="Y-m-d H:i") {
+	$dateTime = DateTime::createFromFormat($fmt, $str);
+	if ($dateTime === FALSE) {
+		throw new Exception("Invalid timestamp string");
+	}
+	return $dateTime->getTimestamp();
 }

@@ -115,7 +115,10 @@ if ($p == 27) {
     <link href="./css/bootstrap-colorpicker.min.css" rel="stylesheet">
 
     <!-- SCEditor CSS -->
-    <link rel="stylesheet" href="./css/themes/default.css" type="text/css" media="all" />
+	<link rel="stylesheet" href="./css/themes/default.css" type="text/css" media="all" />
+	
+    <!-- Datepicker CSS -->
+    <link href="./css/bootstrap-datepicker3.min.css" rel="stylesheet">
 
     <!-- Animate CSS -->
     <link rel="stylesheet" href="./css/animate.css">
@@ -214,7 +217,10 @@ if ($p < 100) {
     <script src="./js/bootstrap-colorpicker.min.js"></script>
 
     <!-- SCEditor JavaScript -->
-    <script src="./js/jquery.sceditor.bbcode.js"></script>
+	<script src="./js/jquery.sceditor.bbcode.js"></script>
+	
+	<!-- Datepicker -->
+	<script src="./js/bootstrap-datepicker.min.js"></script>
 
     <!-- Custom JavaScript for every page -->
 	<script type="text/javascript">
@@ -518,6 +524,19 @@ switch ($p) {
 				});
 			});
 		</script>';
+	break;
+
+	case 134:
+		echo "<script>
+		$(document).ready(function() {
+			$('.datepicker').datepicker({
+				orientation: 'bottom',
+				format: 'yyyy-mm-dd',
+				autoclose: true,
+				clearBtn: true
+			})
+		})
+		</script>";
 	break;
 }
 

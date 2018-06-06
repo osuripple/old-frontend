@@ -963,8 +963,10 @@ class D {
 
 			// Delete scores
 			if ($_POST["gm"] == -1) {
+				$GLOBALS['db']->execute('INSERT INTO scores_removed SELECT * FROM scores WHERE userid = ?', [$_POST['id']]);
 				$GLOBALS['db']->execute('DELETE FROM scores WHERE userid = ?', [$_POST['id']]);
 			} else {
+				$GLOBALS['db']->execute('INSERT INTO scores_removed SELECT * FROM scores WHERE userid = ? AND play_mode = ?', [$_POST['id'], $_POST["gm"]]);
 				$GLOBALS['db']->execute('DELETE FROM scores WHERE userid = ? AND play_mode = ?', [$_POST['id'], $_POST["gm"]]);
 			}
 			// Reset mode stats
@@ -1293,6 +1295,7 @@ class D {
 				$rollbackString .= "s";
 			}
 
+			$GLOBALS["db"]->execute("INSERT INTO scores_removed SELECT * FROM scores WHERE userid = ? AND time >= ?", [$_POST["id"], $removeAfter]);
 			$GLOBALS["db"]->execute("DELETE FROM scores WHERE userid = ? AND time >= ?", [$_POST["id"], $removeAfter]);
 
 			rapLog(sprintf("has rolled back %s %s's account", $rollbackString, $username), $_SESSION["userid"]);
@@ -1548,6 +1551,77 @@ class D {
 			redirect("index.php?p=127&id=" . $_GET["id"] . "&s=Useful status changed!");
 		} catch (Exception $e) {
 			redirect("index.php?p=127&id=" . $_GET["id"] . "&e=" . $e->getMessage());
+		}
+	}
+
+	public static function RestoreScoresSearchUser() {
+		try {
+			if (!isset($_POST["username"]) || empty($_POST["username"])) {
+				throw new Exception("Missing username");
+			}
+			$userID = getUserID($_POST["username"]);
+			if (!$userID) {
+				throw new Exception("No such user");
+			}
+			redirect("index.php?p=134&id=" . $userID);
+		} catch (Exception $e) {
+			redirect("index.php?p=134&e=" . $e->getMessage());
+		}
+	}
+
+	public static function RestoreScores() {
+		try {
+			if (!isset($_POST["userid"]) || empty($_POST["userid"]) || !isset($_POST["gm"]) || empty($_POST["gm"])) {
+				throw new Exception("Missing required parameters");
+			}
+
+			$q = "SELECT * FROM scores_removed WHERE userid = ?";
+			$qp = [$_POST["userid"]];
+			if ($_POST["gm"] > -1 && $_POST["gm"] <= 3) {
+				$q .= " AND play_mode = ?";
+				array_push($qp, $_POST["gm"]);
+			}
+			if (isset($_POST["startdate"]) && !empty($_POST["startdate"])) {
+				$h = isset($_POST["starttime"]) && !empty($_POST["starttime"]) ? $_POST["starttime"] : "00:00";
+				$startts = getTimestampFromStr("$_POST[startdate] $h");
+				$q .= " AND time >= ?";
+				array_push($qp, $startts);
+			}
+			if (isset($_POST["enddate"])  && !empty($_POST["enddate"])) {
+				$h = isset($_POST["endtime"]) && !empty($_POST["endtime"]) ? $_POST["endtime"] : "00:00";
+				$endts = getTimestampFromStr("$_POST[enddate] $h");
+				$q .= " AND time <= ?";
+				array_push($qp, $endts);
+			}
+
+			$scoresToRecover = $GLOBALS["db"]->fetchAll($q, $qp);
+			foreach ($scoresToRecover as $lostScore) {
+				$restore = false;
+				if ($lostScore["completed"] == 3) {
+					// Restore completed 3 scores only if they havent been replaced by better scores
+					$betterScore = $GLOBALS["db"]->fetch("SELECT id FROM scores WHERE userid = ? AND play_mode = ? AND beatmap_md5 = ? AND completed = 3 AND pp > ? LIMIT 1", [
+						$lostScore["userid"],
+						$lostScore["play_mode"],
+						$lostScore["beatmap_md5"],
+						$lostScore["pp"]
+					]);
+					$restore = !$betterScore;
+				} else {
+					// Restore all completed < 3 scores
+					$restore = true;
+				}
+				if (!$restore) {
+					echo "$lostScore[id] has a better score, not restoring<br>";
+					continue;
+				}
+				$GLOBALS["db"]->execute("INSERT INTO scores SELECT * FROM scores_removed WHERE id = ? LIMIT 1", [$lostScore["id"]]);
+				$GLOBALS["db"]->execute("DELETE FROM scores_removed WHERE id = ? LIMIT 1", [$lostScore["id"]]);
+				echo "Restored $lostScore[id]<br>";
+			}
+
+			// redirect(index.php?p=134&id=" . $userID);
+		} catch (Exception $e) {
+			redirect("index.php?p=134&e=" . $e->getMessage());
 		}
 	}
 }
