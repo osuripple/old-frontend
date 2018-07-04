@@ -106,7 +106,6 @@ class RememberCookieHandler {
 		$_SESSION['userid'] = $u['id'];
 		$_SESSION['password'] = $u['password_md5'];
 		$_SESSION['passwordChanged'] = false;
-		$_SESSION['2fa'] = is2FAEnabled($u["id"], true);
 		logIP($u['id']);
 		// Get safe title
 		updateSafeTitle();

@@ -38,43 +38,10 @@ try {
 
 	// What shall we do?
 	switch ($action) {
-		// case 'register':
-		// 	D::Register();
-		// break;
-		// case 'changePassword':
-		// 	D::ChangePassword();
-		// break;
 		case 'logout':
 			D::Logout();
 			redirect('index.php');
 		break;
-		// case 'u':
-		// 	redirect('../ripple/index.php?u='.$_GET['data'].'&m=0');
-		// break;
-		// case 'recoverPassword':
-		// 	D::RecoverPassword();
-		// break;
-		// case 'saveUserSettings':
-		// 	D::saveUserSettings();
-		// break;
-		// case 'forgetEveryCookie':
-		// 	D::ForgetEveryCookie();
-		// break;
-		// case 'saveUserpage':
-		// 	D::SaveUserpage();
-		// break;
-		// case 'changeAvatar':
-		// 	D::ChangeAvatar();
-		// break;
-		// case 'addRemoveFriend':
-		// 	D::AddRemoveFriend();
-		// break;
-		case 'resend2FACode':
-			D::Resend2FACode();
-		break;
-		// case 'disable2FA':
-		// 	D::Disable2FA();
-		// break;
 		break;
 			// Admin functions, need sessionCheckAdmin() because can be performed only by admins
 
@@ -86,10 +53,6 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageSettings);
 			D::SaveBanchoSettings();
 		break;
-		// case 'runCron':
-		// 	sessionCheckAdmin(Privileges::AdminManageSettings);
-		// 	D::RunCron();
-		// break;
 		case 'saveEditUser':
 			sessionCheckAdmin(Privileges::AdminManageUsers);
 			D::SaveEditUser();

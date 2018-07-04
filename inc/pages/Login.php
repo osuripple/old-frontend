@@ -75,7 +75,6 @@ class Login {
 			$_SESSION['userid'] = $us['id'];
 			$_SESSION['password'] = $us['password_md5'];
 			$_SESSION['passwordChanged'] = false;
-			$_SESSION['2fa'] = is2FAEnabled($us["id"], true);
 			$_SESSION['csrf'] = csrfToken();
 			
 			// Check if the user requested to be remembered. If they did, initialise cookies.
@@ -85,7 +84,7 @@ class Login {
 			}
 			// update ip logs only if we don't have 2FA enabled or this ip is allowed
 			// if 2FA is enabled, logIP will be run when this IP has been allowed
-			if (!check2FA($us['id']) && get2FAType($us['id']) != 2)
+			if (get2FAType($us['id']) != 2)
 				logIP($us['id']);
 			// Get safe title
 			updateSafeTitle();

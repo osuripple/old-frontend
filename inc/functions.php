@@ -29,8 +29,6 @@ require_once $df.'/pages/Leaderboard.php';
 require_once $df.'/pages/PasswordFinishRecovery.php';
 require_once $df.'/pages/ServerStatus.php';
 require_once $df.'/pages/UserLookup.php';
-require_once $df.'/pages/2fa.php';
-require_once $df.'/pages/2faSetup.php';
 require_once $df.'/pages/RequestRankedBeatmap.php';
 require_once $df.'/pages/MyAPIApplications.php';
 require_once $df.'/pages/EditApplication.php';
@@ -46,7 +44,6 @@ require_once $df.'/pages/BlockTotp2fa.php';
 require_once $df.'/../secret/fringuellina.php';
 $pages = [
 	new Login(),
-	new TwoFA(),
 	new Beatmaps(),
 	new BlockTotpTwoFa()
 ];
@@ -1609,28 +1606,6 @@ function readableRank($rank) {
 	}
 }
 
-function check2FA($userID) {
-	// Check if 2fa is enabled
-	if (!is2FAEnabled($userID))
-		return false;
-
-	// New ip?
-	$ip = getIp();
-	if ($GLOBALS["db"]->fetch("SELECT * FROM ip_user WHERE userid = ? AND ip = ?", [$userID, $ip]))
-		return false;
-
-	// Check if we already have a pending 2FA token from that IP
-	if ($GLOBALS["db"]->fetch("SELECT * FROM 2fa WHERE userid = ? AND ip = ? AND expire > ?", [$userID, $ip, time()]))
-		return false;
-
-	// No 2FA tokens from that IP, add a new one
-	$GLOBALS["db"]->execute("INSERT INTO 2fa (id, userid, token, ip, expire, sent) VALUES (NULL, ?, ?, ?, ?, 0)", [$userID, strtoupper(randomString(8)), $ip, time()+3600]);
-
-	// Send 2FA telegram message
-	getJsonCurl("http://127.0.0.1:8888/update");
-	return true;
-}
-
 function redirect2FA() {
 	// Check 2FA only if we are logged in
 	if (!checkLoggedIn())
@@ -1641,39 +1616,20 @@ function redirect2FA() {
 	if ($type == 0) {
 		// No 2FA, don't redirect
 		return;
-	} else if ($type == 2) {
-		// TOTP
-		$ip = getIp();
-		if ($GLOBALS["db"]->fetch("SELECT * FROM ip_user WHERE userid = ? AND ip = ?", [$_SESSION["userid"], $ip])) {
-			// trusted ip
-			return;
-		} else {
-			// new ip
-			// force 2fa alert page
-			// Don't redirect to 2FA page if we are on submit.php with resend2FA, 2fa or logout action
-			if ($_SERVER['PHP_SELF'] == "/submit.php" && @$_GET["action"] == "logout")
-				return;
-			if (!isset($_GET["p"]) || $_GET["p"] != 42)
-				redirect("index.php?p=42");
-		}
+	}
+	// TOTP
+	$ip = getIp();
+	if ($GLOBALS["db"]->fetch("SELECT * FROM ip_user WHERE userid = ? AND ip = ?", [$_SESSION["userid"], $ip])) {
+		// trusted ip
+		return;
 	} else {
-		// Telegram 2FA, run logic
-		// Generate 2FA token if needed
-		check2FA($_SESSION["userid"]);
-
+		// new ip
+		// force 2fa alert page
 		// Don't redirect to 2FA page if we are on submit.php with resend2FA, 2fa or logout action
-		if (($_SERVER['PHP_SELF'] == "/submit.php") &&
-			(@$_GET["action"] == "resend2FACode" || @$_POST["action"] == "2fa" || @$_GET["action"] == "logout"))
+		if ($_SERVER['PHP_SELF'] == "/submit.php" && @$_GET["action"] == "logout")
 			return;
-
-		// Don't redirect to 2FA page if we are already in 2FA page
-		if (isset($_GET["p"]) && $_GET["p"] == 29)
-			return;
-
-		// Redirect to 2FA page
-		if ($GLOBALS['db']->fetch("SELECT * FROM 2fa WHERE userid = ? AND ip = ?", [$_SESSION["userid"], getIp()])) {
-			redirect("index.php?p=29");
-		}
+		if (!isset($_GET["p"]) || $_GET["p"] != 42)
+			redirect("index.php?p=42");
 	}
 }
 
@@ -1695,33 +1651,9 @@ function redirect2FA() {
 
 
 
-
-function cleanExpiredConfirmationToken() {
-	$GLOBALS["db"]->execute("DELETE FROM 2fa_confirmation WHERE expire < ?", [time()]);
-}
-
-function getConfirmationToken($userID) {
-	// Get current token
-	$token = $GLOBALS["db"]->fetch("SELECT token FROM 2fa_confirmation WHERE userid = ? LIMIT 1", [$userID]);
-	// Generate a new token if not found
-	if (!$token) {
-		$GLOBALS["db"]->execute("INSERT INTO 2fa_confirmation (id, userid, token, expire) VALUES (NULL, ?, ?, ?)", [$userID, randomString(32), time()+3600]);
-		return getConfirmationToken($userID);
-	} else {
-		return $token["token"];
-	}
-}
-
 function get2FAType($userID) {
-	$result = $GLOBALS["db"]->fetch("SELECT IFNULL((SELECT 1 FROM 2fa_telegram WHERE userid = ? LIMIT 1), 0) | IFNULL((SELECT 2 FROM 2fa_totp WHERE userid = ? AND enabled = 1 LIMIT 1), 0) AS x", [$userID, $userID]);
+	$result = $GLOBALS["db"]->fetch("SELECT IFNULL((SELECT 2 FROM 2fa_totp WHERE userid = ? AND enabled = 1 LIMIT 1), 0) AS x", [$userID]);
 	return $result["x"];
-}
-
-function is2FAEnabled($userID, $force = false) {
-	if (session_status() != PHP_SESSION_NONE && !$force && isset($_SESSION["2fa"]))
-		return $_SESSION["2fa"];
-	$result = $GLOBALS["db"]->fetch("SELECT * FROM 2fa_telegram WHERE userid = ? LIMIT 1", [$userID]);
-	return $result > 0;
 }
 
 function getUserPrivileges($userID) {
