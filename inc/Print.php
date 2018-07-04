@@ -2282,7 +2282,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			}*/
 
 			echo "<tr class='$rowClass'>
-				<td><a href='https://storage.ripple.moe/d/$bsid' target='_blank'>$req[type]/$req[bid]</a></td>
+				<td><a href='https://osu.ppy.sh/s/$bsid' target='_blank'>$req[type]/$req[bid]</a></td>
 				<td>$song</td>
 				<td>
 					$diffs

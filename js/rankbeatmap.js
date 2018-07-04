@@ -96,7 +96,7 @@ $("document").ready(function() {
 				tableHtml += `<button id="rank-all" type="button" class="btn btn-success"><span class="glyphicon glyphicon-thumbs-up"></span>	Rank everything</button>`;
 				tableHtml += `	<button id="unrank-all" type="button" class="btn btn-warning"><span class="glyphicon glyphicon-thumbs-down"></span>	Unrank everything</button>`;
 				tableHtml += `<div style="margin-bottom: 5px;"></div>`;
-				tableHtml += `<a href="http://storage.ripple.moe/d/${escapeHtml(String(bsid))}" target="_blank" type="button" class="btn btn-info"><span class="glyphicon glyphicon-arrow-down"></span>	Download beatmap set</a>`;
+				tableHtml += `<a href="http://osu.ppy.sh/s/${escapeHtml(String(bsid))}" target="_blank" type="button" class="btn btn-info"><span class="glyphicon glyphicon-arrow-down"></span>	Download beatmap set</a>`;
 				tableHtml += `	<a href="${reload}" type="button" class="btn btn-danger"><span class="glyphicon glyphicon-refresh"></span>	Update set from osu!api</a>`;
 				tableHtml += `</div>`
 				tableHtml += `<hr>`;
