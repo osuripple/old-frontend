@@ -3059,7 +3059,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 					<td><p class='text-center'>$report[id]</p></td>";
 					if ($all) echo "<td><p class='text-center'><a href='index.php?u=" . $report["userid"] . "'>$report[username]</a></p></td>";
 					echo "<td><p class='text-center'>" . timeDifference(time(), $report["time"]) . "</p></td>
-					<td><p class='text-center'><a href='" . URL::Server() . "/replays/$report[score_id]'>$report[score_id]	<i class='fa fa-star'></i></a></p></td>
+					<td><p class='text-center'><a href='" . URL::Server() . "/web/replays/$report[score_id]'>$report[score_id]	<i class='fa fa-star'></i></a></p></td>
 					<td><p class='text-center'>" . getPlaymodeText($report["play_mode"], true) . "</p></td>
 					<td><p class='text-center'><a href='" . URL::Server() . "/b/$report[beatmap_id]'>$report[song_name] " . getScoreMods($report["mods"]) . "	<i class='fa fa-music'></i> </a></p></td>
 					<td><p class='text-center'>$report[pp] pp</p></td>
