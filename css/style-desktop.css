@@ -951,6 +951,18 @@ tr.text-center > td {
     margin: 0 10px 0 10px;
 }
 
+.anticheattable {
+    width: 100%;
+}
+
+.anticheattable, .anticheattable th, .anticheattable td {
+    border: 1px solid gray;
+}
+
+.anticheattable td {
+    padding: 5px;
+}
+
 @media only screen and (max-width: 768px) {
     .mobile-only {
         display: initial;

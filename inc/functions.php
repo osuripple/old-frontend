@@ -1914,3 +1914,32 @@ function getTimestampFromStr($str, $fmt="Y-m-d H:i") {
 	}
 	return $dateTime->getTimestamp();
 }
+
+function jsonArrayToHtmlTable($arr) {
+	$str = "<table class='anticheattable'><tbody>";
+	foreach ($arr as $key => $val) {
+			$str .= "<tr>";
+			$str .= "<td>$key</td>";
+			$str .= "<td>";
+			if (is_array($val)) {
+					if (!empty($val)) {
+							$str .= jsonArrayToHtmlTable($val);
+					}
+			} else {
+					$str .= "<strong>".(is_bool($val) ? ($val ? "true" : "false") : $val)."</strong>";
+			}
+			$str .= "</td></tr>";
+	}
+	$str .= "</tbody></table>";
+
+	return $str;
+}
+
+function jsonObjectToHtmlTable($jsonString="") {
+		$arr = json_decode($jsonString, true);
+		$html = "";
+		if ($arr && is_array($arr)) {
+				$html .= jsonArrayToHtmlTable($arr);
+		}
+		return $html;
+}

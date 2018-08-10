@@ -3161,10 +3161,18 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 						<td>Severity</td>
 						<td><span class='label label-$severityColor'>$report[severity]</span></td>
 					</tr>
-					<tr class='$severityColor'>
-						<td>Anticheat data</td>
-						<td class='code'>" . (isJson($report["data"]) ? htmlspecialchars(prettyPrintJsonString($report["data"])) : $report["data"]) .  "</td>
-					</tr>
+					<tr>
+						<td>Anticheat data</td>";
+						
+					if (isJson($report["data"])) {
+						echo "<td>";
+						echo jsonObjectToHtmlTable($report["data"]);
+						echo "</td>";
+					} else {
+						echo "<td class='code'>" . $report["data"] . "</td>";
+					}
+					
+					echo "</tr>
 				</table>";
 
 			echo '</div>';
