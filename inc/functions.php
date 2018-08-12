@@ -1943,3 +1943,18 @@ function jsonObjectToHtmlTable($jsonString="") {
 		}
 		return $html;
 }
+
+function randomFileName($path, $suffix) {
+	do {
+			$randomStr = randomString(32);
+			$file = $path . "/" . $randomStr . $suffix;
+			$exists = file_exists($file);
+	} while($exists);
+	echo $file;
+	return $randomStr;
+}
+
+function updateMainMenuIconBancho() {
+	redisConnect();
+	$GLOBALS["redis"]->publish("peppy:reload_settings", "reload");
+}

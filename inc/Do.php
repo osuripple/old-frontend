@@ -252,11 +252,6 @@ class D {
 			} else {
 				$rm = 0;
 			}
-			if (!empty($_POST['mi'])) {
-				$mi = $_POST['mi'];
-			} else {
-				$mi = '';
-			}
 			if (!empty($_POST['lm'])) {
 				$lm = $_POST['lm'];
 			} else {
@@ -281,7 +276,6 @@ class D {
 			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_int = ? WHERE name = 'bancho_maintenance' LIMIT 1", [$bm]);
 			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_int = ? WHERE name = 'free_direct' LIMIT 1", [$od]);
 			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_int = ? WHERE name = 'restricted_joke' LIMIT 1", [$rm]);
-			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_string = ? WHERE name = 'menu_icon' LIMIT 1", [$mi]);
 			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_string = ? WHERE name = 'login_messages' LIMIT 1", [$lm]);
 			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_string = ? WHERE name = 'login_notification' LIMIT 1", [$ln]);
 			$GLOBALS['db']->execute("UPDATE bancho_settings SET value_string = ? WHERE name = 'osu_versions' LIMIT 1", [$cv]);
@@ -1581,6 +1575,97 @@ class D {
 			// redirect(index.php?p=134&id=" . $userID);
 		} catch (Exception $e) {
 			redirect("index.php?p=134&e=" . $e->getMessage());
+		}
+	}
+
+	public static function UploadMainMenuIcon() {
+		try {
+			if (!isset($_POST["name"]) || empty($_POST["name"]) || !isset($_POST["url"]) || empty($_POST["url"])) {
+				throw new Exception("Missing required parameter(s).");
+			}
+			if (!isset($_FILES["file"]) || empty($_FILES["file"]) || $_FILES["file"]["error"] != 0) {
+				throw new Exception("Nothing uploaded");
+			}
+			$path = "main_menu_icons";
+			$verifyImg = getimagesize($_FILES["file"]["tmp_name"]);
+			if ($verifyImg["mime"] !== "image/png") {
+				throw new Exception("Only png images are allowed");
+			}
+			$fileName = randomFileName($path, ".png");
+			$finalFilePath = $path . "/" . $fileName . ".png";
+			if (!move_uploaded_file($_FILES["file"]["tmp_name"], $finalFilePath)) {
+				throw new Exception("File upload failed. Check server's permissions.");
+			}
+			$defaultCount = current($GLOBALS["db"]->fetch("SELECT COUNT(*) FROM main_menu_icons WHERE is_default = 1"));
+			$GLOBALS["db"]->execute("INSERT INTO main_menu_icons (name, file_id, url, is_default) VALUES (?, ?, ?, ?)", [$_POST["name"], $fileName, $_POST["url"], (int)($defaultCount == 0)]);
+			$msg = "Main menu icon uploaded successfully";
+			$msg .= $defaultCount == 0 ? " and set as default image." : "!";
+			redirect("index.php?p=111&s=" . $msg);
+		} catch (Exception $e) {
+			redirect("index.php?p=111&e=" . $e->getMessage());
+		}
+	}
+
+	public static function DeleteMainMenuIcon() {
+		try {
+			if (!isset($_GET["id"]) || empty($_GET["id"])) {
+				throw new Exception("Missing required parameter");
+			}
+			$icon = $GLOBALS["db"]->fetch("SELECT file_id FROM main_menu_icons WHERE id = ? LIMIT 1", [$_GET["id"]]);
+			if (!$icon) {
+				throw new Exception("The icon doesn't exist.");
+			}
+			unlink("main_menu_icons/" . $icon["file_id"] . ".png");
+			$GLOBALS["db"]->execute("DELETE FROM main_menu_icons WHERE id = ? LIMIT 1", [$_GET["id"]]);
+			updateMainMenuIconBancho();
+			redirect("index.php?p=111&s=Main menu icon deleted successfully!");
+		} catch (Exception $e) {
+			redirect("index.php?p=111&e=" . $e->getMessage());
+		}
+	}
+
+	public static function SetDefaultMainMenuIcon() {
+		try {
+			if (!isset($_GET["id"]) || empty($_GET["id"])) {
+				throw new Exception("Missing required parameter");
+			}
+			$GLOBALS["db"]->execute("UPDATE main_menu_icons SET is_default = IF(id = ?, 1, 0)", [$_GET["id"]]);
+			redirect("index.php?p=111&s=Main menu icon set successfully!");
+		} catch (Exception $e) {
+			redirect("index.php?p=111&e=" . $e->getMessage());
+		}
+	}
+
+	public static function SetMainMenuIcon() {
+		try {
+			if (!isset($_GET["id"]) || empty($_GET["id"])) {
+				throw new Exception("Missing required parameter");
+			}
+			$GLOBALS["db"]->execute("UPDATE main_menu_icons SET is_current = IF(id = ?, 1, 0)", [$_GET["id"]]);
+			updateMainMenuIconBancho();
+			redirect("index.php?p=111&s=Main menu icon set successfully!");
+		} catch (Exception $e) {
+			redirect("index.php?p=111&e=" . $e->getMessage());
+		}
+	}
+
+	public static function RestoreMainMenuIcon() {
+		try {
+			$GLOBALS["db"]->execute("UPDATE main_menu_icons SET is_current = IF((SELECT id FROM (SELECT * FROM main_menu_icons) AS x WHERE x.is_default = 1 AND x.id = main_menu_icons.id LIMIT 1), 1, 0)", [$_GET["id"]]);
+			updateMainMenuIconBancho();
+			redirect("index.php?p=111&s=Main menu icon restored successfully!");
+		} catch (Exception $e) {
+			redirect("index.php?p=111&e=" . $e->getMessage());
+		}
+	}
+
+	public static function RemoveMainMenuIcon() {
+		try {
+			$GLOBALS["db"]->execute("UPDATE main_menu_icons SET is_current = 0", [$_GET["id"]]);
+			updateMainMenuIconBancho();
+			redirect("index.php?p=111&s=Main menu icon removed successfully!");
+		} catch (Exception $e) {
+			redirect("index.php?p=111&e=" . $e->getMessage());
 		}
 	}
 }

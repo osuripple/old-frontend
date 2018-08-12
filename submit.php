@@ -185,6 +185,30 @@ try {
 			sessionCheckAdmin(Privileges::AdminWipeUsers);
 			D::RestoreScores();
 		break;
+		case 'setMainMenuIcon':
+			sessionCheckAdmin(Privileges::AdminManageSettings);
+			D::SetMainMenuIcon();
+		break;
+		case 'setDefaultMainMenuIcon':
+			sessionCheckAdmin(Privileges::AdminManageSettings);
+			D::SetDefaultMainMenuIcon();
+		break;
+		case 'restoreMainMenuIcon':
+			sessionCheckAdmin(Privileges::AdminManageSettings);
+			D::RestoreMainMenuIcon();
+		break;
+		case 'deleteMainMenuIcon':
+			sessionCheckAdmin(Privileges::AdminManageSettings);
+			D::DeleteMainMenuIcon();
+		break;
+		case 'uploadMainMenuIcon':
+			sessionCheckAdmin(Privileges::AdminManageSettings);
+			D::UploadMainMenuIcon();
+		break;
+		case 'removeMainMenuIcon':
+			sessionCheckAdmin(Privileges::AdminManageSettings);
+			D::RemoveMainMenuIcon();
+		break;
 		default:
 			throw new Exception('Invalid action value');
 	}

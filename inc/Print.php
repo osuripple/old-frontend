@@ -1038,6 +1038,10 @@ class P {
 		$ln = current($GLOBALS['db']->fetch("SELECT value_string FROM bancho_settings WHERE name = 'login_notification'"));
 		$cv = current($GLOBALS['db']->fetch("SELECT value_string FROM bancho_settings WHERE name = 'osu_versions'"));
 		$cmd5 = current($GLOBALS['db']->fetch("SELECT value_string FROM bancho_settings WHERE name = 'osu_md5s'"));
+		$icons = $GLOBALS["db"]->fetchAll("SELECT * FROM main_menu_icons");
+		$hasDefault = current($GLOBALS["db"]->fetch("SELECT COUNT(*) FROM main_menu_icons WHERE is_default = 1 LIMIT 1")) > 0;
+		$hasIcon = current($GLOBALS["db"]->fetch("SELECT COUNT(*) FROM main_menu_icons WHERE is_current = 1 LIMIT 1")) > 0;
+		$isDefault = $GLOBALS["db"]->fetch("SELECT is_default FROM main_menu_icons WHERE is_current = 1 LIMIT 1")["is_default"] == 1;
 		// Default select stuff
 		$selected[0] = [1 => '', 2 => ''];
 		$selected[1] = [1 => '', 2 => ''];
@@ -1058,8 +1062,12 @@ class P {
 		} else {
 			$selected[2][2] = 'selected';
 		}
-		echo '<p align="center"><font size=5><i class="fa fa-server"></i>	Bancho settings</font></p>';
-		echo '<table class="table table-striped table-hover table-50-center">';
+		echo '<form id="uploadForm" action="submit.php" method="POST" enctype="multipart/form-data">
+		<input form="uploadForm" name="action" value="uploadMainMenuIcon" hidden>
+		<input name="csrf" type="hidden" value="'.csrfToken().'">
+		</form>
+		<p align="center"><font size=5><i class="fa fa-server"></i>	Bancho settings</font></p>';
+		echo '<table class="table table-striped table-hover table-75-center">';
 		echo '<tbody><form id="system-settings-form" action="submit.php" method="POST">
 		<input name="csrf" type="hidden" value="'.csrfToken().'">
 		<input name="action" value="saveBanchoSettings" hidden>';
@@ -1073,8 +1081,51 @@ class P {
 		</td>
 		</tr>';
 		echo '<tr>
-		<td>Main menu icon<br>(imageurl|clickurl)<br><a onclick="$(\'input[name=mi]\').val(\'http://i.ppy.sh/logo.png|http://ripple.moe\')">(restore default)</a></td>
-		<td><p class="text-center"><input type="text" value="'.$mi.'" name="mi" class="form-control"></td>
+		<td>Main menu icon</td>
+		<td>
+			<!-- <p class="text-center"><input type="text" value="'.$mi.'" name="mi" class="form-control"> -->
+			<table class="table table-striped">
+				<tbody>';
+				foreach ($icons as $icon) {
+					echo'
+					<tr class="' . ($icon["is_current"] ? "success" : ($icon["is_default"] ? "warning": "")) . '">
+						<td>' . $icon["name"] . ' - ' . $icon["url"] . '</td>
+						<td style="text-align: right">
+							<a ' . ($icon["is_current"] ? "disabled" : "") . ' title="Set as main menu icon" class="btn btn-success btn-xs" href="submit.php?action=setMainMenuIcon&id=' . $icon["id"] . '&csrf='.csrfToken(). '"><i class="fa fa-check"></i></a>
+							<a ' . ($icon["is_default"] ? "disabled" : "") . ' title="Set as default main menu icon" class="btn btn-info btn-xs" href="submit.php?action=setDefaultMainMenuIcon&id=' . $icon["id"] . '&csrf='.csrfToken(). '"><i class="fa fa-asterisk"></i></a>
+							<a title="Delete main menu icon" class="btn btn-danger btn-xs" href="submit.php?action=deleteMainMenuIcon&id=' . $icon["id"] . '&csrf='.csrfToken(). '"><i class="fa fa-trash"></i></a>
+						</td>
+					</tr>';
+				}
+				echo '
+					<tr class="info">
+						<td colspan="2" style="vertical-align: middle"><input form="uploadForm" type="file" name="file"></td>
+					</tr>
+					<tr class="info">
+						<td>
+							<input form="uploadForm" type="text" name="name" class="form-control" placeholder="Icon name">
+						</td>
+						<td>
+							<input form="uploadForm" type="text" name="url" class="form-control" placeholder="Click URL">
+						</td>
+					</tr>
+					<tr class="info">
+						<td colspan="3">PNG only. Recommended size: 927x300.</td>
+					</tr>
+					<tr class="info">
+						<td colspan="3">
+							<button form="uploadForm" type="submit" class="btn btn-primary" style="width: 100%"><i class="fa fa-upload"></i> Upload</button>
+						</td>
+					</tr>
+					<tr class="warning">
+						<td colspan="3">
+							<a style="width: 49%; float: left;" ' . ((!$hasDefault || $isDefault) ? "disabled" : "") . ' href="submit.php?action=restoreMainMenuIcon&csrf='.csrfToken(). '" class="btn btn-warning"><i class="fa fa-fast-backward"></i> Restore default</a>
+							<a style="width: 49%; float: right;"' . (!$hasIcon ? "disabled" : "") . ' href="submit.php?action=removeMainMenuIcon&csrf='.csrfToken(). '" class="btn btn-danger"><i class="fa fa-eraser"></i> Remove main menu icon</a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</td>
 		</tr>';
 		echo '<tr>
 		<td>Login notification</td>
