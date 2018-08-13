@@ -1630,7 +1630,7 @@ class D {
 				throw new Exception("Missing required parameter");
 			}
 			$GLOBALS["db"]->execute("UPDATE main_menu_icons SET is_default = IF(id = ?, 1, 0)", [$_GET["id"]]);
-			redirect("index.php?p=111&s=Main menu icon set successfully!");
+			redirect("index.php?p=111&s=Default main menu icon set successfully!");
 		} catch (Exception $e) {
 			redirect("index.php?p=111&e=" . $e->getMessage());
 		}
