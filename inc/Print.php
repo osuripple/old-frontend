@@ -1083,13 +1083,12 @@ class P {
 		echo '<tr>
 		<td>Main menu icon</td>
 		<td>
-			<!-- <p class="text-center"><input type="text" value="'.$mi.'" name="mi" class="form-control"> -->
 			<table class="table table-striped">
 				<tbody>';
 				foreach ($icons as $icon) {
 					echo'
 					<tr class="' . ($icon["is_current"] ? "success" : ($icon["is_default"] ? "warning": "")) . '">
-						<td>' . $icon["name"] . ' - ' . $icon["url"] . '</td>
+						<td><a href="https://i.ripple.moe/' . $icon["file_id"] . '.png" target="_blank">' . $icon["name"] . '</a> - <a href="' . $icon["url"] . '" target="_blank">' . $icon["url"] . '</td>
 						<td style="text-align: right">
 							<a ' . ($icon["is_current"] ? "disabled" : "") . ' title="Set as main menu icon" class="btn btn-success btn-xs" href="submit.php?action=setMainMenuIcon&id=' . $icon["id"] . '&csrf='.csrfToken(). '"><i class="fa fa-check"></i></a>
 							<a ' . ($icon["is_default"] ? "disabled" : "") . ' title="Set as default main menu icon" class="btn btn-info btn-xs" href="submit.php?action=setDefaultMainMenuIcon&id=' . $icon["id"] . '&csrf='.csrfToken(). '"><i class="fa fa-asterisk"></i></a>
