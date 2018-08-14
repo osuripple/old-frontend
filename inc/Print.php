@@ -1109,7 +1109,7 @@ class P {
 						</td>
 					</tr>
 					<tr class="info">
-						<td colspan="3">PNG only. Recommended size: 927x300.</td>
+						<td colspan="3">PNG only. Recommended size: 927x100.</td>
 					</tr>
 					<tr class="info">
 						<td colspan="3">
