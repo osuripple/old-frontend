@@ -3189,7 +3189,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 					</tr>
 					<tr>
 						<td>Score ID</td>
-						<td><a href='" . URL::Server() . "/replays/$report[score_id]'>$report[score_id]	<i class='fa fa-star'></i></a></td>
+						<td><a href='" . URL::Server() . "/web/replays/$report[score_id]'>$report[score_id]	<i class='fa fa-star'></i></a></td>
 					</tr>
 					<tr>
 					<td>Beatmap</td>
