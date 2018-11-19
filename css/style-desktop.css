@@ -959,7 +959,7 @@ tr.text-center > td {
     border: 1px solid gray;
 }
 
-.anticheattable td {
+.anticheattable td, div.padded {
     padding: 5px;
 }
 

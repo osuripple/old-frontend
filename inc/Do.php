@@ -219,6 +219,15 @@ class D {
 			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'registrations_enabled' LIMIT 1", [$r]);
 			$GLOBALS['db']->execute("UPDATE system_settings SET value_string = ? WHERE name = 'website_global_alert' LIMIT 1", [$ga]);
 			$GLOBALS['db']->execute("UPDATE system_settings SET value_string = ? WHERE name = 'website_home_alert' LIMIT 1", [$ha]);
+			foreach (["std" , "taiko", "ctb", "mania"] as $key) {
+				if (!isset($_POST["aql_$key"]) || !is_numeric($_POST["aql_$key"])) {
+					continue;
+				}
+				$GLOBALS['db']->execute("UPDATE system_settings SET value_string = ? WHERE name = 'aql_threshold_" . $key . "' LIMIT 1", [$_POST["aql_$key"]]);
+			}
+			redisConnect();
+			$GLOBALS["redis"]->publish("lets:reload_aql", "reload");
+			
 			// RAP log
 			rapLog("has updated system settings");
 			// Done, redirect to success page

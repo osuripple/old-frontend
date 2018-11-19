@@ -754,6 +754,15 @@ class P {
 		$r = current($GLOBALS['db']->fetch("SELECT value_int FROM system_settings WHERE name = 'registrations_enabled'"));
 		$ga = current($GLOBALS['db']->fetch("SELECT value_string FROM system_settings WHERE name = 'website_global_alert'"));
 		$ha = current($GLOBALS['db']->fetch("SELECT value_string FROM system_settings WHERE name = 'website_home_alert'"));
+		$aqlTmp = $GLOBALS['db']->fetchAll("SELECT `name`, value_string FROM system_settings WHERE `name` LIKE 'aql\_threshold\_%'");
+		$aql = [];
+		foreach ($aqlTmp as $row) {
+			$mode = explode("aql_threshold_", $row["name"]);
+			if (!is_numeric($row["value_string"]) || count($mode) < 1 || !in_array($mode[1], ["std", "taiko", "ctb", "mania"])) {
+				continue;
+			}
+			$aql[$mode[1]] = floatval($row["value_string"]);
+		}
 		// Default select stuff
 		$selected[0] = [1 => '', 2 => ''];
 		$selected[1] = [1 => '', 2 => ''];
@@ -813,6 +822,15 @@ class P {
 		echo '<tr>
 		<td>Homepage alert<br>(visible only on the home page)</td>
 		<td><textarea type="text" name="ha" class="form-control" maxlength="512" style="overflow:auto;resize:vertical;height:100px">'.$ha.'</textarea></td>
+		</tr>';
+		echo '<tr>
+		<td>A/Q/L/ PP Threshold</td>
+		<td>';
+		foreach ($aql as $mode => $value) {
+			echo '<div class="padded"><input type="text" name="aql_' . $mode . '" placeholder="' . $mode . '" value="' . $value . '" class="form-control"></div>';
+		}
+		echo '<!-- <a style="width: 100%;" href="index.php" class="btn btn-warning"><i class="fa fa-thermometer-empty"></i>	<b>Unfreeze and uncache A/Q/L maps</b></a> -->
+		</td>
 		</tr>';
 		echo '<tr class="success"><td colspan=2><p align="center">Click <a href="index.php?p=111">here</a> for bancho settings</p></td></tr>';
 		echo '</tbody></form>';
