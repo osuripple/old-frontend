@@ -155,6 +155,7 @@ class P {
 		// Quick edit/silence/kick user button
 		echo '<br><p align="center" class="mobile-flex"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#quickEditUserModal">Quick edit user (username)</button>';
 		echo '<button type="button" class="btn btn-info" data-toggle="modal" data-target="#quickEditEmailModal">Quick edit user (email)</button>';
+		echo '<a href="index.php?p=135" type="button" class="btn btn-warning">Search user by IP</a>';
 		echo '<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#silenceUserModal">Silence user</button>';
 		echo '<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#kickUserModal">Kick user from Bancho</button>';
 		echo '</p>';
@@ -605,7 +606,7 @@ class P {
 			<i>(visible only from RAP)</i></td>
 			<td><textarea name="ncm" class="form-control" style="overflow:auto;resize:vertical;height:500px">' . $userData["notes"] . '</textarea></td>
 			</tr>';
-			echo '<tr><td>IPs</td><td><ul>';
+			echo '<tr><td>IPs<br><i><a href="index.php?p=136&uid=' . $_GET["id"] . '">(search users with these IPs)</a></i></td><td><ul>';
 			foreach ($ips as $ip) {
 				echo "<li>$ip[ip] <a class='getcountry' data-ip='$ip[ip]' title='Click to retrieve IP country'>(?)</a></li>";
 			}
@@ -2810,7 +2811,6 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		<div class="narrow-content">
 			<form action="submit.php" method="POST">
 				<input name="csrf" type="hidden" value="'.csrfToken().'">
-				<input name="action" value="redirectRankBeatmap" hidden>
 				<input name="id" type="text" class="form-control" placeholder="Beatmap(set) id" style="width: 40%; display: inline;">
 				<div style="width: 1%; display: inline-block;"></div>
 				<select name="type" class="selectpicker bs-select-hidden" data-width="25%">
@@ -3404,6 +3404,144 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		catch(Exception $e) {
 			// Redirect to exception page
 			redirect('index.php?p=108&e='.$e->getMessage());
+		}
+	}
+
+	public static function AdminSearchUserByIP() {
+		echo '<div id="wrapper">';
+		printAdminSidebar();
+		echo '<div id="page-content-wrapper">';
+		// Maintenance check
+		self::MaintenanceStuff();
+		// Print Exception if set
+		if (isset($_GET['e']) && !empty($_GET['e'])) {
+			self::ExceptionMessageStaccah($_GET['e']);
+		}
+		echo '<p align="center"><h2><i class="fa fa-map-marker"></i>	Search user by IP</h2></p>';
+
+		echo '<br>';
+
+		echo '
+		<div class="narrow-content">
+			<form action="index.php?p=136" method="POST">
+				<input name="csrf" type="hidden" value="'.csrfToken().'">
+				<div>
+					Specify 1 IP per line
+					<textarea name="ips" class="form-control" style="overflow:auto;resize:vertical;min-height:200px; margin-bottom: 10px;"></textarea>
+				</div>
+				<div>
+					<button type="submit" class="btn btn-primary">Search</button>
+				</div>
+			</form>
+		</div>';
+
+		echo '</div>';
+		echo '</div>';
+	}
+
+	public static function AdminSearchUserByIPResults() {
+		try {
+			echo '<div id="wrapper">';
+			printAdminSidebar();
+			echo '<div id="page-content-wrapper">';
+			// Maintenance check
+			self::MaintenanceStuff();
+			// Print Exception if set
+			if (isset($_GET['e']) && !empty($_GET['e'])) {
+				self::ExceptionMessageStaccah($_GET['e']);
+			}
+			$ips = [];
+			$userFilter = isset($_GET["uid"]) && !empty($_GET["uid"]);
+			if ($userFilter) {
+				if ($_GET["uid"] != $_SESSION["userid"] && hasPrivilege(Privileges::AdminManageUsers, $_GET["uid"])) {
+					throw new Exception("You don't have enough privileges to do that");
+				}
+				$results = $GLOBALS["db"]->fetchAll("SELECT ip FROM ip_user WHERE userid = ? AND ip != ''", [$_GET["uid"]]);
+				foreach ($results as $row) {
+					array_push($ips, $row["ip"]);
+				}
+			} else if (isset($_POST["ips"]) && !empty($_POST["ips"])) {
+				$ips = explode("\n", $_POST["ips"]);
+			} else {
+				throw new Exception("No IPs or uid passed.");
+			}
+			
+			echo '<p align="center"><h2><i class="fa fa-map-marker"></i>	Search user by IP ' . ($userFilter ? '(user filter mode)' : '') . '</h2></p>';
+			echo '<br>';
+			$conditions = "";
+			foreach ($ips as $i => $ip) {
+				$conditions .= "?, ";
+				$ips[$i] = trim($ips[$i]);
+			}
+			$conditions = trim($conditions, ", ");
+			$results = $GLOBALS["db"]->fetchAll("SELECT ip_user.*, users.username, users.privileges FROM ip_user JOIN users ON ip_user.userid = users.id WHERE ip IN ($conditions) ORDER BY ip DESC", $ips);
+
+			echo '<table class="table table-striped table-hover table-75-center">
+			<thead>
+			<tr>';
+			echo '<th><i class="fa fa-umbrella"></i>	IP</th>
+				<th>User</th>
+				<th>Privileges</th>
+				<th>Occurrencies</th>
+			</tr>
+			</thead>';
+			echo '<tbody>';
+
+			$hax = false;
+			foreach ($results as $row) {
+				if (($row["privileges"] & 3) >= 3) {
+					$groupColor = "success";
+					$groupText = "Ok";
+				} else if (($row["privileges"] & 2) >= 2) {
+					$groupColor = "warning";
+					$groupText = "Restricted";
+				} else {
+					$groupColor = "danger";
+					$groupText = "Banned";
+				}
+				if ($userFilter && $row["userid"] != $_GET["uid"]) {
+					$hax = true;
+				}
+				echo "<tr class='" . ($userFilter && $row["userid"] != $_GET["uid"] ? "danger bold" : "") . "'>
+				<td>$row[ip] <a class='getcountry' data-ip='$row[ip]'>(?)</a></td>
+				<td><a href='index.php?p=103&id=$row[userid]' target='_blank'>$row[username]</a> <i>($row[userid])</i></td>
+				<td><span class='label label-$groupColor'>$groupText</span></td>
+				<td>$row[occurencies]</td>
+				</tr>";
+			}
+
+			if ($userFilter && !$hax) {
+				echo '<td class="success" style="text-align: center" colspan=4><i class="fa fa-thumbs-up"></i>	<b>Looking good!</b></td>';
+			} else if ($userFilter) {
+				echo '<td class="warning" style="text-align: center" colspan=4><i class="fa fa-warning"></i>	<b>Ohoh, opsie wopsie!</b></td>';
+			}
+
+			echo '</tbody>
+			</table><hr>';
+
+			echo '<h4><i class="fa fa-map-marker"></i>	The above are all the users that used one of these IPs at least once:</h4>';
+			foreach ($ips as $ip) {
+				echo "$ip<br>";
+			}
+
+			echo '<hr>';
+			echo '<form action="submit.php" method="POST">
+			<input name="csrf" type="hidden" value="'.csrfToken().'">
+			<input name="action" value="bulkBan" hidden>';
+			foreach ($results as $row) {
+				echo '<input hidden name="uid[]" value="' . $row["userid"] . '">';
+			}
+			echo '<b>Bulk notes (will be added to already banned users too):</b>
+			<div>
+				<textarea name="notes" class="form-control" style="overflow:auto;resize:vertical;min-height:80px; width: 50%; margin: 0 auto 10px auto;"></textarea>
+			</div>';
+			echo '<a onclick="reallysuredialog() && $(\'form\').submit();" class="btn btn-danger">Bulk ban</a>
+			</form>';
+
+			echo '</div>';
+			echo '</div>';
+		} catch (Exception $e) {
+			redirect('index.php?p=135&e='.$e->getMessage());
 		}
 	}
 }

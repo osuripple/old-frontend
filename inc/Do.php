@@ -1677,4 +1677,38 @@ class D {
 			redirect("index.php?p=111&e=" . $e->getMessage());
 		}
 	}
+
+	public static function BulkBan() {
+		try {
+			if (!isset($_POST["uid"]) || empty($_POST["uid"])) {
+				throw new Exception("No user ids provided.");
+			}
+			$result = "";
+			$errors = "";
+			foreach ($_POST["uid"] as $uid) {
+				$uid = (int)$uid;
+				$user = $GLOBALS["db"]->fetch("SELECT privileges, username FROM users WHERE id = ? LIMIT 1", [$uid]);
+				if (!$user) {
+					$errors .= "$uid doesn't exist | ";
+					continue;
+				}
+				if (($user["privileges"] & Privileges::AdminManageUsers) > 0) {
+					$errors .= "No privileges to ban $uid. | ";
+					continue;
+				}
+				$GLOBALS["db"]->execute("UPDATE users SET privileges = (privileges & ~3) WHERE id = ? LIMIT 1", [$uid]);
+				if (isset($_POST["notes"]) && !empty($_POST["notes"])) {
+					appendNotes($uid, $_POST["notes"]);
+				}
+				$result .= "$uid OK! | ";
+				$result = trim($result, " | ");
+				$errors = trim($errors, " | ");
+				updateBanBancho($uid);
+				rapLog(sprintf("has banned user %s", $user["username"]));
+			}
+			redirect("index.php?p=102&e=" . $errors . "&s=" . $result);
+		} catch (Exception $e) {
+			redirect("index.php?p=102&e=" . $e->getMessage());
+		}
+	}
 }

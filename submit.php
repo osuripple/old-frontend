@@ -209,6 +209,10 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageSettings);
 			D::RemoveMainMenuIcon();
 		break;
+		case 'bulkBan':
+			sessionCheckAdmin(Privileges::AdminBanUsers);
+			D::BulkBan();
+		break;
 		default:
 			throw new Exception('Invalid action value');
 	}
