@@ -2811,6 +2811,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		<div class="narrow-content">
 			<form action="submit.php" method="POST">
 				<input name="csrf" type="hidden" value="'.csrfToken().'">
+				<input name="action" value="redirectRankBeatmap" hidden>
 				<input name="id" type="text" class="form-control" placeholder="Beatmap(set) id" style="width: 40%; display: inline;">
 				<div style="width: 1%; display: inline-block;"></div>
 				<select name="type" class="selectpicker bs-select-hidden" data-width="25%">
