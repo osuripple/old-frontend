@@ -9,9 +9,9 @@ $(document).ready(function() {
 					<div class="panel panel-${data[key].up ? 'green' : 'erd'}">
 						<div class="panel-heading">
 							<div class="row">
-								<div class="col-xs-3"><i class="fa fa-check-square fa-5x"></i></div>
+								<div class="col-xs-3"><i class="fa ${data[key].up ? 'fa-check-square' : 'fa-exclamation-triangle'} fa-5x"></i></div>
 								<div class="col-xs-9 text-right">
-<!-- KAMEHAMEHA!!!!  ))))) -->		<div class="huge">${key}</div>
+<!-- KAMEHAMEHA!!!!  ))))) -->		<div class="huge">${escapeHtml(key)}</div>
 									<div>${data[key].up ? 'Up' : 'Down'}</div>
 								</div>
 							</div>

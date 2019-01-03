@@ -224,6 +224,16 @@ if ($p < 100) {
 
     <!-- Custom JavaScript for every page -->
 	<script type="text/javascript">
+		// Escape function
+		function escapeHtml(unsafe) {
+			return unsafe
+				.replace(/&/g, "&amp;")
+				.replace(/</g, "&lt;")
+				.replace(/>/g, "&gt;")
+				.replace(/"/g, "&quot;")
+				.replace(/'/g, "&#039;");
+		}
+
         // Are you sure window
         function sure(redr, pre)
         {
