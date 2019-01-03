@@ -3551,8 +3551,8 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				<td>
 				<select id="susleakat" onchange="" name="period" class="selectpicker bs-select-hidden" data-width="100%">
 					<option value="ever" selected="">Ever</option>
-					<option value="week">Last week</option>
-					<option value="month">Last month</option>
+					<option value="week">Past week</option>
+					<option value="month">Past month</option>
 					<option value="dates">Use dates below</option>
 				</select>
 				</td>
@@ -3594,7 +3594,6 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				</select>
 				</td>
 				</tr>';
-				echo '<tr><td colspan="2"><p class="text-center"><i>Leave timestamps empty to search for scores sent during the past week</i></p></td></tr>';
 				echo '
 				</form>
 				</tbody>
