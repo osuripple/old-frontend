@@ -531,6 +531,7 @@ switch ($p) {
 	break;
 
 	case 134:
+	case 137:
 		echo "<script>
 		$(document).ready(function() {
 			$('.datepicker').datepicker({
@@ -541,6 +542,19 @@ switch ($p) {
 			})
 		})
 		</script>";
+
+		if ($p == 137) {
+			echo "<script>
+			function toggleDatepickers() {
+				$('.datepicker').prop('disabled', $('#susleakat').val() !== 'dates')
+			}
+
+			$(document).ready(function() {
+				toggleDatepickers();
+				$('#susleakat').change(toggleDatepickers)
+			})
+			</script>";
+		}
 	break;
 }
 

@@ -86,32 +86,6 @@ class P {
 			echo '</tr>';
 		}
 		echo '</tbody>';
-		// Top plays table
-		echo '<table class="table table-striped table-hover">
-		<thead>
-		<tr><th class="text-left"><i class="fa fa-trophy"></i>	Top plays</th><th>Beatmap</th></th><th>Mode</th><th>Sent</th><th class="text-right">PP</th></tr>
-		</thead>
-		<tbody>';
-		echo '<tr class="danger"><td colspan=5>Disabled</td></tr>';
-		foreach ($topPlays as $play) {
-			// set $bn to song name by default. If empty or null, replace with the beatmap md5.
-			$bn = $play['song_name'];
-			// Check if this beatmap has a name cached, if yes show it, otherwise show its md5
-			if (!$bn) {
-				$bn = $play['beatmap_md5'];
-			}
-			// Get readable play_mode
-			$pm = getPlaymodeText($play['play_mode']);
-			// Print row
-			echo '<tr class="warning">';
-			echo '<td><p class="text-left"><a href="index.php?u='.$play["username"].'"><b>'.$play['username'].'</b></a></p></td>';
-			echo '<td><p class="text-left">'.$bn.' <b>' . getScoreMods($play['mods']) . '</b></p></td>';
-			echo '<td><p class="text-left">'.$pm.'</p></td>';
-			echo '<td><p class="text-left">'.timeDifference(time(), $play['time']).'</p></td>';
-			echo '<td><p class="text-right"><b>'.number_format($play['pp']).'</b></p></td>';
-			echo '</tr>';
-		}
-		echo '</tbody>';
 		echo '</div>';
 	}
 
@@ -3544,6 +3518,197 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		} catch (Exception $e) {
 			redirect('index.php?p=135&e='.$e->getMessage());
 		}
+	}
+
+	public static function AdminTopScores() {
+		echo '<div id="wrapper">';
+		printAdminSidebar();
+		echo '<div id="page-content-wrapper">';
+		// Maintenance check
+		self::MaintenanceStuff();
+		// Print Exception if set
+		if (isset($_GET['e']) && !empty($_GET['e'])) {
+			self::ExceptionMessageStaccah($_GET['e']);
+		}
+		echo '<p align="center"><h2><i class="fa fa-fighter-jet"></i>	Search top Scores</h2></p>';
+
+		echo '<br>';
+
+		echo '
+		<div>
+			
+			<table class="table table-striped table-hover table-50-center">
+			
+			<tbody>
+			<form id="search-form" action="index.php" method="GET">
+			<input type="hidden" name="p" value="138"></p>';
+				echo '
+				<tr>
+				<td>Time period</td>
+				<td>
+				<select id="susleakat" onchange="" name="period" class="selectpicker bs-select-hidden" data-width="100%">
+					<option value="ever" selected="">Ever</option>
+					<option value="week">Last week</option>
+					<option value="month">Last month</option>
+					<option value="dates">Use dates below</option>
+				</select>
+				</td>
+				</tr>';
+				echo '
+				<tr>
+				<td>Start date</td>
+				<td>
+				<p class="fluid">
+				<input type="text" name="startdate" class="form-control datepicker" placeholder="YYYY-MM-DD"></p>
+				</td>
+				</tr>';
+				echo '<tr>
+				<td>End date</td>
+				<td>
+				<p class="fluid">
+				<input type="text" name="enddate" class="form-control datepicker" placeholder="YYYY-MM-DD">
+				</p>
+				</td>
+				</tr>';
+				echo '<tr>
+				<td>Sort by</td>
+				<td>
+				<select name="sort" class="selectpicker bs-select-hidden" data-width="100%">
+					<option value="pp" selected="">Most PP</option>
+					<option value="stars">Most stars</option>
+				</select>
+				</td>
+				</tr>';
+				echo '<tr>
+				<td>Game mode</td>
+				<td>
+				<select name="gamemode" class="selectpicker bs-select-hidden" data-width="100%">
+					<option value="-1" selected="">All</option>
+					<option value="0">Standard</option>
+					<option value="1">Taiko</option>
+					<option value="2">Catch the beat</option>
+					<option value="3">Mania</option>
+				</select>
+				</td>
+				</tr>';
+				echo '<tr><td colspan="2"><p class="text-center"><i>Leave timestamps empty to search for scores sent during the past week</i></p></td></tr>';
+				echo '
+				</form>
+				</tbody>
+
+				</table>
+
+			<div class="text-center"><button type="submit" form="search-form" class="btn btn-primary">Search</button></div>
+
+		</div>';
+
+		echo '</div>';
+		echo '</div>';
+	}
+
+
+	public static function AdminTopScoresResults() {
+		$limit = 30;
+		echo '<div id="wrapper">';
+		printAdminSidebar();
+		echo '<div id="page-content-wrapper">';
+		// Maintenance check
+		self::MaintenanceStuff();
+		// Print Exception if set
+		if (isset($_GET['e']) && !empty($_GET['e'])) {
+			self::ExceptionMessageStaccah($_GET['e']);
+		}
+		$additionalConditions = [];
+		if (isset($_GET["gamemode"])) {
+			$gm = (int)$_GET["gamemode"];
+			if ($gm >= 0 && $gm <= 3) {
+				array_push($additionalConditions, [
+					"clause" => "play_mode = ?",
+					"params" => [$gm]
+				]);
+			}
+		}
+		if (isset($_GET["period"])) {
+			$et = time();
+			$st = -1;
+			switch ($_GET["period"]) {
+				case "week": $st = $et - (86400 * 7); break;
+				case "month": $st = $et - (86400 * 30); break;
+				case "dates":
+					if (!isset($_GET["startdate"]) || empty($_GET["startdate"]) || !isset($_GET["enddate"]) || empty($_GET["enddate"])) {
+						break;
+					}
+					$st = getTimestampFromStr("$_GET[startdate] 00:00");
+					$et = getTimestampFromStr("$_GET[enddate] 00:00");
+					if ($st >= $et) {
+						throw new Fava("End timestamp must be greater than start timestamp");
+					}
+				break;
+			}
+			if ($st >= 0 && $et >= 0) {
+				array_push($additionalConditions, [
+					"clause" => "time >= ? AND time <= ?",
+					"params" => [$st, $et]
+				]);
+			}
+		}
+		if (empty($additionalConditions)) {
+			$additionalConditions = [["clause" => "1", "params" => []]];
+		}
+		$sqlClauses = "(" . implode(") AND (", array_map(function($x) { return $x["clause"]; }, $additionalConditions)) . ")";
+		$sqlParameters = [];
+		foreach ($additionalConditions as $x) {
+			$sqlParameters = array_merge($sqlParameters, $x["params"]);
+		}
+		$orderBy = $_GET["sort"] === "start" ? ("beatmaps.difficulty_" . getPlaymodeText($gm)) : "pp";
+		$results = $GLOBALS["db"]->fetchAll("SELECT scores.userid, scores.time, scores.id, scores.mods, users.username, scores.play_mode, beatmaps.beatmap_id, beatmaps.song_name, scores.pp, anticheat_reports.id AS anticheat_report_id, anticheat_reports.severity " . ($orderBy !== "pp" ? ", beatmaps.$orderBy" : ""). " FROM scores JOIN users ON scores.userid = users.id JOIN beatmaps USING(beatmap_md5) LEFT JOIN anticheat_reports ON scores.id = anticheat_reports.score_id WHERE completed = 3 AND users.privileges & 3 >= 3 AND $sqlClauses ORDER BY $orderBy DESC LIMIT $limit", $sqlParameters);
+
+		echo '<p align="center"><h2><i class="fa fa-fighter-jet"></i>	Top Scores (max ' . $limit . ' results)</h2></p>';
+
+		echo '<br>';
+
+		if (!$results) {
+			echo "<p>No results.</p>";
+		} else {
+			echo '<table class="table table-striped table-hover">
+			<thead>
+			<tr>
+				<th class="text-center"><i class="fa fa-fighter-jet"></i>	ID</th>
+				<th class="text-center">User</th>
+				<th class="text-center">When</th>
+				<th class="text-center">Score ID</th>
+				<th class="text-center">Game mode</th>
+				<th class="text-center">Beatmap</th>
+				<th class="text-center">Anticheat</th>
+				<th class="text-center">PP</th>
+				<th class="text-center">Map stars</th>
+			</tr>
+			</thead>';
+			echo '<tbody>';
+
+			global $URL;
+			foreach ($results as $score) {
+				$cheated = isset($score["anticheat_report_id"]);
+				$severityColor = !$cheated ? '' : ($score["severity"] >= 0.75 ? 'danger' : ($score["severity"] <= 0.25 ? 'primary' : 'warning'));
+				$anticheatIcon = $cheated ? '<a href="index.php?p=133&id=' . $score["anticheat_report_id"] . '"><i class="fa fa-exclamation-triangle"></i></a>' : '<i class="fa fa-check-circle"></i>';
+				echo "<tr class='$severityColor'>
+					<td><p class='text-center'>$score[id]</p></td>
+					<td><p class='text-center'><a href='index.php?u=" . $score["userid"] . "'>$score[username]</a></p></td>
+					<td><p class='text-center'>" . timeDifference(time(), $score["time"]) . "</p></td>
+					<td><p class='text-center'><a href='" . URL::Server() . "/web/replays/$score[id]'>$score[id]	<i class='fa fa-star'></i></a></p></td>
+					<td><p class='text-center'>" . getPlaymodeText($score["play_mode"], true) . "</p></td>
+					<td><p class='text-center'><a href='" . URL::Server() . "/b/$score[beatmap_id]'>$score[song_name] " . getScoreMods($score["mods"]) . "	<i class='fa fa-music'></i> </a></p></td>
+					<td><p class='text-center'>$anticheatIcon</p></td>
+					<td><p class='text-center'>$score[pp] pp</p></td>
+					<td><p class='text-center'>$score[$orderBy]★</p></td>
+				</tr>";
+			}
+			echo '</tbody>
+			</table>';
+		}
+
+		echo '</div>';
+		echo '</div>';
 	}
 }
 

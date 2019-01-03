@@ -168,7 +168,9 @@ function setTitle($p) {
 			133 => 'View anticheat report',
 			134 => 'Restore scores',
 			135 => 'Search users by IP',
-			136 => 'Search users by IP - Results'
+			136 => 'Search users by IP - Results',
+			137 => 'Top Scores',
+			138 => 'Top Scores Results',
 		];
 		if (isset($namesRipple[$p])) {
 			return __maketitle('Ripple', $namesRipple[$p]);
@@ -405,6 +407,18 @@ function printPage($p) {
 				P::AdminSearchUserByIPResults();
 			break;
 
+			// Admin panel - Top scores
+			case 137:
+				sessionCheckAdmin(Privileges::AdminViewTopScores);
+				P::AdminTopScores();
+			break;
+
+			// Admin panel - Top scores results
+			case 138:
+				sessionCheckAdmin(Privileges::AdminViewTopScores);
+				P::AdminTopScoresResults();
+			break;
+
 			// 404 page
 			default:
 				define('NotFound', '<br><h1>404</h1><p>Page not found. Meh.</p>');
@@ -539,9 +553,11 @@ function printAdminSidebar() {
 							echo '<li><a href="index.php?p=125"><i class="fa fa-level-up"></i>	Rank beatmap manually</a></li>';
 						}
 
+						if (hasPrivilege(Privileges::AdminViewTopScores))
+							echo '<li><a href="index.php?p=137"><i class="fa fa-fighter-jet"></i>	Top scores</a></li>';
+
 						if (hasPrivilege(Privileges::AdminViewRAPLogs))
 							echo '<li class="animated infinite pulse"><a href="index.php?p=116"><i class="fa fa-calendar"></i>	Admin log&nbsp;&nbsp;&nbsp;<div class="label label-primary">Free botnets</div></a></li>';
-
 						echo "</ul>
 				</div>";
 }
