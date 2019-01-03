@@ -967,6 +967,10 @@ tr.bold>* {
     font-weight: bold;
 }
 
+#pipoli .panel {
+    margin-bottom: 5px;
+}
+
 @media only screen and (max-width: 768px) {
     .mobile-only {
         display: initial;

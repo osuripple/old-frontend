@@ -299,6 +299,8 @@ if ($p < 100) {
 switch ($p) {
 		// Admin cp - edit user
 
+	case 100: echo '<script src="./js/pipoli.js"></script>'; break;
+
 	case 103:
 		echo '
                 <script type="text/javascript">

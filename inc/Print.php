@@ -60,8 +60,11 @@ class P {
 		printAdminPanel('green', 'fa fa-street-view fa-5x', $onlineUsers, 'Online users');
 		printAdminPanel('yellow', 'fa fa-dot-circle-o fa-5x', $totalPP, 'Total PP');
 		echo '</div>';
+		// Pipoli integration
+		echo '<div id="pipoli" class="row" style="margin-bottom: 0;"></div>';
+		echo '<div style="text-align: right;"><i>Data provided by Pipoli. <a href="https://status.ripple.moe" target="_blank">Full status page here.</a></i></div>';
 		// Recent plays table
-		echo '<table class="table table-striped table-hover">
+		echo '<table class="table table-striped table-hover" style="margin-top: 20px;">
 		<thead>
 		<tr><th class="text-left"><i class="fa fa-clock-o"></i>	Recent plays</th><th>Beatmap</th></th><th>Mode</th><th>Sent</th><th>Score</th><th class="text-right">PP</th></tr>
 		</thead>
