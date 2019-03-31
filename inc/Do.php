@@ -1658,6 +1658,21 @@ class D {
 		}
 	}
 
+	public static function TestMainMenuIcon() {
+		try {
+			if (!isset($_GET["id"]) || empty($_GET["id"])) {
+				throw new Exception("Missing required parameter");
+			}
+			$devs = $GLOBALS["db"]->fetchAll("SELECT id FROM users WHERE privileges & " . Privileges::AdminManageServers . " > 0");
+			foreach ($devs as $row) {
+				testMainMenuIconBancho($row["id"], $_GET["id"]);
+			}
+			redirect("index.php?p=111&s=Main menu icon sent to all online developers!");
+		} catch (Exception $e) {
+			redirect("index.php?p=111&e=" . $e->getMessage());
+		}
+	}
+
 	public static function RestoreMainMenuIcon() {
 		try {
 			$GLOBALS["db"]->execute("UPDATE main_menu_icons SET is_current = IF((SELECT id FROM (SELECT * FROM main_menu_icons) AS x WHERE x.is_default = 1 AND x.id = main_menu_icons.id LIMIT 1), 1, 0)", [$_GET["id"]]);

@@ -193,6 +193,10 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageSettings);
 			D::SetDefaultMainMenuIcon();
 		break;
+		case 'testMainMenuIcon':
+			sessionCheckAdmin(Privileges::AdminManageSettings);
+			D::TestMainMenuIcon();
+		break;
 		case 'restoreMainMenuIcon':
 			sessionCheckAdmin(Privileges::AdminManageSettings);
 			D::RestoreMainMenuIcon();

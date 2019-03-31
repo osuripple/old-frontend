@@ -1991,3 +1991,8 @@ function updateMainMenuIconBancho() {
 	redisConnect();
 	$GLOBALS["redis"]->publish("peppy:reload_settings", "reload");
 }
+
+function testMainMenuIconBancho($userID, $mainMenuIconID) {
+	redisConnect();
+	$GLOBALS["redis"]->publish("peppy:set_main_menu_icon", json_encode(["userID" => $userID, "mainMenuIconID" => $mainMenuIconID]));
+}
