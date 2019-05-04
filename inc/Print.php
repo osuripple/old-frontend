@@ -39,11 +39,12 @@ class P {
 		LEFT JOIN users ON users.id = scores.userid
 		WHERE users.privileges & 1 > 0
 		ORDER BY scores.pp DESC LIMIT 30');*/
-		$onlineUsers = getJsonCurl("http://127.0.0.1:5001/api/v1/onlineUsers");
+		redisConnect();
+		$onlineUsers = $GLOBALS["redis"]->get("ripple:online_users");
 		if ($onlineUsers == false) {
 			$onlineUsers = 0;
 		} else {
-			$onlineUsers = $onlineUsers["result"];
+			$onlineUsers = $onlineUsers;
 		}
 		// Print admin dashboard
 		echo '<div id="wrapper">';
