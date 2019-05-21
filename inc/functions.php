@@ -240,7 +240,7 @@ function printPage($p) {
 				// Admin panel - Users
 
 			case 102:
-				sessionCheckAdmin(Privileges::AdminManageUsers);
+				sessionCheckAdmin(Privileges::AdminSilenceUsers);
 				P::AdminUsers();
 			break;
 				// Admin panel - Edit user
@@ -524,8 +524,11 @@ function printAdminSidebar() {
 							echo '<li><a href="index.php?p=101"><i class="fa fa-cog"></i>	System settings</a></li>
 							<li><a href="index.php?p=111"><i class="fa fa-server"></i>	Bancho settings</a></li>';
 
-						if (hasPrivilege(Privileges::AdminManageUsers)) {
+						if (hasPrivilege(Privileges::AdminSilenceUsers)) {
 							echo '<li><a href="index.php?p=102"><i class="fa fa-user"></i>	Users</a></li>';
+						}
+
+						if (hasPrivilege(Privileges::AdminManageUsers)) {
 							echo '<li><a href="index.php?p=132"><i class="fa fa-fire"></i>	Anticheat reports</a></li>';
 						}
 
