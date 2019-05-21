@@ -48,8 +48,11 @@ if (isset($_GET['p'])) {
 		$title = setTitle($p);
 	}
 } elseif (isset($_GET['u']) && !empty($_GET['u'])) {
-	$title = setTitle('u');
-	$p = 'u';
+	if (!is_numeric($_GET['u'])) {
+		die('invalid user id');
+	}
+	redirect($URL["server"] . "/u/" . $_GET['u']);
+	die();
 } elseif (isset($_GET['__PAGE__'])) {
 	$pages_split = explode('/', $_GET['__PAGE__']);
 	if (count($_GET['__PAGE__']) < 2) {
@@ -85,19 +88,6 @@ if (isset($_GET['p'])) {
 
     <!-- Dynamic title -->
     <?php echo $title; ?>
-
-	<?php
-if ($p == 27) {
-	global $ServerStatusConfig;
-	if ($ServerStatusConfig['netdata']['enable']) {
-		echo '
-						<!-- Netdata script -->
-						<script type="text/javascript">var netdataServer = "'.$ServerStatusConfig['netdata']['server_url'].'";</script>
-						<script type="text/javascript" src="'.$ServerStatusConfig['netdata']['server_url'].'/dashboard.js"></script>
-				';
-	}
-}
-?>
 
     <!-- Bootstrap Core CSS -->
     <link href="./css/bootstrap.min.css" rel="stylesheet">
