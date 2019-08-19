@@ -59,7 +59,8 @@ $isBday = date("dm") == "1208";
  ****************************************/
 function redisConnect() {
 	if (!isset($_GLOBALS["redis"])) {
-		$GLOBALS["redis"] = new Predis\Client();
+		global $redisConfig;
+		$GLOBALS["redis"] = new Predis\Client($redisConfig);
 	}
 }
 /*
