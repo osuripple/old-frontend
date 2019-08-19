@@ -495,6 +495,10 @@ class P {
 				</tr>';
 			}
 			echo '<tr>
+			<td>2FA</td>
+			<td>' . (has2FA($userData["id"]) ? "Yes" : "No") . '</td>
+			</tr>';
+			echo '<tr>
 			<td>Username color<br><i class="no-mobile">(HTML or HEX color)</i></td>
 			<td><p class="text-center"><input type="text" name="c" class="form-control" value="'.$userStatsData['user_color'].'" '.$readonly[1].'></td>
 			</tr>';
