@@ -363,6 +363,7 @@ class P {
 			$userData = $GLOBALS['db']->fetch('SELECT * FROM users WHERE id = ? LIMIT 1', $_GET['id']);
 			$userStatsData = $GLOBALS['db']->fetch('SELECT * FROM users_stats WHERE id = ? LIMIT 1', $_GET['id']);
 			$ips = $GLOBALS['db']->fetchAll('SELECT ip FROM ip_user WHERE userid = ?', $_GET['id']);
+			$discordData = getDiscordData($userData["id"]);
 			// Check if this user exists
 			if (!$userData || !$userStatsData) {
 				throw new Exception("That user doesn't exist");
@@ -509,6 +510,14 @@ class P {
 			echo '<tr>
 			<td>A.K.A</td>
 			<td><p class="text-center"><input type="text" name="aka" class="form-control" value="'.htmlspecialchars($userStatsData['username_aka']).'"></td>
+			</tr>';
+			echo '<tr>
+			<td>Discord User ID</td>
+			<td>' . (isset($discordData["discordid"]) ? $discordData["discordid"] : "Not linked") . '</td>
+			</tr>';
+			echo '<tr>
+			<td>Discord Custom Role ID</td>
+			<td>' . (isset($discordData["roleid"]) ? $discordData["roleid"] : "No custom role") . '</td>
 			</tr>';
 			echo '<tr>
 			<td>Userpage<br><a onclick="censorUserpage();">(reset userpage)</a></td>

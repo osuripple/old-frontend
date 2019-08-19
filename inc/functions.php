@@ -2004,3 +2004,7 @@ function testMainMenuIconBancho($userID, $mainMenuIconID) {
 function has2FA($userID) {
 	return $GLOBALS["db"]->fetch("SELECT userid FROM 2fa_totp WHERE userid = ? AND `enabled` = 1 LIMIT 1", [$userID]) !== false;
 }
+
+function getDiscordData($userID) {
+	return $GLOBALS["db"]->fetch("SELECT discordid, roleid FROM discord_roles WHERE userid = ? LIMIT 1", [$userID]);
+}
