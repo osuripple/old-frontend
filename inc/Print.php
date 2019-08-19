@@ -12,13 +12,12 @@ class P {
 		$totalScoresFull = current($GLOBALS['db']->fetch('SELECT SUM(playcount_std) + SUM(playcount_taiko) + SUM(playcount_ctb) + SUM(playcount_mania) FROM users_stats WHERE 1'));
 		$totalScores = number_format($totalScoresFull  / 1000000, 2) . "m";
 		// $betaKeysLeft = "∞";
-		/*$totalPPQuery = $GLOBALS['db']->fetch("SELECT SUM(pp) FROM scores WHERE completed = 3 LIMIT 1");
-		$totalPP = 0;
+		$totalPP = $GLOBALS['db']->fetch("SELECT SUM(pp_std) + SUM(pp_taiko) + SUM(pp_ctb) + SUM(pp_mania) AS s FROM users_stats WHERE 1 LIMIT 1")["s"];
+		/*$totalPP = 0;
 		foreach ($totalPPQuery as $pp) {
 			$totalPP += $pp;
-		}
-		$totalPP = number_format($totalPP);*/
-		$totalPP = "🍆";
+		}*/
+		// $totalPP = "🍆";
 		$recentPlays = $GLOBALS['db']->fetchAll('
 		SELECT
 			beatmaps.song_name, scores.beatmap_md5, users.username,
@@ -57,9 +56,9 @@ class P {
 		// Stats panels
 		echo '<div class="row">';
 		printAdminPanel('primary', 'fa fa-gamepad fa-5x', $submittedScores, 'Submitted scores', number_format($submittedScoresFull));
-		printAdminPanel('red', 'fa fa-wheelchair-alt fa-5x', $totalScores, 'Total plays', number_format($totalScoresFull));
+		printAdminPanel('red', 'fa fa-skull fa-5x', $totalScores, 'Total plays', number_format($totalScoresFull));
 		printAdminPanel('green', 'fa fa-street-view fa-5x', $onlineUsers, 'Online users');
-		printAdminPanel('yellow', 'fa fa-dot-circle-o fa-5x', $totalPP, 'Total PP');
+		printAdminPanel('yellow', 'fa fa-dot-circle fa-5x', number_format($totalPP), 'Sum of weighted PP');
 		echo '</div>';
 		// Pipoli integration
 		echo '<div id="pipoli" class="row" style="margin-bottom: 0;"></div>';
@@ -127,7 +126,7 @@ class P {
 		echo '<div class="row">';
 		printAdminPanel('primary', 'fa fa-user fa-5x', $totalUsers, 'Total users');
 		printAdminPanel('red', 'fa fa-thumbs-down fa-5x', $bannedUsers, 'Banned users');
-		printAdminPanel('yellow', 'fa fa-money fa-5x', $supporters, 'Donors');
+		printAdminPanel('yellow', 'fa fa-money-bill fa-5x', $supporters, 'Donors');
 		printAdminPanel('green', 'fa fa-star fa-5x', $modUsers, 'Admins');
 		echo '</div>';
 		// Quick edit/silence/kick user button
@@ -2804,7 +2803,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		if (isset($_GET['e']) && !empty($_GET['e'])) {
 			self::ExceptionMessageStaccah($_GET['e']);
 		}
-		echo '<p align="center"><h2><i class="fa fa-level-up"></i>	Rank beatmap manually</h2></p>';
+		echo '<p align="center"><h2><i class="fa fa-level-up-alt"></i>	Rank beatmap manually</h2></p>';
 
 		echo '<br>';
 

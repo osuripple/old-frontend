@@ -502,7 +502,7 @@ function printNavbar() {
 					<a data-toggle="dropdown"><img src="'.URL::Avatar().'/'.getUserID($_SESSION['username']).'" height="22" width="22" />	<b>'.$_SESSION['username'].'</b><span class="caret"></span></a>
 					<ul class="dropdown-menu">
 						<li class="dropdown-submenu"><a href="index.php?u='.getUserID($_SESSION['username']).'"><i class="fa fa-user"></i> My profile</a></li>
-						<li class="dropdown-submenu"><a href="submit.php?action=logout&csrf='.csrfToken().'"><i class="fa fa-sign-out"></i>	Logout</a></li>
+						<li class="dropdown-submenu"><a href="submit.php?action=logout&csrf='.csrfToken().'"><i class="fa fa-sign-out-alt"></i>	Logout</a></li>
 					</ul>
 				</li>';
 	}
@@ -519,11 +519,12 @@ function printAdminSidebar() {
 						<li class="sidebar-brand">
 							<a href="#"><b>R</b>ipple <b>A</b>dmin <b>P</b>anel</a>
 						</li>
-						<li><a href="index.php?p=100"><i class="fa fa-tachometer"></i>	Dashboard</a></li>';
+						<li><a href="index.php?p=100"><i class="fa fa-tachometer-alt"></i>	Dashboard</a></li>';
 
-						if (hasPrivilege(Privileges::AdminManageSettings))
+						if (hasPrivilege(Privileges::AdminManageSettings)) {
 							echo '<li><a href="index.php?p=101"><i class="fa fa-cog"></i>	System settings</a></li>
 							<li><a href="index.php?p=111"><i class="fa fa-server"></i>	Bancho settings</a></li>';
+						}
 
 						if (hasPrivilege(Privileges::AdminSilenceUsers)) {
 							echo '<li><a href="index.php?p=102"><i class="fa fa-user"></i>	Users</a></li>';
@@ -547,14 +548,14 @@ function printAdminSidebar() {
 							echo '<li><a href="index.php?p=126"><i class="fa fa-flag"></i>	Reports</a></li>';
 
 						if (hasPrivilege(Privileges::AdminManagePrivileges))
-							echo '<li><a href="index.php?p=118"><i class="fa fa-group"></i>	Privilege Groups</a></li>';
+							echo '<li><a href="index.php?p=118"><i class="fa fa-layer-group"></i>	Privilege Groups</a></li>';
 
 						if (hasPrivilege(Privileges::AdminManageBadges))
 							echo '<li><a href="index.php?p=108"><i class="fa fa-certificate"></i>	Badges</a></li>';
 
 						if (hasPrivilege(Privileges::AdminManageBeatmaps)) {
 							echo '<li><a href="index.php?p=117"><i class="fa fa-music"></i>	Rank requests</a></li>';
-							echo '<li><a href="index.php?p=125"><i class="fa fa-level-up"></i>	Rank beatmap manually</a></li>';
+							echo '<li><a href="index.php?p=125"><i class="fa fa-level-up-alt"></i>	Rank beatmap manually</a></li>';
 						}
 
 						if (hasPrivilege(Privileges::AdminViewTopScores))

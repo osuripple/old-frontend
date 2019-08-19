@@ -15,7 +15,7 @@ class BlockTotpTwoFa {
 		echo '
 		<div style="content">
 			<div align="center">
-				<h1><i class="fa fa-shield"></i> MADUUUUU</h1>
+				<h1><i class="fa fa-shield-alt"></i> MADUUUUU</h1>
 				<br>
 				<b>You are logging in from a new IP address and you have TOTP 2FA enabled on your account.</b><br>
 				Please, <b>log in to your account from <a href="https://ripple.moe/" target="_blank">hanayo</a></b>, pass the 2FA check to trust this IP and <b><a href="index.php?p=42">reload</a> this page.</b>
