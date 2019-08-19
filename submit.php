@@ -217,6 +217,10 @@ try {
 			sessionCheckAdmin(Privileges::AdminBanUsers);
 			D::BulkBan();
 		break;
+		case 'remove2FA':
+			sessionCheckAdmin(Privileges::AdminManageUsers);
+			D::Remove2FA();
+		break;
 		default:
 			throw new Exception('Invalid action value');
 	}
