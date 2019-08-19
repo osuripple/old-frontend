@@ -2000,3 +2000,7 @@ function testMainMenuIconBancho($userID, $mainMenuIconID) {
 	redisConnect();
 	$GLOBALS["redis"]->publish("peppy:set_main_menu_icon", json_encode(["userID" => $userID, "mainMenuIconID" => $mainMenuIconID]));
 }
+
+function has2FA($userID) {
+	return $GLOBALS["db"]->fetch("SELECT userid FROM 2fa_totp WHERE userid = ? AND `enabled` = 1 LIMIT 1", [$userID]) !== false;
+}

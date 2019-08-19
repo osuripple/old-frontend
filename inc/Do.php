@@ -1726,4 +1726,24 @@ class D {
 			redirect("index.php?p=102&e=" . $e->getMessage());
 		}
 	}
+
+	public static function Remove2FA() {
+		try {
+			if (!isset($_GET["id"]) || empty($_GET["id"])) {
+				throw new Exception("No user ids provided.");
+			}
+			if (!has2Fa($_GET["id"])) {
+				throw new Exception("2FA is not enabled on the specified account");
+			}
+			$user = $GLOBALS["db"]->fetch("SELECT privileges, username FROM users WHERE id = ? LIMIT 1", [$_GET["id"]]);
+			if (($user["privileges"] & Privileges::AdminManageUsers) > 0) {
+				throw new Exception("You don't have enough privileges to edit the specified user");
+			}
+			$GLOBALS["db"]->execute("DELETE FROM 2fa_totp WHERE userid = ? LIMIT 1", [$_GET["id"]]);
+			rapLog(sprintf("has disabled 2FA on user %s", $user["username"]));
+			redirect("index.php?p=102&s=2FA disabled!");
+		} catch (Exception $e) {
+			redirect("index.php?p=102&e=" . $e->getMessage());
+		}
+	}
 }

@@ -619,6 +619,9 @@ class P {
 								echo '	<a href="index.php?u='.$_GET['id'].'" class="btn btn-primary">View profile</a>';
 								if (hasPrivilege(Privileges::AdminManageUsers)) {
 									echo '	<a href="index.php?p=132&uid=' . $_GET['id'] . '" class="btn btn-danger">View anticheat reports</a>';
+									if (has2FA($_GET["id"])) {
+										echo '	<a onclick="sure(\'submit.php?action=remove2FA&id='.$_GET['id'].'&csrf=' . csrfToken() . '\')" class="btn btn-danger">Remove 2FA</a>';
+									}
 								}
 							echo '</li>
 						</ul>';
