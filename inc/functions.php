@@ -172,6 +172,7 @@ function setTitle($p) {
 			136 => 'Search users by IP - Results',
 			137 => 'Top Scores',
 			138 => 'Top Scores Results',
+			139 => 'S3 Replays Buckets',
 		];
 		if (isset($namesRipple[$p])) {
 			return __maketitle('Ripple', $namesRipple[$p]);
@@ -420,6 +421,12 @@ function printPage($p) {
 				P::AdminTopScoresResults();
 			break;
 
+			// Admin panel - S3 replays buckets
+			case 139:
+				sessionCheckAdmin(Privileges::AdminCaker);
+				P::AdminS3ReplaysBuckets();
+			break;
+
 			// 404 page
 			default:
 				define('NotFound', '<br><h1>404</h1><p>Page not found. Meh.</p>');
@@ -524,6 +531,10 @@ function printAdminSidebar() {
 						if (hasPrivilege(Privileges::AdminManageSettings)) {
 							echo '<li><a href="index.php?p=101"><i class="fa fa-cog"></i>	System settings</a></li>
 							<li><a href="index.php?p=111"><i class="fa fa-server"></i>	Bancho settings</a></li>';
+						}
+
+						if (hasPrivilege(Privileges::AdminCaker)) {
+							echo '<li><a href="index.php?p=139"><i class="fa fa-boxes"></i>	S3 Replays Buckets</a></li>';
 						}
 
 						if (hasPrivilege(Privileges::AdminSilenceUsers)) {
