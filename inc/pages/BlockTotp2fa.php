@@ -7,7 +7,6 @@ class BlockTotpTwoFa {
 	const LoggedIn = true;
 
 	public function P() {
-		redirect("index.php?p=1");
 		$ip = getIp();
 		if (get2FAType($_SESSION["userid"]) != 2 || $GLOBALS["db"]->fetch("SELECT * FROM ip_user WHERE userid = ? AND ip = ?", [$_SESSION["userid"], $ip])) {
 			redirect("index.php?p=1");
