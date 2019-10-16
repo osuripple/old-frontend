@@ -103,7 +103,8 @@ function randomString($l, $c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv
 }
 function getIP() {
 	global $ipEnv;
-	return getenv($ipEnv); // Add getenv('HTTP_FORWARDED_FOR')?: before getenv if you are using a dumb proxy. Meaning that if you try to get the user's IP with REMOTE_ADDR, it returns 127.0.0.1 or keeps saying the same IP, always.
+	return getenv('HTTP_FORWARDED_FOR');
+	//return getenv($ipEnv); // Add getenv('HTTP_FORWARDED_FOR')?: before getenv if you are using a dumb proxy. Meaning that if you try to get the user's IP with REMOTE_ADDR, it returns 127.0.0.1 or keeps saying the same IP, always.
 	// NEVER add getenv('HTTP_FORWARDED_FOR') if you're not behind a proxy.
 	// It can easily be spoofed.
 
