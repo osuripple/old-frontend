@@ -7,12 +7,22 @@ class P {
 	*/
 	public static function AdminDashboard() {
 		// Get admin dashboard data
-		$submittedScoresFull = current($GLOBALS['db']->fetch('SELECT COUNT(*) FROM scores LIMIT 1'));
+		redisConnect();
+		$submittedScoresFull = $GLOBALS["redis"]->get("ripple:total_submitted_scores"); //current($GLOBALS['db']->fetch('SELECT COUNT(id) FROM scores LIMIT 1'));
+		if (!$submittedScoresFull) {
+			$submittedScoresFull = 0;
+		}
 		$submittedScores = number_format($submittedScoresFull / 1000000, 2) . "m";
-		$totalScoresFull = current($GLOBALS['db']->fetch('SELECT SUM(playcount_std) + SUM(playcount_taiko) + SUM(playcount_ctb) + SUM(playcount_mania) FROM users_stats WHERE 1'));
+		$totalScoresFull = $GLOBALS["redis"]->get("ripple:total_plays"); // current($GLOBALS['db']->fetch('SELECT SUM(playcount_std) + SUM(playcount_taiko) + SUM(playcount_ctb) + SUM(playcount_mania) FROM users_stats WHERE 1'));
+		if (!$totalScoresFull) {
+			$totalScoresFull = 0;
+		}
 		$totalScores = number_format($totalScoresFull  / 1000000, 2) . "m";
 		// $betaKeysLeft = "∞";
-		$totalPP = $GLOBALS['db']->fetch("SELECT SUM(pp_std) + SUM(pp_taiko) + SUM(pp_ctb) + SUM(pp_mania) AS s FROM users_stats WHERE 1 LIMIT 1")["s"];
+		$totalPP = $GLOBALS["redis"]->get("ripple:total_pp"); // $GLOBALS['db']->fetch("SELECT SUM(pp_std) + SUM(pp_taiko) + SUM(pp_ctb) + SUM(pp_mania) AS s FROM users_stats WHERE 1 LIMIT 1")["s"];
+		if (!$totalPP) {
+			$totalPP = 0;
+		}
 		/*$totalPP = 0;
 		foreach ($totalPPQuery as $pp) {
 			$totalPP += $pp;
@@ -38,7 +48,6 @@ class P {
 		LEFT JOIN users ON users.id = scores.userid
 		WHERE users.privileges & 1 > 0
 		ORDER BY scores.pp DESC LIMIT 30');*/
-		redisConnect();
 		$onlineUsers = $GLOBALS["redis"]->get("ripple:online_users");
 		if ($onlineUsers == false) {
 			$onlineUsers = 0;
