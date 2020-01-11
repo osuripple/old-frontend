@@ -221,6 +221,10 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageUsers);
 			D::Remove2FA();
 		break;
+		case 'deleteUser':
+			sessionCheckAdmin(Privileges::AdminManageServers);
+			D::DeleteUser();
+		break;
 		default:
 			throw new Exception('Invalid action value');
 	}

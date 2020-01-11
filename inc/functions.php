@@ -2020,3 +2020,16 @@ function has2FA($userID) {
 function getDiscordData($userID) {
 	return $GLOBALS["db"]->fetch("SELECT discordid, roleid FROM discord_roles WHERE userid = ? LIMIT 1", [$userID]);
 }
+
+function nukeExt($table, $q, $p) {
+	echo "Deleting data from " . $table . "\n";
+	$GLOBALS["db"]->execute($q, $p);
+}
+
+function nuke($table, $column, $userID, $limit = false) {
+	$q = "DELETE FROM " . $table . " WHERE " . $column . " = ?";
+	if ($limit) {
+		$q .= " LIMIT 1";
+	}
+	nukeExt($table, $q, [$userID]);
+}

@@ -1746,4 +1746,143 @@ class D {
 			redirect("index.php?p=102&e=" . $e->getMessage());
 		}
 	}
+
+	public static function DeleteUser() {
+		try {
+			if (!isset($_POST["id"]) || empty($_POST["id"])) {
+				throw new Exception("No user ids provided.");
+			}
+			$user = $GLOBALS["db"]->fetch("SELECT username FROM users WHERE id = ? LIMIT 1", [$_POST["id"]]);
+			if (!$user) {
+				throw new Exception("No user with that id.");
+			}
+
+			// Kick from bancho
+			echo '<pre>';
+			echo "Kicking from bancho...\n";
+			redisConnect();
+			$GLOBALS["redis"]->publish("peppy:disconnect", json_encode([
+				"userID" => intval($_POST["id"]),
+				"reason" => "Your account has been deleted. Thank you for playing on ripple!"
+			]));
+
+			// Delete stuff...
+			$uid = $_POST["id"];
+			nuke("2fa", "userid", $uid);
+			nuke("2fa_confirmationa", "userid", $uid);
+			if ($GLOBALS["db"]->fetch("SELECT 1 FROM 2fa_telegram LIMIT 1")) {
+				nuke("2fa_telegram", "userid", $uid);
+			}
+			nuke("2fa_totp", "userid", $uid);
+			nukeExt(
+				"anticheat_reports",
+				"DELETE FROM anticheat_reports JOIN scores ON anticheat_reports.score_id = scores.id WHERE scores.userid = ?",
+				[$uid]
+			);
+			nuke("beatmaps_rating", "user_id", $uid);
+			nuke("comments", "user_id", $uid);
+			nuke("discord_roles", "userid", $uid);
+			nuke("ip_user", "userid", $uid);
+			nukeExt(
+				"osin_expires",
+				"DELETE FROM osin_expires WHERE token IN (SELECT access_token FROM osin_access WHERE extra = ?)",
+				[$uid]
+			);
+			nuke("osin_access", "extra", $uid);
+			nuke("osin_authorize", "extra", $uid);
+			nukeExt(
+				"osin_client",
+				"DELETE FROM osin_client WHERE id IN (SELECT client_id FROM osin_client_user WHERE user = ?)",
+				[$row["client_id"]],
+			);
+			nuke("osin_client_user", "user", $uid);
+
+			// WHAT THE FUCK
+			nuke("password_recovery", "username", $user["username"]);
+
+			nuke("process_logs", "user_id", $uid);
+			nuke("profile_backgrounds", "uid", $uid);
+			nuke("rank_requests", "userid", $uid);
+			nuke("remember", "userid", $uid);
+			nukeExt(
+				"reports",
+				"DELETE FROM reports WHERE from_uid = ? OR to_uid = ?",
+				[$uid, $uid]
+			);
+			nuke("scores_removed", "userid", $uid);
+			nuke("tokens", "user", $uid);
+			nuke("users_achievements", "user_id", $uid);
+			nuke("users_beatmap_playcount", "user_id", $uid);
+			nukeExt(
+				"users_relationships",
+				"DELETE FROM users_relationships WHERE user1 = ? OR user2 = ?",
+				[$uid, $uid]
+			);
+			nuke("user_badges", "user", $uid);
+			nuke("verification_emails", "user", $uid);
+			nuke("scores", "userid", $uid);
+
+			// Lock account and reset email, password, stats, etc
+			echo "Generating random password\n";
+			$newPassword = password_hash(md5(randomString(64)), PASSWORD_DEFAULT);
+			$randomIdentifier = '';
+			$randomUsername = '';
+			echo "Generating account random identifier\n";
+			do {
+				$randomIdentifier = randomString(20);
+				$randomUsername = "DELETED$randomIdentifier";
+			} while ($GLOBALS["db"]->fetch("SELECT 1 FROM users WHERE username = ? LIMIT 1", [$randomUsername]));
+			echo "Account identifier set to $randomIdentifier\n";
+
+			echo "Locking user\n";
+			$GLOBALS["db"]->execute(
+				"UPDATE users SET username = ?, username_safe = ?, privileges = 0, password_md5 = ?, salt = '', password_version = 2, email = 'deleted+$randomIdentifier@ripple.moe', register_datetime = 0, donor_expire = 0, ban_datetime = 0, aqn = 0, latest_activity = 0, silence_end = 0, silence_reason = '', flags = 0, notes = ? WHERE id = ? LIMIT 1",
+				[
+					$randomUsername,
+					safeUsername($randomUsername),
+					$newPassword,
+					"-- This account and all its related data (but HWIDs) have been permanently deleted (automatic message by RAP).",
+					$uid
+				]
+			);
+
+			echo "Resetting stats\n";
+			$stats = ["ranked_score", "playcount", "total_score", "replays_watched", "playcount", "total_hits", "level", "avg_accuracy", "pp", "playtime"];
+			$modes = ["std", "taiko", "ctb", "mania"];
+			$nukeStats = "";
+			foreach ($modes as $mode) {
+				if ($nukeStats) {
+					$nukeStats .= ",";
+				}
+				$where = [];
+				foreach ($stats as $stat) {
+					$col = $stat . "_" . $mode;
+					array_push($where, $col . " = DEFAULT(" . $col . ")");
+				}
+				$nukeStats .= join(", ", $where);
+			}
+			$q = $q = "UPDATE users_stats SET username_aka = '', username = ?, user_color = 'black', user_style = '', country = 'XX', show_country = 1, safe_title = 0, userpage_content = '', play_style = 0, favourite_mode = 0, custom_badge_icon = '', custom_badge_name = '', show_custom_badge = 0, can_custom_badge = 1, $nukeStats WHERE id = ? LIMIT 1";
+			$GLOBALS["db"]->execute($q, [$randomUsername, $uid]);
+
+			echo "Deleting avatar...   ";
+			try {
+				$avatar = dirname(dirname(dirname(__FILE__))).'/avatars/'.$_GET['id'].'.png';
+				if (file_exists($avatar)) {
+					unlink($avatar);
+					echo 'OK';
+				} else {
+					echo 'the user has no avatar';
+				}
+			} catch (Exception $e) {
+				echo '<span style="color: orange;">WARNING: Could not delete avatar: ' . $e->getMessage() . '.</span>';
+			}
+			echo "\n";
+
+			echo "Inserting rap log\n";
+			rapLog(sprintf("has deleted user %s", $user["username"]));
+			echo '<span style="color: green;">Account deleted successfully. Komm Süsser Tod.</span><hr><a href="index.php?p=102">Back to RAP</a>';
+		} catch (Exception $e) {
+			echo '<span style="color: red;">' . $e->getMessage() . '</span>';
+		}
+	}
 }

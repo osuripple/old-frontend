@@ -271,6 +271,10 @@ if ($p < 100) {
 			document.isMobile = window.matchMedia('(max-width: 768px)').matches
 		}
 
+		function updateNukeText(d, t) {
+			d.text(d.data("text") + " (" + (d.data("times")) + ")");
+		}
+
 		$(document).ready(function () {
 			// Initialize stuff
 			$('.icp-auto').iconpicker();
@@ -278,6 +282,27 @@ if ($p < 100) {
 			$('.sceditor').sceditor({plugins: "bbcode", resizeEnabled: false, toolbarExclude: "font,table,code,quote,ltr,rtl" , style: "css/jquery.sceditor.default.css"});
 			$(".spoiler-trigger").click(function() {$(this).parent().next().collapse('toggle');});
 			$("[data-toggle=popover]").popover();
+			$(".nuke-button").each(function() {
+				$(this).data("text", $(this).text());
+				updateNukeText($(this));
+			})
+			$(".nuke-button").click(function() {
+				var t = $(this).data("times");
+				if (t <= 1) {
+					if (reallysuredialog()) {
+						$(this).parent("form").submit();
+					}
+				} else {
+					t = t - 1;
+					$(this).data("times", t);
+					updateNukeText($(this));
+					$(this).addClass("disabled");
+					var o = $(this);
+					setTimeout(() => {
+						$(this).removeClass("disabled");
+					}, 1000);
+				}
+			});
 			$(window).resize(function () {
 				updateResolution()
 			})

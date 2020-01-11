@@ -665,6 +665,14 @@ class P {
 							echo '<a href="index.php?p=128&uid=' . $_GET["id"] . '" class="btn btn-danger">Find ' . Fringuellina::$cakeRecipeName . '</a>';
 						}
 						echo '		<a onclick="sure(\'submit.php?action=toggleCustomBadge&id='.$_GET['id'].'&csrf='.csrfToken().'\');" class="btn btn-danger">'.(($userStatsData["can_custom_badge"] == 1) ? "Revoke" : "Grant").' custom badge</a>';
+						if (hasPrivilege(Privileges::AdminManageServers)) {
+							echo '<form action="submit.php" method="POST" style="display: inline-block;">
+							<input name="csrf" type="hidden" value="'.csrfToken().'">
+							<input name="action" value="deleteUser" hidden>
+							<input name="id" value="' . $_GET['id'] . '" hidden>';
+							echo '<a class="btn btn-danger nuke-button" data-times="3">Delete account</a>';
+							echo '</form>';
+						}
 						echo '<br>
 							</li>
 						</ul>
