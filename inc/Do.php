@@ -456,13 +456,13 @@ class D {
 				throw new Exception('Nice troll.');
 			}
 			// Get user id
-			$id = current($GLOBALS['db']->fetch(sprintf('SELECT id FROM users WHERE %s = ? LIMIT 1', $email ? 'email' : 'username'), [$_POST['u']]));
+			$row = $GLOBALS['db']->fetch(sprintf('SELECT id FROM users WHERE %s = ? LIMIT 1', $email ? 'email' : 'username'), [$_POST['u']]);
 			// Check if that user exists
-			if (!$id) {
+			if (!$row) {
 				throw new Exception("That user doesn't exist");
 			}
 			// Done, redirect to edit page
-			redirect('index.php?p=103&id='.$id);
+			redirect('index.php?p=103&id='.current($row));
 		}
 		catch(Exception $e) {
 			// Redirect to Exception page
