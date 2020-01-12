@@ -48,9 +48,9 @@ if (isset($_GET['p'])) {
 		$title = setTitle($p);
 	}
 } elseif (isset($_GET['u']) && !empty($_GET['u'])) {
-	if (!is_numeric($_GET['u'])) {
+	/*if (!is_numeric($_GET['u'])) {
 		die('invalid user id');
-	}
+	}*/
 	redirect($URL["server"] . "/u/" . $_GET['u']);
 	die();
 } elseif (isset($_GET['__PAGE__'])) {
