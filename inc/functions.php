@@ -490,7 +490,7 @@ function printNavbar() {
 	// Not logged left elements
 	echo '<ul class="nav navbar-nav navbar-left">';
 	if (!checkLoggedIn()) {
-		echo '<li><a href="index.php?p=2"><i class="fa fa-sign-in"></i>	Login</a></li>';
+		echo '<li><a href="index.php?p=2"><i class="fa fa-sign-in-alt"></i>	Login</a></li>';
 	}
 	// Logged in left elements
 	if (checkLoggedIn()) {

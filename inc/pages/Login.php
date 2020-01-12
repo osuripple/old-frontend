@@ -10,7 +10,7 @@ class Login {
 
 	public function P() {
 		clir(true, 'index.php?p=1&e=1');
-		echo '<br><div class="narrow-content"><h1><i class="fa fa-sign-in"></i>	Login</h1>';
+		echo '<br><div class="narrow-content"><h1><i class="fa fa-sign-in-alt"></i>	Login</h1>';
 		if (!isset($_GET['e']) && !isset($_GET['s'])) {
 			echo '<p>Please enter your credentials.</p>';
 		}
