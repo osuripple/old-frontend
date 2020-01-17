@@ -3414,7 +3414,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 						echo '<input name="endts" value="' . $endts . '" hidden>';
 					}
 					echo '</form>';
-					echo '<div class="text-center"><button type="submit" form="restore-scores" class="btn btn-danger">Restore scores</button></div>';
+					echo '<div class="text-center"><button type="submit" form="restore-scores" class="btn btn-danger">Restore scores (might take a while)</button></div>';
 				}
 			}
 			echo '</div>';

@@ -1555,7 +1555,6 @@ class D {
 				$q .= " AND time <= ?";
 				array_push($qp, $endts);
 			}
-
 			$scoresToRecover = $GLOBALS["db"]->fetchAll($q, $qp);
 			foreach ($scoresToRecover as $lostScore) {
 				$restore = false;
@@ -1580,10 +1579,12 @@ class D {
 				$GLOBALS["db"]->execute("DELETE FROM scores_removed WHERE id = ? LIMIT 1", [$lostScore["id"]]);
 				echo "Restored $lostScore[id]<br>";
 			}
-
+			echo "<hr><span style='color: green;'>All scores restored correctly!</span>";
 			// redirect(index.php?p=134&id=" . $userID);
 		} catch (Exception $e) {
-			redirect("index.php?p=134&e=" . $e->getMessage());
+			echo "<span style='color: orange'>Error while restoring scores: " . $e->getMessage() . "</span>";
+		} finally {
+			echo "<hr><i>If there was a timeout error, run the restore procedure until there are no scores to be restored</i><br><a href='index.php?p=134'>Back to RAP</a>";
 		}
 	}
 
