@@ -3096,7 +3096,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			array_push($params, $_GET["sid"]);
 		}
 		$reports = $GLOBALS["db"]->fetchall(
-			"SELECT anticheat_reports.*, scores.time, scores.play_mode, scores.userid, users.username, scores.pp, scores.mods, anticheats.name, beatmaps.beatmap_id, beatmaps.song_name, beatmaps.beatmap_id
+			"SELECT anticheat_reports.*, scores.time, scores.play_mode, scores.userid, users.username, scores.pp, scores.mods, scores.is_relax, anticheats.name, beatmaps.beatmap_id, beatmaps.song_name, beatmaps.beatmap_id
 			FROM anticheat_reports
 			JOIN anticheats ON anticheat_reports.anticheat_id = anticheats.id
 			JOIN scores ON anticheat_reports.score_id = scores.id
@@ -3124,6 +3124,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			echo '<th class="text-center">When</th>
 				<th class="text-center">Score ID</th>
 				<th class="text-center">Game mode</th>
+				<th class="text-center">Relax mode</th>
 				<th class="text-center">Beatmap</th>
 				<th class="text-center">PP</th>
 				<th class="text-center">Anticheat</th>
@@ -3142,6 +3143,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 					echo "<td><p class='text-center'>" . timeDifference(time(), $report["time"]) . "</p></td>
 					<td><p class='text-center'><a href='" . URL::Server() . "/web/replays/$report[score_id]'>$report[score_id]	<i class='fa fa-star'></i></a></p></td>
 					<td><p class='text-center'>" . getPlaymodeText($report["play_mode"], true) . "</p></td>
+					<td><p class='text-center'>" . ($report["is_relax"] ? "Relax" : "Classic") . "</p></td>
 					<td><p class='text-center'><a href='" . URL::Server() . "/b/$report[beatmap_id]'>$report[song_name] " . getScoreMods($report["mods"]) . "	<i class='fa fa-music'></i> </a></p></td>
 					<td><p class='text-center'>$report[pp] pp</p></td>
 					<td><p class='text-center'>$report[name]</p></td>
@@ -3183,7 +3185,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			}
 
 			$report = $GLOBALS["db"]->fetch(
-				"SELECT anticheat_reports.*, scores.time, scores.play_mode, scores.userid, users.username, scores.pp, scores.mods, anticheats.name, beatmaps.beatmap_id, beatmaps.song_name, beatmaps.beatmap_id
+				"SELECT anticheat_reports.*, scores.time, scores.play_mode, scores.userid, users.username, scores.pp, scores.mods, scores.is_relax, anticheats.name, beatmaps.beatmap_id, beatmaps.song_name, beatmaps.beatmap_id
 				FROM anticheat_reports
 				JOIN anticheats ON anticheat_reports.anticheat_id = anticheats.id
 				JOIN scores ON anticheat_reports.score_id = scores.id
@@ -3229,6 +3231,10 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 					<tr>
 						<td>Game mode</td>
 						<td>" . getPlaymodeText($report["play_mode"], true) . "</td>
+					</tr>
+					<tr>
+						<td>Relax mode</td>
+						<td>" . ($report["is_relax"] ? "Relax" : "Classic") . "</td>
 					</tr>
 					<tr>
 						<td>PP</td>
