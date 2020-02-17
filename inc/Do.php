@@ -1847,23 +1847,32 @@ class D {
 				]
 			);
 
-			echo "Resetting stats\n";
-			$stats = ["ranked_score", "playcount", "total_score", "replays_watched", "playcount", "total_hits", "level", "avg_accuracy", "pp", "playtime"];
+			echo "Resetting stats (classic & relax)\n";
+			$stats = ["ranked_score", "playcount", "total_score", "replays_watched", "total_hits", "level", "avg_accuracy", "pp", "playtime"];
 			$modes = ["std", "taiko", "ctb", "mania"];
 			$nukeStats = "";
+			$relaxNukeStats = "";
 			foreach ($modes as $mode) {
 				if ($nukeStats) {
 					$nukeStats .= ",";
 				}
 				$where = [];
+				$relaxWhere = [];
 				foreach ($stats as $stat) {
 					$col = $stat . "_" . $mode;
 					array_push($where, $col . " = DEFAULT(" . $col . ")");
+					if ($col != "replays_watched") {
+						array_push($where, $col . " = DEFAULT(" . $col . ")");
+					}
 				}
 				$nukeStats .= join(", ", $where);
+				$relaxNukeStats .= join(", ", $relaxWhere);
 			}
-			$q = $q = "UPDATE users_stats SET username_aka = '', username = ?, user_color = 'black', user_style = '', country = 'XX', show_country = 1, safe_title = 0, userpage_content = '', play_style = 0, favourite_mode = 0, custom_badge_icon = '', custom_badge_name = '', show_custom_badge = 0, can_custom_badge = 1, $nukeStats WHERE id = ? LIMIT 1";
-			$GLOBALS["db"]->execute($q, [$randomUsername, $uid]);
+			$GLOBALS["db"]->execute(
+				"UPDATE users_stats SET username_aka = '', username = ?, user_color = 'black', user_style = '', country = 'XX', show_country = 1, safe_title = 0, userpage_content = '', play_style = 0, favourite_mode = 0, custom_badge_icon = '', custom_badge_name = '', show_custom_badge = 0, can_custom_badge = 1, $nukeStats WHERE id = ? LIMIT 1",
+				[$randomUsername, $uid]
+			);
+			$GLOBALS["db"]->execute("UPDATE users_stats_relax SET " . $nukeStats . " WHERE id = ? LIMIT 1", [$uid]);
 
 			echo "Deleting avatar...   ";
 			try {
