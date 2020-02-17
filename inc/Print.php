@@ -1250,24 +1250,9 @@ class P {
 		if (!empty($_GET['e']) && isset($error[$_GET['e']])) {
 			self::ExceptionMessage($error[$_GET['e']]);
 		}
-		$color = "pink";
-		if (mt_rand(0,9) == 0) {
-			switch(mt_rand(0,3)) {
-				case 0: $color = "red"; break;
-				case 1: $color = "blue"; break;
-				case 2: $color = "green"; break;
-				case 3: $color = "orange"; break;
-			}
-		}
 		echo '<p align="center">
-		<object data="images/logos/logo-'.$color.'.svg" type="image/svg+xml" class="animated bounceIn ripple-logo"></object>
+		<object data="images/logos/new.svg" type="image/svg+xml" class="animated bounceIn ripple-logo"></object>
 		</p>';
-		global $isBday;
-		if ($isBday) {
-			echo '<h1>Happy birthday Ripple!</h1>';
-		} else {
-			echo '<h1>Welcome to Ripple</h1>';
-		}
 		// Home alert
 		self::HomeAlert();
 	}
