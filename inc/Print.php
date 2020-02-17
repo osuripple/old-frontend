@@ -2737,10 +2737,10 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			<td>
 			<select name="gm" class="selectpicker" data-width="100%">
 				<option value="-1">All</option>
-				<option value="0">Standard</option>
-				<option value="1">Taiko</option>
-				<option value="2">Catch the beat</option>
-				<option value="3">Mania</option>
+				<option value="0">osu!standard</option>
+				<option value="1">osu!taiko</option>
+				<option value="2">osu!catch</option>
+				<option value="3">osu!mania</option>
 			</select>
 			</td>
 			</tr>';
@@ -3317,10 +3317,10 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				<td>
 				<select name="gm" class="selectpicker" data-width="100%">
 					<option value="-1">All</option>
-					<option value="0">Standard</option>
-					<option value="1">Taiko</option>
-					<option value="2">Catch the beat</option>
-					<option value="3">Mania</option>
+					<option value="0">osu!standard</option>
+					<option value="1">osu!taiko</option>
+					<option value="2">osu!catch</option>
+					<option value="3">osu!mania</option>
 				</select>
 				</td>
 				</tr>';
@@ -3643,10 +3643,10 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				<td>
 				<select name="gamemode" class="selectpicker bs-select-hidden" data-width="100%">
 					<option value="-1" selected="">All</option>
-					<option value="0">Standard</option>
-					<option value="1">Taiko</option>
-					<option value="2">Catch the beat</option>
-					<option value="3">Mania</option>
+					<option value="0">osu!standard</option>
+					<option value="1">osu!taiko</option>
+					<option value="2">osu!catch</option>
+					<option value="3">osu!mania</option>
 				</select>
 				</td>
 				</tr>';

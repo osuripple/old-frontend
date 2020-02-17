@@ -929,10 +929,10 @@ function getUserUsername($uid) {
 function getPlaymodeText($playModeInt, $readable = false) {
 	switch ($playModeInt) {
 		case 1:
-			return $readable ? 'Taiko' : 'taiko';
+			return $readable ? 'osu!taiko' : 'taiko';
 		break;
 		case 2:
-			return $readable ? 'Catch the Beat' : 'ctb';
+			return $readable ? 'osu!catch' : 'ctb';
 		break;
 		case 3:
 			return $readable ? 'osu!mania' : 'mania';
