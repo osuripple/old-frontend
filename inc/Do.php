@@ -1533,15 +1533,19 @@ class D {
 
 	public static function RestoreScores() {
 		try {
-			if (!isset($_POST["userid"]) || empty($_POST["userid"]) || !isset($_POST["gm"]) || empty($_POST["gm"])) {
+			/*if (!isset($_POST["userid"]) || empty($_POST["userid"]) || !isset($_POST["gm"]) || empty($_POST["gm"])) {
 				throw new Exception("Missing required parameters");
-			}
+			}*/
 
 			$q = "SELECT * FROM scores_removed WHERE userid = ?";
 			$qp = [$_POST["userid"]];
 			if ($_POST["gm"] > -1 && $_POST["gm"] <= 3) {
 				$q .= " AND play_mode = ?";
 				array_push($qp, $_POST["gm"]);
+			}
+			if (isset($_POST["relax"]) && !empty($_POST["relax"]) && $_POST["relax"] == 0 || $_POST["relax"] == 1) {
+				$q .= " AND is_relax = ?";
+				array_push($qp, $_POST["relax"]);
 			}
 			if (isset($_POST["startdate"]) && !empty($_POST["startdate"])) {
 				$h = isset($_POST["starttime"]) && !empty($_POST["starttime"]) ? $_POST["starttime"] : "00:00";
@@ -1555,13 +1559,16 @@ class D {
 				$q .= " AND time <= ?";
 				array_push($qp, $endts);
 			}
+			echo $q;
+			var_dump($qp);
 			$scoresToRecover = $GLOBALS["db"]->fetchAll($q, $qp);
 			foreach ($scoresToRecover as $lostScore) {
 				$restore = false;
 				if ($lostScore["completed"] == 3) {
 					// Restore completed 3 scores only if they havent been replaced by better scores
-					$betterScore = $GLOBALS["db"]->fetch("SELECT id FROM scores WHERE userid = ? AND play_mode = ? AND beatmap_md5 = ? AND completed = 3 AND pp > ? LIMIT 1", [
+					$betterScore = $GLOBALS["db"]->fetch("SELECT id FROM scores WHERE userid = ? AND is_relax = ? AND play_mode = ? AND beatmap_md5 = ? AND completed = 3 AND pp > ? LIMIT 1", [
 						$lostScore["userid"],
+						$lostScore["is_relax"],
 						$lostScore["play_mode"],
 						$lostScore["beatmap_md5"],
 						$lostScore["pp"]

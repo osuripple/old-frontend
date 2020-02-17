@@ -3309,6 +3309,16 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				</td>
 				</tr>';
 				echo '<tr>
+				<td>Classic/Relax</td>
+				<td>
+				<select name="relax" class="selectpicker" data-width="100%">
+					<option value="-1">Both</option>
+					<option value="0">Classic</option>
+					<option value="1">Relax</option>
+				</select>
+				</td>
+				</tr>';
+				echo '<tr>
 				<td>Start timestamp</td>
 				<td>
 				<p class="datetimecontainer">
@@ -3336,12 +3346,16 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				echo '<hr>';
 				$scoresCount = 0;
 				$scoresPreview = [];
-				foreach (["scores_removed.id, song_name, play_mode, pp", "COUNT(*) AS c"] as $i => $v) {				
+				foreach (["scores_removed.id, song_name, is_relax, play_mode, pp", "COUNT(*) AS c"] as $i => $v) {				
 					$q = "SELECT $v FROM scores_removed JOIN beatmaps USING(beatmap_md5) WHERE userid = ?";
 					$qp = [$_GET["id"]];
 					if ($_POST["gm"] > -1 && $_POST["gm"] <= 3) {
 						$q .= " AND play_mode = ?";
 						array_push($qp, $_POST["gm"]);
+					}
+					if ($_POST["relax"] == 0 || $_POST["relax"] == 1) {
+						$q .= " AND is_relax = ?";
+						array_push($qp, $_POST["relax"]);
 					}
 					if (isset($_POST["startdate"]) && !empty($_POST["startdate"])) {
 						$h = isset($_POST["starttime"]) && !empty($_POST["starttime"]) ? $_POST["starttime"] : "00:00";
@@ -3391,6 +3405,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 					<input name="csrf" type="hidden" value="'.csrfToken().'">
 					<input name="action" value="restoreScores" hidden>
 					<input name="gm" value="' . $_POST["gm"] . '" hidden>
+					<input name="relax" value="' . (isset($_POST["relax"]) ? $_POST["relax"] : '-1') . '" hidden>
 					<input name="userid" value="' . $_GET["id"] . '" hidden>';
 					if (isset($startts)) {
 						echo '<input name="starrts" value="' . $startts . '" hidden>';
