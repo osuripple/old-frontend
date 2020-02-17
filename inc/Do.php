@@ -944,7 +944,7 @@ class D {
 			}
 			$username = $userData["username"];
 			// Check if we can wipe this user
-			if ( ($userData["privileges"] & Privileges::AdminManageUsers) > 0) {
+			if ( ($userData["privileges"] & Privileges::AdminManageUsers) > 0 && $_POST["id"] != $_SESSION["userid"]) {
 				throw new Exception("You don't have enough permissions to wipe this account");
 			}
 
@@ -965,16 +965,27 @@ class D {
 			}
 
 			// Delete scores
-			if ($_POST["gm"] == -1) {
-				$GLOBALS['db']->execute('INSERT INTO scores_removed SELECT * FROM scores WHERE userid = ?', [$_POST['id']]);
-				$GLOBALS['db']->execute('DELETE FROM scores WHERE userid = ?', [$_POST['id']]);
-			} else {
-				$GLOBALS['db']->execute('INSERT INTO scores_removed SELECT * FROM scores WHERE userid = ? AND play_mode = ?', [$_POST['id'], $_POST["gm"]]);
-				$GLOBALS['db']->execute('DELETE FROM scores WHERE userid = ? AND play_mode = ?', [$_POST['id'], $_POST["gm"]]);
+			$additionalWhere = "";
+			$p = [$_POST["id"]];
+			if ($_POST["gm"] != -1) {
+				$additionalWhere .= " AND play_mode = ?";
+				array_push($p, $_POST["gm"]);
 			}
+			if ($_POST["relax"] != -1) {
+				$additionalWhere .= " AND is_relax = ?";
+				array_push($p, $_POST["relax"]);
+			}
+
+			$GLOBALS['db']->execute('INSERT INTO scores_removed SELECT * FROM scores WHERE userid = ? ' . $additionalWhere, $p);
+			$GLOBALS['db']->execute('DELETE FROM scores WHERE userid = ? ' . $additionalWhere, $p);
 			// Reset mode stats
 			foreach ($modes as $k) {
-				$GLOBALS['db']->execute('UPDATE users_stats SET ranked_score_'.$k.' = 0, total_score_'.$k.' = 0, replays_watched_'.$k.' = 0, playcount_'.$k.' = 0, avg_accuracy_'.$k.' = 0.0, total_hits_'.$k.' = 0, level_'.$k.' = 0, pp_'.$k.' = 0 WHERE id = ? LIMIT 1', [$_POST['id']]);
+				if ($_POST["relax"] == -1 || $_POST["relax"] == 0) {
+					$GLOBALS['db']->execute('UPDATE users_stats SET ranked_score_'.$k.' = 0, total_score_'.$k.' = 0, replays_watched_'.$k.' = 0, playcount_'.$k.' = 0, avg_accuracy_'.$k.' = 0.0, total_hits_'.$k.' = 0, level_'.$k.' = 0, pp_'.$k.' = 0 WHERE id = ? LIMIT 1', [$_POST['id']]);
+				}
+				if ($_POST["relax"] == -1 || $_POST["relax"] == 1) {
+					$GLOBALS['db']->execute('UPDATE users_stats_relax SET ranked_score_'.$k.' = 0, total_score_'.$k.' = 0, playcount_'.$k.' = 0, avg_accuracy_'.$k.' = 0.0, total_hits_'.$k.' = 0, level_'.$k.' = 0, pp_'.$k.' = 0 WHERE id = ? LIMIT 1', [$_POST['id']]);
+				}
 			}
 
 			// RAP log

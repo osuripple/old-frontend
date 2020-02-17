@@ -2744,6 +2744,16 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			</select>
 			</td>
 			</tr>';
+			echo '<tr>
+			<td>Classic/Relax</td>
+			<td>
+			<select name="relax" class="selectpicker" data-width="100%">
+				<option value="-1">Both</option>
+				<option value="0">Classic</option>
+				<option value="1">Relax</option>
+			</select>
+			</td>
+			</tr>';
 
 			echo '</tbody></form>';
 			echo '</table>';
