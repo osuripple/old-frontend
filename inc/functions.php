@@ -1856,9 +1856,11 @@ function removeFromLeaderboard($userID) {
 	redisConnect();
 	$country = strtolower($GLOBALS["db"]->fetch("SELECT country FROM users_stats WHERE id = ? LIMIT 1", [$userID])["country"]);
 	foreach (["std", "taiko", "ctb", "mania"] as $key => $value) {
-		$GLOBALS["redis"]->zrem("ripple:leaderboard:".$value, $userID);
-		if (strlen($country) > 0 && $country != "xx") {
-			$GLOBALS["redis"]->zrem("ripple:leaderboard:".$value.":".$country, $userID);
+		foreach (["", ":relax"] as $kkey => $suffix) {
+			$GLOBALS["redis"]->zrem("ripple:leaderboard:".$value.$suffix, $userID);
+			if (strlen($country) > 0 && $country != "xx") {
+				$GLOBALS["redis"]->zrem("ripple:leaderboard:".$value.":".$country.$suffix, $userID);
+			}
 		}
 	}
 }
