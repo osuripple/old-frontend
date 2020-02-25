@@ -1170,7 +1170,10 @@ class P {
 		<td colspan=2><p align="center"><b>Settings are automatically reloaded on Bancho when you press "Save settings".</b> There\'s no need to do <i>!system reload</i> manually anymore.</p></td>
 		</tr>';
 		echo '</tbody><table>
-		<div class="text-center"><button type="submit" class="btn btn-primary">Save settings</button></div></form>';
+		<div class="text-center">
+		<a onclick="sure(\'submit.php?action=reloadChatChannels&csrf=' . csrfToken() . '\')" type="submit" class="btn btn-warning">Reload chat channels</a>
+		<button type="submit" class="btn btn-primary">Save settings</button>
+		</div></form>';
 		echo '</div>';
 	}
 

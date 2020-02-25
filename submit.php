@@ -225,6 +225,10 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageServers);
 			D::DeleteUser();
 		break;
+		case 'reloadChatChannels':
+			sessionCheckAdmin(Privileges::AdminManageServers);
+			D::ReloadChatChannels();
+		break;
 		default:
 			throw new Exception('Invalid action value');
 	}

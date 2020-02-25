@@ -1913,4 +1913,16 @@ class D {
 			echo '<span style="color: red;">' . $e->getMessage() . '</span>';
 		}
 	}
+
+	public static function ReloadChatChannels() {
+		try {
+			redisConnect();
+			$GLOBALS["redis"]->publish("peppy:reload_chat_channels", "reload");
+			redirect('index.php?p=111&s=ok');
+		}
+		catch(Exception $e) {
+			// Redirect to Exception page
+			redirect('index.php?p=111&e='.$e->getMessage());
+		}
+	}
 }
