@@ -864,7 +864,7 @@ class P {
 	*/
 	public static function AdminBadges() {
 		// Get data
-		$badgesData = $GLOBALS['db']->fetchAll('SELECT * FROM badges');
+		$badgesData = $GLOBALS['db']->fetchAll('SELECT badges.id, `name`, icon, COUNT(user_badges.badge) AS c FROM badges JOIN user_badges ON badges.id = user_badges.badge GROUP BY badges.id');
 		// Print docs stuff
 		echo '<div id="wrapper">';
 		printAdminSidebar();
@@ -882,7 +882,7 @@ class P {
 		echo '<p align="center"><font size=5><i class="fa fa-certificate"></i>	Badges</font></p>';
 		echo '<table class="table table-striped table-hover table-50-center">';
 		echo '<thead>
-		<tr><th class="text-center"><i class="fa fa-certificate"></i>	ID</th><th class="text-center">Name</th><th class="text-center">Icon</th><th class="text-center">Actions</th></tr>
+		<tr><th class="text-center"><i class="fa fa-certificate"></i>	ID</th><th class="text-center">Name</th><th class="text-center">Icon</th><th class="text-center"># used by</th><th class="text-center">Actions</th></tr>
 		</thead>';
 		echo '<tbody>';
 		foreach ($badgesData as $badge) {
@@ -891,9 +891,11 @@ class P {
 			<td><p class="text-center">'.$badge['id'].'</p></td>
 			<td><p class="text-center">'.htmlspecialchars($badge['name']).'</p></td>
 			<td><p class="text-center">'.htmlspecialchars($badge['icon']).'</p></td>
+			<td><p class="text-center">'.$badge['c'].'</p></td>
 			<td><p class="text-center">
 			<div class="btn-group-justified">
 			<a title="Edit badge" class="btn btn-xs btn-primary" href="index.php?p=109&id='.$badge['id'].'"><span class="glyphicon glyphicon-pencil"></span></a>
+			<a title="Find users" class="btn btn-xs btn-success" href="index.php?p=140&id='.$badge['id'].'"><span class="glyphicon glyphicon-zoom-in"></span></a>
 			<a title="Delete badge" class="btn btn-xs btn-danger" onclick="sure(\'submit.php?action=removeBadge&id='.$badge['id'].'&csrf='.csrfToken().'\');"><span class="glyphicon glyphicon-trash"></span></a>
 			</div>
 			</p></td>
@@ -3819,6 +3821,45 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 		echo '</div>';
 		// Template end
 		echo '</div>';
+	}
+
+
+	public static function AdminFindUsersWithBadge() {
+		try {
+			if (!isset($_GET["id"])) {
+				throw new Exception("Invalid badge");
+			}
+
+			// Get data
+			$data = $GLOBALS["db"]->fetchAll("SELECT users.id AS uid, username FROM users JOIN user_badges ON users.id = user_badges.user WHERE user_badges.badge = ?", [$_GET["id"]]);
+			if (!$data) {
+				throw new Exception("No rows returned.");
+			}
+			echo '<div id="wrapper">';
+			printAdminSidebar();
+			echo '<div id="page-content-wrapper">';
+			self::MaintenanceStuff();
+			echo '<span class="centered"><h2><i class="fa fa-search"></i>	Users with badge #'.htmlspecialchars($_GET["id"]).'</h2></span>';
+			echo '<div align="center">';
+			echo '<table class="table table-striped table-hover table-75-center">
+			<thead>
+			<tr><th class="text-left"><i class="fa fa-layer-group"></i>	ID</th><th class="text-center">Username</th></tr>
+			</thead>
+			<tbody>';
+			foreach ($data as $row) {
+				echo "<tr>
+						<td style='text-align: center;'>$row[uid]</td>
+						<td style='text-align: center;'><a href='index.php?u=$row[uid]'>$row[username]</a></td>
+					</tr>";
+			}
+			echo '</tbody>
+			</table>';
+
+			echo '</div>';
+			echo '</div>';
+		} catch(Exception $e) {
+			redirect("index.php?p=108?e=".$e->getMessage());
+		}
 	}
 }
 

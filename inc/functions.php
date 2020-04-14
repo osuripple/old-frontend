@@ -173,6 +173,7 @@ function setTitle($p) {
 			137 => 'Top Scores',
 			138 => 'Top Scores Results',
 			139 => 'S3 Replays Buckets',
+			140 => 'Find users with badge',
 		];
 		if (isset($namesRipple[$p])) {
 			return __maketitle('Ripple', $namesRipple[$p]);
@@ -425,6 +426,12 @@ function printPage($p) {
 			case 139:
 				sessionCheckAdmin(Privileges::AdminCaker);
 				P::AdminS3ReplaysBuckets();
+			break;
+
+			// Admin panel - Find users with badge
+			case 140:
+				sessionCheckAdmin(Privileges::AdminManageBadges);
+				P::AdminFindUsersWithBadge();
 			break;
 
 			// 404 page
