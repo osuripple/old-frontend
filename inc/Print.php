@@ -588,7 +588,7 @@ class P {
 				<td>Custom badge</td>
 				<td>
 					<p align="center">
-						<i class="fa '.htmlspecialchars($userStatsData["custom_badge_icon"]).' fa-2x"></i>
+						'.htmlspecialchars($userStatsData["custom_badge_icon"]).'</i>
 						<br>
 						<b>'.htmlspecialchars($userStatsData["custom_badge_name"]).'</b>
 					</p>
@@ -889,8 +889,8 @@ class P {
 			// Print row for this badge
 			echo '<tr>
 			<td><p class="text-center">'.$badge['id'].'</p></td>
-			<td><p class="text-center">'.$badge['name'].'</p></td>
-			<td><p class="text-center"><i class="fa '.$badge['icon'].' fa-2x"></i></p></td>
+			<td><p class="text-center">'.htmlspecialchars($badge['name']).'</p></td>
+			<td><p class="text-center">'.htmlspecialchars($badge['icon']).'</p></td>
 			<td><p class="text-center">
 			<div class="btn-group-justified">
 			<a title="Edit badge" class="btn btn-xs btn-primary" href="index.php?p=109&id='.$badge['id'].'"><span class="glyphicon glyphicon-pencil"></span></a>
@@ -975,8 +975,8 @@ class P {
 			<td><p class="text-center"><input type="text" name="n" class="form-control" value="'.$badgeData['name'].'" ></td>
 			</tr>';
 			echo '<tr>
-			<td>Icon</td>
-			<td><p class="text-center"><input type="text" name="i" class="form-control icp icp-auto" value="'.$badgeData['icon'].'" ></td>
+			<td>Icon<br><i>Copy and paste from <a href="https://emojipedia.org/twitter/" target="_blank">here</a></i></td>
+			<td><p class="text-center"><input type="text" name="i" class="form-control" value="'.$badgeData['icon'].'" ></td>
 			</tr>';
 			echo '</tbody></form>';
 			echo '</table>';
