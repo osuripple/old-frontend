@@ -864,7 +864,7 @@ class P {
 	*/
 	public static function AdminBadges() {
 		// Get data
-		$badgesData = $GLOBALS['db']->fetchAll('SELECT badges.id, `name`, icon, COUNT(user_badges.badge) AS c FROM badges JOIN user_badges ON badges.id = user_badges.badge GROUP BY badges.id');
+		$badgesData = $GLOBALS['db']->fetchAll('SELECT badges.id, `name`, icon, COUNT(user_badges.badge) AS c FROM badges LEFT JOIN user_badges ON badges.id = user_badges.badge GROUP BY badges.id');
 		// Print docs stuff
 		echo '<div id="wrapper">';
 		printAdminSidebar();
