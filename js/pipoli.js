@@ -1,5 +1,5 @@
 $(document).ready(function() {
-	$("#pipoli").append("<div><i class='fa fa-circle-o-notch fa-spin fa-3x'></i></div><div>Loading Celeste Pipoli</div>");
+	$("#pipoli").append("<div><i class='fa fa-circle-notch fa-spin fa-3x'></i></div><div>Loading Celeste Pipoli</div>");
 	$.get("https://status.ripple.moe/backend/status_data.php", function(data) {
 		$("#pipoli").html("");
 		for(var key in data) {
