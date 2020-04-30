@@ -3,7 +3,9 @@
     "require": {
         "ezyang/htmlpurifier": "^4.7",
         "team-reflex/oauth2-discord": "^1.0",
-	"predis/predis": "^1.1.1"
+        "predis/predis": "^1.1.1",
+        "grpc/grpc": "^1.27.0",
+        "google/protobuf": "3.11.4"
     },
     "license": "MIT"
 }
