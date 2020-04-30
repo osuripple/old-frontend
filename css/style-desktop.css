@@ -1133,3 +1133,8 @@ tr.bold>* {
         margin: 0 !important;
     }
 }
+
+.bad {
+    background-color: darkred;
+    color: white;
+}

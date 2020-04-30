@@ -216,6 +216,10 @@ if ($p < 100) {
 	<script type="text/javascript">
 		// Escape function
 		function escapeHtml(unsafe) {
+			// utterly disgusting
+			if (typeof unsafe !== 'string' || unsafe instanceof String) {
+				return escapeHtml(String(unsafe));
+			}
 			return unsafe
 				.replace(/&/g, "&amp;")
 				.replace(/</g, "&lt;")
@@ -325,6 +329,7 @@ switch ($p) {
 		// Admin cp - edit user
 
 	case 100: echo '<script src="./js/pipoli.js"></script>'; break;
+	case 141: echo '<script src="./secret/js/ornella.js"></script>'; break;
 
 	case 103:
 		echo '

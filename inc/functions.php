@@ -174,6 +174,7 @@ function setTitle($p) {
 			138 => 'Top Scores Results',
 			139 => 'S3 Replays Buckets',
 			140 => 'Find users with badge',
+			141 => 'Analyze score',
 		];
 		if (isset($namesRipple[$p])) {
 			return __maketitle('Ripple', $namesRipple[$p]);
@@ -432,6 +433,12 @@ function printPage($p) {
 			case 140:
 				sessionCheckAdmin(Privileges::AdminManageBadges);
 				P::AdminFindUsersWithBadge();
+			break;
+
+			// Admin panel - Anticheat analyze GRPC
+			case 141:
+				sessionCheckAdmin(Privileges::AdminManageUsers);
+				P::AdminAnalyzeGRPC();
 			break;
 
 			// 404 page
@@ -2041,4 +2048,43 @@ function nuke($table, $column, $userID, $limit = false) {
 		$q .= " LIMIT 1";
 	}
 	nukeExt($table, $q, [$userID]);
+}
+
+// Ugly code I wrote for an high school thing about 2 years ago
+function api_start() {
+	ob_start();
+	
+	global $APP_CONFIG;
+	if ($APP_CONFIG["development"] && $_SERVER["REQUEST_METHOD"] === "OPTIONS") {
+			// CORS shit
+			header("Access-Control-Allow-Origin: *");
+			header("Access-Control-Allow-Methods: POST, GET, DELETE, PUT, PATCH, OPTIONS");
+			header("Access-Control-Allow-Headers: token, Content-Type");
+			header("Access-Control-Max-Age: 1728000");
+			header("Content-Length: 0");
+			header("Content-Type: text/plain");
+			die();
+	}
+}
+
+function api_output($output, $clear=true, $encode=true) {
+	if ($clear)
+		ob_end_clean();
+	header('Content-Type: application/json');
+	print($encode ? json_encode($output, JSON_UNESCAPED_SLASHES) : $output);
+}
+
+function api_output_raw($output, $clear=true) {
+	api_output($output, $clear, false);
+}
+
+function api_error($e, $code=0) {
+	if ($code === 0) {
+		$code = $e->getCode();
+	}
+	http_response_code($code);
+	return [
+		"status" => $code,
+		"message" => $e->getMessage()
+	];
 }

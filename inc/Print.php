@@ -2793,7 +2793,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			echo '<br><br>';
 
 			echo '<div id="main-content">
-				<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
+				<i class="fa fa-circle-notch fa-spin fa-3x fa-fw"></i>
 				<h3>Loading beatmap data from osu!api...</h3>
 				<h5>This might take a while</h5>
 			</div>';
@@ -3117,6 +3117,39 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			echo ' for user ' . $username;
 		}
 		echo '</h2>';
+		echo '<p align="center" class="mobile-flex"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#analyzeModal">Analyze replay</button>';
+		// Modal
+		echo '<div class="modal fade" id="analyzeModal" tabindex="-1" role="dialog" aria-labelledby="analyzeModalLabel">
+		<div class="modal-dialog">
+		<div class="modal-content">
+		<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<h4 class="modal-title" id="analyzeModalLabel">Analyze replay <span class="label label-info">Beta</span></h4>
+		</div>
+		<div class="modal-body">
+		<div class="container alert alert-warning" role="alert" style="width:100%;">
+			<p align="center">
+				<i class="fas fa-fw fa-info-circle mr-3 mt-1"></i>
+				Analyzing a replay will not automatically log it in case of cheat detection, you will have to do it manually.
+			</p>
+		</div>
+		<p>
+		<form id="quick-edit-user-form" action="index.php" method="GET">
+		<input name="p" value="141" hidden>
+		<div class="input-group">
+		<span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span></span>
+		<input type="text" name="id" class="form-control" placeholder="Score ID (1337) or Ripple replay link (https://ripple.moe/web/replay/1337)" aria-describedby="basic-addon1" required>
+		</div>
+		</form>
+		</p>
+		</div>
+		<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		<button type="submit" form="quick-edit-user-form" class="btn btn-primary">Analyze</button>
+		</div>
+		</div>
+		</div>
+		</div>';
 
 		if (!$reports) {
 			echo "<p>No " . ($from > 0 ? "other" : "")  . " reports.</p>";
@@ -3265,6 +3298,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 					}
 					
 					echo "</tr>
+				</tbody>
 				</table>";
 
 			echo '</div>';
@@ -3859,6 +3893,36 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			echo '</div>';
 		} catch(Exception $e) {
 			redirect("index.php?p=108?e=".$e->getMessage());
+		}
+	}
+
+	public static function AdminAnalyzeGRPC() {
+		try {
+			// Check if id is set
+			/*if (!isset($_GET['bsid']) || empty($_GET['bsid'])) {
+				throw new Exception('Invalid beatmap set id');
+			}*/
+			echo '<div id="wrapper">';
+			printAdminSidebar();
+			echo '<div id="page-content-wrapper">';
+			// Maintenance check
+			self::MaintenanceStuff();
+			echo '<p align="center"><h2><i class="fa fa-fire"></i>	Analyze score</h2></p>';
+
+			echo '<br><br>';
+
+			echo '<div id="main-content">
+				<p><i class="fa fa-circle-notch fa-spin fa-3x fa-fw"></i></p>
+				<p><img src="/images/trenta.png"></p>
+				<h3>Aspettiam sti trenta second...</h3>
+				<h5>This might take a while</h5>
+			</div>';
+			echo '</div>';
+			echo '</div>';
+		}
+		catch(Exception $e) {
+			// Redirect to exception page
+			redirect('index.php?p=132&e='.$e->getMessage());
 		}
 	}
 }
