@@ -643,6 +643,7 @@ class P {
 									if (has2FA($_GET["id"])) {
 										echo '	<a onclick="sure(\'submit.php?action=remove2FA&id='.$_GET['id'].'&csrf=' . csrfToken() . '\')" class="btn btn-danger">Remove 2FA</a>';
 									}
+									Fringuellina::Print142Button();
 								}
 							echo '</li>
 						</ul>';
@@ -814,7 +815,7 @@ class P {
 		</select>
 		</td>
 		</tr>';
-		echo '<tr>
+		/*echo '<tr>
 		<td>Maintenance mode (in-game)</td>
 		<td>
 		<select name="gm" class="selectpicker" data-width="100%">
@@ -822,7 +823,7 @@ class P {
 		<option value="0" '.$selected[1][2].'>Off</option>
 		</select>
 		</td>
-		</tr>';
+		</tr>';*/
 		echo '<tr>
 		<td>Registration</td>
 		<td>
@@ -1167,9 +1168,6 @@ class P {
 		echo '<tr>
 		<td>Login notification</td>
 		<td><textarea type="text" name="ln" class="form-control" maxlength="512" style="overflow:auto;resize:vertical;height:100px">'.$ln.'</textarea></td>
-		</tr>';
-		echo '<tr class="success">
-		<td colspan=2><p align="center"><b>Settings are automatically reloaded on Bancho when you press "Save settings".</b> There\'s no need to do <i>!system reload</i> manually anymore.</p></td>
 		</tr>';
 		echo '</tbody><table>
 		<div class="text-center">

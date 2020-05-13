@@ -173,8 +173,9 @@ hr {
 
 /* Admin Panel Style */
 #wrapper {
-    position: relative;
-    top: -20px;
+    position: absolute;
+    top: 50px;
+    width: 100%;
     padding-left: 0;
     -webkit-transition: all 0.5s ease;
     -moz-transition: all 0.5s ease;
@@ -195,6 +196,7 @@ hr {
     overflow-y: auto;
     background-color: #222222;
     text-align: left;
+    overflow-x: hidden;
 }
 
 #sidebar-wrapper.collapse, #sidebar-wrapper.collapse.in {
@@ -1131,6 +1133,11 @@ tr.bold>* {
     
     #ranktable td {
         margin: 0 !important;
+    }
+
+    .sidebar-nav li {
+        text-indent: 20px;
+        line-height: 1.5em;
     }
 }
 

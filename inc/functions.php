@@ -175,6 +175,7 @@ function setTitle($p) {
 			139 => 'S3 Replays Buckets',
 			140 => 'Find users with badge',
 			141 => 'Analyze score',
+			142 => 'View osu! version logs',
 		];
 		if (isset($namesRipple[$p])) {
 			return __maketitle('Ripple', $namesRipple[$p]);
@@ -441,6 +442,19 @@ function printPage($p) {
 				P::AdminAnalyzeGRPC();
 			break;
 
+			case 142:
+				sessionCheckAdmin(Privileges::AdminCaker);
+				Fringuellina::Print142();
+			break;
+			case 143:
+				sessionCheckAdmin(Privileges::AdminCaker);
+				Fringuellina::Print143();
+			break;
+			case 144:
+				sessionCheckAdmin(Privileges::AdminCaker);
+				Fringuellina::Print144();
+			break;
+
 			// 404 page
 			default:
 				define('NotFound', '<br><h1>404</h1><p>Page not found. Meh.</p>');
@@ -587,8 +601,9 @@ function printAdminSidebar() {
 							echo '<li><a href="index.php?p=137"><i class="fa fa-fighter-jet"></i>	Top scores</a></li>';
 
 						if (hasPrivilege(Privileges::AdminViewRAPLogs))
-							echo '<li class="animated infinite pulse"><a href="index.php?p=116"><i class="fa fa-calendar"></i>	Admin log&nbsp;&nbsp;&nbsp;<div class="label label-primary">Free botnets</div></a></li>';
-						echo "</ul>
+							echo '<li><a href="index.php?p=116"><i class="fa fa-calendar"></i>	Admin log&nbsp;&nbsp;&nbsp;<div class="label label-primary">Free botnets</div></a></li>';
+						echo "<li style='height: 50px;'></li></ul>
+						
 				</div>";
 }
 /*
