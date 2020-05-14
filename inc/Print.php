@@ -54,6 +54,8 @@ class P {
 		} else {
 			$onlineUsers = $onlineUsers;
 		}
+		$reports = $GLOBALS['db']->fetch("SELECT COUNT(*) AS `count` FROM reports WHERE assigned = 0");
+		$rankRequests = $GLOBALS['db']->fetch("SELECT COUNT(*) AS `count` FROM rank_requests WHERE `time` >= UNIX_TIMESTAMP() - 86400 AND blacklisted = 0");
 		// Print admin dashboard
 		echo '<div id="wrapper">';
 		printAdminSidebar();
@@ -65,9 +67,13 @@ class P {
 		// Stats panels
 		echo '<div class="row">';
 		printAdminPanel('primary', 'fa fa-gamepad fa-5x', $submittedScores, 'Submitted scores', number_format($submittedScoresFull));
-		printAdminPanel('red', 'fa fa-skull fa-5x', $totalScores, 'Total plays', number_format($totalScoresFull));
+		printAdminPanel('yellow', 'fa fa-skull fa-5x', $totalScores, 'Total plays', number_format($totalScoresFull));
 		printAdminPanel('green', 'fa fa-street-view fa-5x', $onlineUsers, 'Online users');
-		printAdminPanel('yellow', 'fa fa-dot-circle fa-5x', number_format($totalPP), 'Sum of weighted PP');
+		printAdminPanel('green', 'fa fa-dot-circle fa-5x', number_format($totalPP), 'Sum of weighted PP');
+		echo '</div><div style="display: flex; justify-content: center;">';
+		printAdminPanel('red', 'fa fa-flag fa-5x', number_format($reports['count']), 'Unassigned reports');
+		printAdminPanel('yellow', 'fa fa-music fa-5x', number_format($rankRequests['count']), 'Rank requests');
+
 		echo '</div>';
 		// Pipoli integration
 		echo '<div id="pipoli" class="row" style="margin-bottom: 0;"></div>';
@@ -613,7 +619,7 @@ class P {
 			</tr>';
 			echo '<tr><td>IPs<br><i><a href="index.php?p=136&uid=' . $_GET["id"] . '">(search users with these IPs)</a></i></td><td><ul>';
 			foreach ($ips as $ip) {
-				echo "<li>$ip[ip] <a class='getcountry' data-ip='$ip[ip]' title='Click to retrieve IP country'>(?)</a></li>";
+				echo "<li>$ip[ip] <a class='getcountry' data-ip='$ip[ip]' title='Click to retrieve IP country'><i class='fa fa-globe-americas'></i></a></li>";
 			}
 			echo '</ul></td></tr>';
 			echo '</tbody></form>';
@@ -3574,7 +3580,7 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 					$hax = true;
 				}
 				echo "<tr class='" . ($userFilter && $row["userid"] != $_GET["uid"] ? "danger bold" : "") . "'>
-				<td>$row[ip] <a class='getcountry' data-ip='$row[ip]'>(?)</a></td>
+				<td>$row[ip] <a class='getcountry' data-ip='$row[ip]'><i class='fa fa-globe-americas'></i></a></td>
 				<td><a href='index.php?p=103&id=$row[userid]' target='_blank'>$row[username]</a> <i>($row[userid])</i></td>
 				<td><span class='label label-$groupColor'>$groupText</span></td>
 				<td>$row[occurencies]</td>

@@ -320,6 +320,7 @@ if ($p < 100) {
 				i.text("(" + data + ")");
 			});
 		});
+		$('[data-toggle="tooltip"]').tooltip();
     </script>
 
 

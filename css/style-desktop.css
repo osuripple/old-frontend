@@ -1145,3 +1145,11 @@ tr.bold>* {
     background-color: darkred;
     color: white;
 }
+
+.underline {
+    text-decoration: underline;
+}
+
+.getcountry {
+    cursor: pointer;
+}
