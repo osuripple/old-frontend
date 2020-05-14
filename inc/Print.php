@@ -2863,7 +2863,29 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 
 		echo '<br>';
 
-		$reports = $GLOBALS["db"]->fetchAll("SELECT * FROM reports ORDER BY id DESC LIMIT 50;");
+		if (isset($_GET["r"])) {
+			$q = "SELECT * FROM reports WHERE to_uid = ?";
+			if (isset($_GET["month"])) {
+				echo '(last 30 days only)';
+				$q .= " AND `time` >= UNIX_TIMESTAMP() - 86400 * 30";
+			}
+			$q .= " ORDER BY id DESC LIMIT 50";
+			$reports = $GLOBALS["db"]->fetchAll($q, [$_GET["r"]]);
+		} else if (isset($_GET["uu"])) {
+			echo '(useless report sent by #' . htmlspecialchars($_GET['uu']);
+			$q = "SELECT * FROM reports WHERE from_uid = ? AND assignee = -2";
+			if (isset($_GET["month"])) {
+				echo ', last 30 days only';
+				$q .= " AND `time` >= UNIX_TIMESTAMP() - 86400 * 30";
+			}
+			echo ')';
+			$q .= " ORDER BY id DESC LIMIT 50";
+			$reports = $GLOBALS["db"]->fetchAll($q, [$_GET["uu"]]);
+		} else {
+			$reports = $GLOBALS["db"]->fetchAll("SELECT * FROM reports ORDER BY id DESC LIMIT 50;");
+		}
+
+		
 		echo '<table class="table table-striped table-hover table-75-center">
 		<thead>
 		<tr><th class="text-center"><i class="fa fa-flag"></i>	ID</th><th class="text-center">From</th><th class="text-center">Target</th><th class="text-l">Reason</th><th class="text-center">When</th><th class="text-center">Assignee</th><th class="text-center">Actions</th></tr>
@@ -2965,7 +2987,9 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 					</tr>
 					<tr>
 						<td><b>Reported user</b></td>
-						<td><a href="index.php?u=' . $report["to_uid"] . '" target="_blank" class="badguy">' . getUserUsername($report["to_uid"]) . '</a></td>
+						<td><a href="index.php?u=' . $report["to_uid"] . '" target="_blank" class="badguy">' . getUserUsername($report["to_uid"]) . '</a>
+						<a href="index.php?p=103&id=' . $report["to_uid"] . '"><i title="View in RAP" class="fa fa-eye"></i></a>
+						</td>
 					</tr>
 					<tr>
 						<td><b>Reason</b></td>
@@ -2983,11 +3007,15 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 						<td><b>Status</b></td>
 						<td>' . $status . '</td>
 					</tr>
-					<tr class="info">
-						<td colspan=2><b>' . getUserUsername($report["to_uid"]) . '</b> has been reported <b>' . $reportedCount . '</b> times in the last month</td>
+					<tr>
+						<td colspan=2>
+							<a title="View reports" href="index.php?p=126&r='.$report["to_uid"].'&month=1"><b>' . getUserUsername($report["to_uid"]) . '</b> has been reported <b>' . $reportedCount . '</b> times in the last month</a>
+						</td>
 					</tr>
-					<tr class="info">
-						<td colspan=2><b>' . getUserUsername($report["from_uid"]) . '</b> has sent <b>' . $uselessCount . '</b> useless reports in the last month</td>
+					<tr>
+						<td colspan=2>
+							<a title="View reports" href="index.php?p=126&uu='.$report["from_uid"].'&month=1"><b>' . getUserUsername($report["from_uid"]) . '</b> has sent <b>' . $uselessCount . '</b> useless reports in the last month</a>
+						</td>
 					</tr>
 				</table>
 
@@ -3003,13 +3031,19 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				<ul class="list-group">
 					<li class="list-group-item list-group-item-danger">Quick actions</li>
 					<li class="list-group-item mobile-flex">
-						<a class="btn btn-primary" href="index.php?p=103&id=' . $report["to_uid"] . '"><i class="fa fa-expand"></i> View reported user in RAP</a>
 						<div class="btn btn-warning" data-toggle="modal" data-target="#silenceUserModal" data-who="' . getUserUsername($report["to_uid"]) . '"><i class="fa fa-microphone-slash"></i> Silence reported user</div>
-						<div class="btn btn-warning" data-toggle="modal" data-target="#silenceUserModal" data-who="' . getUserUsername($report["from_uid"]) . '"><i class="fa fa-microphone-slash"></i> Silence source user</div>
 						';
 						$restrictedDisabled = isRestricted($report["to_uid"]) ? "disabled" : "";
 						echo '<a class="btn btn-danger ' . $restrictedDisabled . '" onclick="sure(\'submit.php?action=restrictUnrestrictUser&id=' . $report["to_uid"] . '&resend=1&csrf='.csrfToken().'\')"><i class="fa fa-times"></i> Restrict reported user</a>';
 					echo '</li>
+				</ul>
+
+				<ul class="list-group">
+					<li class="list-group-item list-group-item-danger">In case of emergency</li>
+					<li class="list-group-item mobile-flex">
+						<div class="alert alert-danger" role="alert"><p align="center">This will silence whoever made the report, NOT the reported user!! Use the button above if you want to silence the reported user.</p></div>
+						<div class="btn btn-warning" data-toggle="modal" data-target="#silenceUserModal" data-who="' . getUserUsername($report["from_uid"]) . '"><i class="fa fa-microphone-slash"></i> Silence source user</div>
+					</li>
 				</ul>
 
 				<i><b>*</b> Latest 10 public messages sent from reported user before getting reported, trimmed to 50 characters.</i>
