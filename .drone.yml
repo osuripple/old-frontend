@@ -6,22 +6,32 @@ name: default
 steps:
   - name: submodules
     image: docker:git
+    environment:
+      GIT_USERNAME:
+        from_secret: git_username
+      GIT_PASSWORD:
+        from_secret: git_password
     commands:
-      - git config submodule.secret.url https://${GIT_USERNAME}:${GIT_PASSWORD}@zxq.co/ripple/old-frontend-secret.git
+      - git config submodule.secret.url https://$GIT_USERNAME:$GIT_PASSWORD@zxq.co/ripple/old-frontend-secret.git
       - git submodule update --init --recursive
     secrets: [ git_username, git_password ]
 
   - name: prepare-docker
     image: docker:git
+    environment:
+      GIT_USERNAME:
+        from_secret: git_username
+      GIT_PASSWORD:
+        from_secret: git_password
     commands:
       - mkdir -p /cache/${DRONE_REPO}/docker
-      - git clone https://zxq.co/ripple/dockerfiles /dockerfiles
-      - date +"%Y%m%d." | tr -d '\n' > .tags
-      - echo $DRONE_BUILD_NUMBER >> .tags
-      - cp /dockerfiles/dockerfiles/o9d.Dockerfile Dockerfile
+      - git clone https://$GIT_USERNAME:$GIT_PASSWORD@zxq.co/ripple/dockerfiles /dockerfiles
+      - date +"%Y%m%d.${DRONE_BUILD_NUMBER}" | tr -d '\n' > .tags
+      - cp /dockerfiles/dockerfiles/old-frontend.Dockerfile Dockerfile
     volumes:
       - name: cache
         path: /cache
+    secrets: [ git_username, git_password ]
 
   - name: package-docker
     image: plugins/docker
