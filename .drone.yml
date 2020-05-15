@@ -4,6 +4,13 @@ type: docker
 name: default
 
 steps:
+  - name: submodules
+    image: docker:git
+    commands:
+      - git config submodule.secret.url https://${GIT_USERNAME}:${GIT_PASSWORD}@zxq.co/ripple/old-frontend-secret.git
+      - git submodule update --init --recursive
+    secrets: [ git_username, git_password ]
+
   - name: prepare-docker
     image: docker:git
     commands:
