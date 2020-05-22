@@ -1935,6 +1935,7 @@ class D {
 			}
 			$GLOBALS["db"]->execute("UPDATE anticheat_reports SET false_positive = ? WHERE id = ? LIMIT 1", [$_GET["v"], $_GET["rid"]]);
 			$w = $_GET["v"] == 1 ? "flagged" : "unflagged";
+			rapLog(sprintf("has %s anticheat report #%s as false positive", $w, $_GET["rid"]));
 			redirect("index.php?p=133&id=$_GET[rid]&s=".urlencode("Score $w as false positive"));
 		} catch(Exception $e) {
 			// Redirect to Exception page
