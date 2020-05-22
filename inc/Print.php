@@ -1201,7 +1201,18 @@ class P {
 			$first = true;
 		}
 		$to = $from-$pageInterval;
-		$logs = $GLOBALS['db']->fetchAll('SELECT rap_logs.*, users.username FROM rap_logs LEFT JOIN users ON rap_logs.userid = users.id WHERE rap_logs.id <= ? AND rap_logs.id > ? ORDER BY rap_logs.datetime DESC', [$from, $to]);
+		$foka = isset($_GET["foka"]) ? $_GET["foka"] : 1;
+		$fokaFilter = $foka != 0 ? '' : 'AND rap_logs.userid != 999';
+		$logs = $GLOBALS['db']->fetchAll('SELECT rap_logs.*, users.username
+			FROM rap_logs
+			LEFT JOIN users ON rap_logs.userid = users.id
+			WHERE rap_logs.id <= ?
+			AND rap_logs.id > ?
+			'.$fokaFilter.'
+			ORDER BY rap_logs.datetime
+			DESC',
+			[$from, $to]
+		);
 		// Print sidebar and template stuff
 		echo '<div id="wrapper">';
 		printAdminSidebar();
@@ -1218,6 +1229,14 @@ class P {
 		}
 		// Header
 		echo '<span class="centered"><h2><i class="fa fa-calendar"></i>	Admin Log</h2></span>';
+		if ($first) {
+			echo '<p align="center" class="mobile-flex">
+				<a href="index.php?p=116&from='.$from.'&foka='.(($foka+1)%2).'" type="button" class="btn btn-info">
+					'.($foka == 1 ? 'Hide' : 'Show').' FokaBot
+				</a>
+			</p>';
+		}
+
 		// Main page content here
 		echo '<div class="bubbles-container">';
 		if (!$logs) {
@@ -1235,11 +1254,11 @@ class P {
 		echo '</div>';
 		echo '<br><br><p align="center">';
 		if (!$first)
-			echo '<a href="index.php?p=116&from=' .($from+$pageInterval) . '">< Prev page</a>';
+			echo '<a href="index.php?p=116&from=' .($from+$pageInterval) . '&foka='.$foka.'">< Prev page</a>';
 		if (!$first && $logs)
 			echo ' | ';
 		if ($logs)
-			echo '<a href="index.php?p=116&from=' . $to . '">Next page</a> ></p>';
+			echo '<a href="index.php?p=116&from=' . $to . '&foka='.$foka.'">Next page</a> ></p>';
 		// Template end
 		echo '</div>';
 	}

@@ -437,11 +437,27 @@ hr {
 }
 
 .circle {
-	float: left;
-	width: 60px;
-	height: 60px;
-	border-radius: 50%;
-	margin-top: 15px;
+	max-width: 25px;
+    max-height: 25px;
+    border-radius: 500rem;
+    margin-right: 1em;
+}
+
+.logline {
+    display: flex;
+    background-color: #FEF9E7;
+    margin: 0.25em;
+    padding: 0.25em
+}
+
+.logline>div:nth-child(2) {
+    max-width: 50%;
+}
+
+.logline>div:last-child {
+    flex-grow: 1;
+    text-align: right;
+    font-size: 90%;
 }
 
 

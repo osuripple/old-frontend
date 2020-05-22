@@ -1657,12 +1657,35 @@ function bloodcatDirectString($arr, $np = false) {
 }
 
 function printBubble($userID, $username, $message, $time, $through) {
-	echo '
+	$lthrough = strtolower($through);
+	switch ($lthrough) {
+		case 'rap': $icon = 'eye'; break;
+		case 'delta': $icon = 'gamepad'; break;
+		case strpos($lthrough, 'fokabot') !== false: $icon = 'robot'; break;
+		case strpos($lthrough, 'matsuko') !== false: $icon = 'life-ring'; break;
+		case strpos($lthrough, 'api') !== false: $icon = 'terminal'; break;
+		default: $icon = 'question-circle'; break;
+	}
+	echo "
+	<div class='logline'>
+		<img class='circle' src='".URL::Avatar().'/'.$userID."'>
+		<div>
+			<b>".htmlspecialchars($username)."</b> " . htmlspecialchars($message) . "
+		</div>
+		<div>
+			<div>" . timeDifference($time, time()) ."</div>
+			<div>
+				through <i>" . htmlspecialchars($through) . " <i class='fa fa-$icon'></i></i>
+			</div>
+		</div>
+	</div>
+	";
+	/*echo '
 	<img class="circle" src="' . URL::Avatar() . '/' . $userID . '">
 	<div class="bubble">
 		<b>' . $username . '</b> ' . $message . '<br>
 		<span style="font-size: 80%">' . timeDifference($time, time()) .' through <i>' . $through . '</i></span>
-	</div>';
+	</div>';*/
 }
 
 function rapLog($message, $userID = -1, $through = "RAP") {
