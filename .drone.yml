@@ -43,6 +43,7 @@ steps:
       registry: d.nyodev.xyz
       repo: d.nyodev.xyz/ripple/o9d
       use_cache: true
+      purge: false
     secrets: [ docker_username, docker_password ]
     volumes:
       - name: docker

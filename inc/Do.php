@@ -1919,10 +1919,26 @@ class D {
 			redisConnect();
 			$GLOBALS["redis"]->publish("peppy:reload_chat_channels", "reload");
 			redirect('index.php?p=111&s=ok');
-		}
-		catch(Exception $e) {
+		} catch(Exception $e) {
 			// Redirect to Exception page
 			redirect('index.php?p=111&e='.$e->getMessage());
+		}
+	}
+
+	public static function SetFalsePositive() {
+		try {
+			if (!isset($_GET["v"]) || !isset($_GET["rid"])) {
+				throw new Exception("Missing required parameters");
+			}
+			if (!is_numeric($_GET["rid"]) || !$GLOBALS["db"]->fetch("SELECT 1 FROM anticheat_reports WHERE id = ? LIMIT 1", [$_GET["rid"]])) {
+				throw new Exception("Invalid report");
+			}
+			$GLOBALS["db"]->execute("UPDATE anticheat_reports SET false_positive = ? WHERE id = ? LIMIT 1", [$_GET["v"], $_GET["rid"]]);
+			$w = $_GET["v"] == 1 ? "flagged" : "unflagged";
+			redirect("index.php?p=133&id=$_GET[rid]&s=".urlencode("Score $w as false positive"));
+		} catch(Exception $e) {
+			// Redirect to Exception page
+			redirect('index.php?p=132&e='.$e->getMessage());
 		}
 	}
 }

@@ -241,6 +241,10 @@ try {
 			sessionCheckAdmin(Privileges::AdminCaker);
 			Fringuellina::RemoveA();
 		break;
+		case 'setFP':
+			sessionCheckAdmin(Privileges::AdminCaker);
+			D::SetFalsePositive();
+		break;
 		default:
 			throw new Exception('Invalid action value');
 	}

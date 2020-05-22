@@ -3213,7 +3213,13 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			global $URL;
 			foreach ($reports as $report) {
 				$severityColor = $report["severity"] >= 0.75 ? 'danger' : ($report["severity"] <= 0.25 ? 'primary' : 'warning');
-				echo "<tr class='$severityColor'>
+				if ($report["false_positive"] == 0) {
+					$falsePositiveClass = '';
+				} else {
+					$falsePositiveClass = 'line-through';	
+					$severityColor = 'success';
+				}
+				echo "<tr class='$severityColor $falsePositiveClass'>
 					<td><p class='text-center'>$report[id]</p></td>";
 					if ($all) echo "<td><p class='text-center'><a href='index.php?u=" . $report["userid"] . "'>$report[username]</a></p></td>";
 					echo "<td><p class='text-center'>" . timeDifference(time(), $report["time"]) . "</p></td>
@@ -3285,7 +3291,17 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 
 			echo '<br>';
 
+			// Print Success if set
+			if (isset($_GET['s']) && !empty($_GET['s'])) {
+				self::SuccessMessageStaccah($_GET['s']);
+			}
+			// Print Exception if set
+			if (isset($_GET['e']) && !empty($_GET['e'])) {
+				self::ExceptionMessageStaccah($_GET['e']);
+			}
+
 			$severityColor = $report["severity"] >= 0.75 ? 'danger' : ($report["severity"] <= 0.25 ? 'primary' : 'warning');
+			$fpColor = $report["false_positive"] == 1 ? 'success' : '';
 			echo "
 				<table class='table table-striped table-hover table-75-center'><tbody>
 					<tr>
@@ -3324,6 +3340,10 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 						<td>Severity</td>
 						<td><span class='label label-$severityColor'>$report[severity]</span></td>
 					</tr>
+					<tr class='$fpColor'>
+						<td>False positive</td>
+						<td>" . ($report["false_positive"] == 1 ? "Yes" : "No") . "</td>
+					</tr>
 					<tr>
 						<td>Anticheat data</td>";
 						
@@ -3338,6 +3358,13 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 					echo "</tr>
 				</tbody>
 				</table>";
+
+			echo '<p align="center" class="mobile-flex">
+			<a href="submit.php?action=setFP&rid='.$report["id"].'&v='.($report['false_positive'] == 1 ? '0' : '1').'&csrf='.csrfToken().'"
+			type="button" class="btn btn-' . ($report["false_positive"] == 1 ? "danger" : "success") . '">
+			' . ($report["false_positive"] == 1 ? "Unflag" : "Flag") . ' as false positive
+			</a>
+			</p>';
 
 			echo '</div>';
 			echo '</div>';
@@ -3796,7 +3823,23 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 			$sqlParameters = array_merge($sqlParameters, $x["params"]);
 		}
 		$orderBy = $_GET["sort"] === "start" ? ("beatmaps.difficulty_" . getPlaymodeText($gm)) : "pp";
-		$results = $GLOBALS["db"]->fetchAll("SELECT scores.userid, scores.time, scores.id, scores.mods, users.username, scores.play_mode, beatmaps.beatmap_id, beatmaps.song_name, scores.pp, anticheat_reports.id AS anticheat_report_id, anticheat_reports.severity " . ($orderBy !== "pp" ? ", beatmaps.$orderBy" : ""). " FROM scores JOIN users ON scores.userid = users.id JOIN beatmaps USING(beatmap_md5) LEFT JOIN anticheat_reports ON scores.id = anticheat_reports.score_id WHERE completed = 3 AND users.privileges & 3 >= 3 AND $sqlClauses ORDER BY $orderBy DESC LIMIT $limit", $sqlParameters);
+		$results = $GLOBALS["db"]->fetchAll("SELECT
+		scores.userid, scores.time, scores.id, scores.mods, users.username,
+		scores.play_mode, beatmaps.beatmap_id, beatmaps.song_name, scores.pp,
+		anticheat_reports.id AS anticheat_report_id,
+		anticheat_reports.severity " . ($orderBy !== "pp" ? ", beatmaps.$orderBy" : ""). " 
+		FROM scores JOIN users ON scores.userid = users.id
+		JOIN beatmaps USING(beatmap_md5)
+
+		LEFT JOIN anticheat_reports
+		ON scores.id = anticheat_reports.score_id
+		AND anticheat_reports.false_positive = 0
+
+		WHERE completed = 3
+		AND users.privileges & 3 >= 3
+		AND $sqlClauses
+		ORDER BY $orderBy DESC
+		LIMIT $limit", $sqlParameters);
 
 		echo '<p align="center"><h2><i class="fa fa-fighter-jet"></i>	Top Scores (max ' . $limit . ' results)</h2></p>';
 
