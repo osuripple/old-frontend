@@ -1071,9 +1071,9 @@ class D {
 				$requesturl = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=" . urlencode($to) . "&msg=" . urlencode($msg);
 				$resp = getJsonCurl($requesturl);
 
-				if ($resp["message"] != "ok") {
+				/*if ($resp["message"] != "ok") {
 					rapLog("failed to send FokaBot message :( err: " . print_r($resp["message"], true));
-				}
+				}*/
 			}
 
 			// RAP log
@@ -1409,9 +1409,9 @@ class D {
 			$to = "#announce";
 			$requesturl = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=" . urlencode($to) . "&msg=" . urlencode($msg);
 			$resp = getJsonCurl($requesturl);
-			if ($resp["message"] != "ok") {
+			/*if ($resp["message"] != "ok") {
 				rapLog("failed to send FokaBot message :( err: " . print_r($resp["message"], true));
-			}
+			}*/
 
 			// Done
 			redirect("index.php?p=117&s=".$result);
