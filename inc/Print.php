@@ -1195,7 +1195,7 @@ class P {
 		}
 		$first = $page == 0;
 		$foka = isset($_GET["foka"]) ? $_GET["foka"] : 1;
-		$fokaFilter = $foka != 0 ? '' : 'AND rap_logs.userid != 999';
+		$fokaFilter = $foka != 0 ? '' : 'WHERE rap_logs.userid != 999';
 		$logs = $GLOBALS['db']->fetchAll('SELECT rap_logs.*, users.username
 			FROM rap_logs
 			LEFT JOIN users ON rap_logs.userid = users.id
