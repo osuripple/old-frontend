@@ -1210,6 +1210,7 @@ class D {
 			if (!isset($_POST["id"]) || empty($_POST["id"]) || !isset($_POST["m"]) || empty($_POST["m"]))
 				throw new Exception("Invalid user");
 			$months = giveDonor($_POST["id"], $_POST["m"], $_POST["type"] == 0);
+			$username = getUserUsername($_POST["id"]);
 			rapLog(sprintf("has given donor for %s months to user %s", $_POST["m"], $username), $_SESSION["userid"]);
 			redirect("index.php?p=102&s=Donor status changed. Donor for that user now expires in ".$months." months!");
 		}
