@@ -1188,30 +1188,21 @@ class P {
 	 * Prints the admin log page
 	*/
 	public static function AdminLog() {
-		// TODO: Ask stampa piede COME SI DICHIARANO LE COSTANTY IN PIACCAPPI??
-		$pageInterval = 50;
-
-		// Get data
-		$first = false;
-		if (isset($_GET["from"])) {
-			$from = $_GET["from"];
-			$first = current($GLOBALS["db"]->fetch("SELECT id FROM rap_logs ORDER BY datetime DESC LIMIT 1")) == $from;
+		if (isset($_GET["page"]) && is_numeric($_GET["page"]) && (int)$_GET["page"] > 0) {
+			$page = (int)$_GET["page"];
 		} else {
-			$from = current($GLOBALS["db"]->fetch("SELECT id FROM rap_logs ORDER BY datetime DESC LIMIT 1"));
-			$first = true;
+			$page = 0;
 		}
-		$to = $from-$pageInterval;
+		$first = $page == 0;
 		$foka = isset($_GET["foka"]) ? $_GET["foka"] : 1;
 		$fokaFilter = $foka != 0 ? '' : 'AND rap_logs.userid != 999';
 		$logs = $GLOBALS['db']->fetchAll('SELECT rap_logs.*, users.username
 			FROM rap_logs
 			LEFT JOIN users ON rap_logs.userid = users.id
-			WHERE rap_logs.id <= ?
-			AND rap_logs.id > ?
 			'.$fokaFilter.'
 			ORDER BY rap_logs.datetime
-			DESC',
-			[$from, $to]
+			DESC
+			LIMIT 50 OFFSET ' . (50 * $page)
 		);
 		// Print sidebar and template stuff
 		echo '<div id="wrapper">';
@@ -1231,7 +1222,7 @@ class P {
 		echo '<span class="centered"><h2><i class="fa fa-calendar"></i>	Admin Log</h2></span>';
 		if ($first) {
 			echo '<p align="center" class="mobile-flex">
-				<a href="index.php?p=116&from='.$from.'&foka='.(($foka+1)%2).'" type="button" class="btn btn-info">
+				<a href="index.php?p=116&page='.$page.'&foka='.(($foka+1)%2).'" type="button" class="btn btn-info">
 					'.($foka == 1 ? 'Hide' : 'Show').' FokaBot
 				</a>
 			</p>';
@@ -1254,11 +1245,11 @@ class P {
 		echo '</div>';
 		echo '<br><br><p align="center">';
 		if (!$first)
-			echo '<a href="index.php?p=116&from=' .($from+$pageInterval) . '&foka='.$foka.'">< Prev page</a>';
+			echo '<a href="index.php?p=116&page='.($page-1).'&foka='.$foka.'">< Prev page</a>';
 		if (!$first && $logs)
 			echo ' | ';
 		if ($logs)
-			echo '<a href="index.php?p=116&from=' . $to . '&foka='.$foka.'">Next page</a> ></p>';
+			echo '<a href="index.php?p=116&page='.($page+1).'&foka='.$foka.'">Next page</a> ></p>';
 		// Template end
 		echo '</div>';
 	}
