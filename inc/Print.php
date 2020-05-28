@@ -2988,6 +2988,35 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 
 			echo '<br>';
 
+			$chatlogHtml = '';
+			$reportedUsername = getUserUsername($report["to_uid"]);
+			$reportedUsernameLower = strtolower($reportedUsername);
+			$chatlog = explode("\n", $report["chatlog"]);
+			foreach ($chatlog as $line) {
+				$matches = [];
+				$class = "";
+				preg_match("/\d\d:\d\d:\d\d - (.+)@.+: .+/", $line, $matches);
+				if (count($matches) == 2 && strtolower($matches[1]) == $reportedUsernameLower) {
+					$class = "bad";
+				}
+				$chatlogHtml .= "<div class='$class'>".htmlspecialchars($line)."</div>";
+			}
+
+			if (hasPrivilege(Privileges::UserPublic, $report["to_uid"])) {
+				$statusIcon = "fa-check-circle";
+				$statusText = "Privileges ok";
+			} else {
+				$statusIcon = "fa-ban";
+				$statusText = "Banned/restricted";
+			}
+			if (isSilenced($report["to_uid"])) {
+				$silencedIcon = "fa-microphone-slash";
+				$silencedText = "Currently silenced";
+			} else {
+				$silencedIcon = "fa-microphone";
+				$silencedText = "Currently not silenced";
+			}
+
 			echo '
 			<div class="narrow-content">
 				<table class="table table-striped table-hover table-100-center"><tbody>
@@ -2997,7 +3026,10 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 					</tr>
 					<tr>
 						<td><b>Reported user</b></td>
-						<td><a href="index.php?u=' . $report["to_uid"] . '" target="_blank" class="badguy">' . getUserUsername($report["to_uid"]) . '</a>
+						<td><a href="index.php?u=' . $report["to_uid"] . '" target="_blank" class="badguy">' . $reportedUsername . '</a>
+						&nbsp;
+						<i data-toggle="popover" data-placement="bottom" data-content="'.$statusText.'" data-trigger="hover" class="fa '.$statusIcon.'"></i>
+						<i data-toggle="popover" data-placement="bottom" data-content="'.$silencedText.'" data-trigger="hover" class="fa '.$silencedIcon.'"></i>
 						<a href="index.php?p=103&id=' . $report["to_uid"] . '"><i title="View in RAP" class="fa fa-eye"></i></a>
 						</td>
 					</tr>
@@ -3010,8 +3042,8 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 						<td>' . timeDifference(time(), $report["time"]) . '</td>
 					</tr>
 					<tr>
-						<td><b>Chatlog*</b></td>
-						<td class="code">' . $report["chatlog"] .  '</td>
+						<td><b>Chatlog</b></td>
+						<td class="code">' . $chatlogHtml .  '</td>
 					</tr>
 					<tr class="' . $statusRowClass . '">
 						<td><b>Status</b></td>
@@ -3055,8 +3087,6 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 						<div class="btn btn-warning" data-toggle="modal" data-target="#silenceUserModal" data-who="' . getUserUsername($report["from_uid"]) . '"><i class="fa fa-microphone-slash"></i> Silence source user</div>
 					</li>
 				</ul>
-
-				<i><b>*</b> Latest 10 public messages sent from reported user before getting reported, trimmed to 50 characters.</i>
 
 			</div>';
 

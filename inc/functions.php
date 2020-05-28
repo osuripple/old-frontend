@@ -1775,8 +1775,7 @@ function hasPrivilege($privilege, $userID = -1) {
 			return false;
 		else
 			$userID = $_SESSION["userid"];
-	$result = getUserPrivileges($userID) & $privilege;
-	return $result > 0 ? true : false;
+	return (getUserPrivileges($userID) & $privilege) > 0;
 }
 
 function isRestricted($userID = -1) {
@@ -2130,4 +2129,9 @@ function api_error($e, $code=0) {
 		"status" => $code,
 		"message" => $e->getMessage()
 	];
+}
+
+function isSilenced($userID) {
+	$r = $GLOBALS["db"]->fetch("SELECT silence_end AS t FROM users WHERE id = ? LIMIT 1", [$userID]);
+	return $r["t"] >= time();
 }
