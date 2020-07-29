@@ -1,7 +1,7 @@
 <?php
 require_once '../inc/functions.php';
 
-// api_start();
+api_start();
 try {
     checkDiscordSecret();
     $i = json_decode(file_get_contents('php://input'));
