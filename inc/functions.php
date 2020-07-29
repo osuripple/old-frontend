@@ -2131,7 +2131,53 @@ function api_error($e, $code=0) {
 	];
 }
 
+function api_succ($data = []) {
+	http_response_code(200);
+	return array_merge([
+		"status" => 200,
+		"message" => "ok",
+	], $data);
+}
+
 function isSilenced($userID) {
 	$r = $GLOBALS["db"]->fetch("SELECT silence_end AS t FROM users WHERE id = ? LIMIT 1", [$userID]);
 	return $r["t"] >= time();
+}
+
+function checkDiscordSecret() {
+	global $discordConfig;
+	if (@$_GET["k"] !== $discordConfig["donor_bot_secret"]) {
+		throw new Exception("Access denied", 403);
+	}
+}
+
+class DiscordAlreadyUnlinkedException extends Exception {}
+
+function unlinkDiscord($uid) {
+	global $discordConfig;
+	$u = $GLOBALS["db"]->fetch(
+        "SELECT discordid, roleid FROM discord_roles WHERE userid = ?",
+        [$uid],
+    );
+    if (!$u) {
+        throw new DiscordAlreadyUnlinkedException();
+	}
+	$bot = new \RestCord\DiscordClient(
+        ["token" => $discordConfig["bot_token"]]
+    );
+	$bot->guild->removeGuildMemberRole([
+		"guild.id" => $discordConfig["guild_id"],
+		"user.id" => (int)$u["discordid"],
+		"role.id" => $discordConfig["donor_role_id"],
+	]);
+	if ((int)$u["roleid"] > 0) {
+		$bot->guild->removeGuildMemberRole([
+			"guild.id" => $discordConfig["guild_id"],
+			"user.id" => (int)$u["discordid"],
+			"role.id" => (int)$u["roleid"],
+		]);
+	}
+	$GLOBALS["db"]->execute(
+		"DELETE FROM discord_roles WHERE userid = ?", [$uid],
+	);
 }
