@@ -21,10 +21,14 @@ try {
         }
     }
     if (!empty($exceptions)) {
+        foreach ($exceptions as $e) {
+            Sentry\captureException($e);
+        }
         throw new Exception("Could not unlink some expired accounts.", 500);
     }
     $output = api_succ(["unlinked" => $c]);
 } catch (Exception $e) {
+    Sentry\captureException($e);
     $output = api_error($e);
 } finally {
     api_output($output);

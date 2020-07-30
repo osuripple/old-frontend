@@ -49,6 +49,14 @@ $pages = [
 ];
 // Set timezone to UTC
 date_default_timezone_set('Europe/Rome');
+
+// Sentry
+if (!empty($sentryDSN)) {
+	$GLOBALS["sentry"] = Sentry\init(["dsn" => $sentryDSN]);
+} else {
+	$GLOBALS["sentry"] = null;
+}
+
 // Connect to MySQL Database
 $GLOBALS['db'] = new DBPDO();
 // Birthday

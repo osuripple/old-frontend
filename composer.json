@@ -7,7 +7,8 @@
         "google/protobuf": "3.11.4",
         "league/oauth2-client": "2.2",
         "wohali/oauth2-discord-new": "1.0",
-        "restcord/restcord": "^0.4.0"
+        "restcord/restcord": "^0.4.0",
+        "sentry/sdk": "2.1.0"
     },
     "license": "MIT"
 }

@@ -86,6 +86,7 @@ try {
     );
     $output = api_succ();
 } catch (Exception $e) {
+    Sentry\captureException($e);
     $output = api_error($e);
 } finally {
     api_output($output);

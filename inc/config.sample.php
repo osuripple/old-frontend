@@ -126,3 +126,5 @@ $redisConfig = [
 	"host" => "redis",
 	"port" => 6379
 ];
+
+$sentryDSN = "";

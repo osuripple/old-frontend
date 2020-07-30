@@ -103,6 +103,7 @@ try {
         $output = oauth_flow_end();
     }
 } catch (Exception $e) {
+    Sentry\captureException($e);
     $output = api_error($e);
 } finally {
     api_output($output);
