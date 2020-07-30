@@ -2179,14 +2179,14 @@ function unlinkDiscord($uid) {
 			"user.id" => (int)$u["discordid"],
 			"role.id" => $discordConfig["donor_role_id"],
 		]);
-	} catch () {}
+	} catch (Exception $e) {}
 	if ((int)$u["roleid"] > 0) {
 		try {
 			$bot->guild->deleteGuildRole([
 				"guild.id" => $discordConfig["guild_id"],
 				"role.id" => (int)$u["roleid"],
 			]);
-		} catch () {}
+		} catch (Exception $e) {}
 	}
 	$GLOBALS["db"]->execute(
 		"DELETE FROM discord_roles WHERE userid = ?", [$uid],
