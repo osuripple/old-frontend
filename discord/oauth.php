@@ -55,7 +55,12 @@ function oauth_flow_end() {
     )) {
         throw new Exception("The account is already linked", 400);
     }
-    if (!hasPrivilege(Privileges::UserDonor, $uid)) {
+    if ($GLOBALS["db"]->fetch(
+        "SELECT 1 FROM users WHERE id = ? AND (
+            donor_expire <= UNIX_TIMESTAMP()
+            OR privileges & ".Privileges::UserDonor." = 0
+        )", [$uid]
+    )) {
         throw new Exception("This account is not a donor", 400);
     }
     $provider = discord_provider_factory();

@@ -21,7 +21,9 @@ try {
         "SELECT roleid, discordid
         FROM discord_roles
         JOIN users ON userid = users.id
-        WHERE userid = ? AND privileges & " .(Privileges::UserDonor) . " > 0",
+        WHERE userid = ?
+        AND privileges & " .(Privileges::UserDonor) . " > 0
+        AND donor_expire > UNIX_TIMESTAMP()",
         [$i->uid],
     );
     if (!$r) {
