@@ -4,9 +4,9 @@ require_once '../inc/functions.php';
 api_start();
 try {
     checkDiscordSecret();
-    $i = json_decode(file_get_contents('php://input'));
+    $i = json_decode(file_get_contents("php://input"));
     if (!$i->uid || !$i->name || !$i->colour) {
-        throw new Exception("Missing required arguments.", 400);
+        throw new Exception("Missing required arguments. " . $i, 400);
     }
     try {
         $strColour = ltrim(strtolower($i->colour), "#");
