@@ -2172,17 +2172,21 @@ function unlinkDiscord($uid) {
 	}
 	$bot = new \RestCord\DiscordClient(
         ["token" => $discordConfig["bot_token"]]
-    );
-	$bot->guild->removeGuildMemberRole([
-		"guild.id" => $discordConfig["guild_id"],
-		"user.id" => (int)$u["discordid"],
-		"role.id" => $discordConfig["donor_role_id"],
-	]);
-	if ((int)$u["roleid"] > 0) {
-		$bot->guild->deleteGuildRole([
+	);
+	try {
+		$bot->guild->removeGuildMemberRole([
 			"guild.id" => $discordConfig["guild_id"],
-			"role.id" => (int)$u["roleid"],
+			"user.id" => (int)$u["discordid"],
+			"role.id" => $discordConfig["donor_role_id"],
 		]);
+	} catch () {}
+	if ((int)$u["roleid"] > 0) {
+		try {
+			$bot->guild->deleteGuildRole([
+				"guild.id" => $discordConfig["guild_id"],
+				"role.id" => (int)$u["roleid"],
+			]);
+		} catch () {}
 	}
 	$GLOBALS["db"]->execute(
 		"DELETE FROM discord_roles WHERE userid = ?", [$uid],
