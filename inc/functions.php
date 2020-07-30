@@ -2171,9 +2171,8 @@ function unlinkDiscord($uid) {
 		"role.id" => $discordConfig["donor_role_id"],
 	]);
 	if ((int)$u["roleid"] > 0) {
-		$bot->guild->removeGuildMemberRole([
+		$bot->guild->deleteGuildRole([
 			"guild.id" => $discordConfig["guild_id"],
-			"user.id" => (int)$u["discordid"],
 			"role.id" => (int)$u["roleid"],
 		]);
 	}
